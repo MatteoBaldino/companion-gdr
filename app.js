@@ -927,6 +927,40 @@
     warlock: { n: "Warlock", dado: 8, ts: ["sag", "car"], sc: 2, ab: ["arcano", "inganno", "indagare", "intimidire", "natura", "religione", "storia"] },
     mago: { n: "Mago", dado: 6, ts: ["int", "sag"], sc: 2, ab: ["arcano", "indagare", "intuizione", "medicina", "natura", "religione", "storia"] }
   };
+  // ---------------------------------------------------------------- menu a tendina per specie, background e classe
+  // [MODIFICA QUI] Gli elenchi di specie e background: sono i nomi del manuale 2024 in italiano, scritti da me.
+  // Se nella tua campagna si chiamano in un altro modo, o ne usi di inventate, cambiali qui oppure usa «Altro…» nel menu.
+  var SPECIE = ["Aasimar", "Dragonide", "Elfo", "Gnomo", "Goliath", "Halfling", "Nano", "Orco", "Tiefling", "Umano"];
+  var BACKGROUND = ["Accolito", "Artigiano", "Ciarlatano", "Contadino", "Criminale", "Eremita", "Guardia", "Guida", "Intrattenitore",
+    "Marinaio", "Mercante", "Nobile", "Sapiente", "Scriba", "Soldato", "Viandante"];
+  var NOMI_CLASSI = Object.keys(CLASSI).map(function (k) { return CLASSI[k].n; }).sort(function (a, b) { return a.localeCompare(b, "it"); });
+  var ALTRO = "__altro__";
+  // Menu a tendina con la voce «Altro…»: scegliendola compare un campo dove scrivere. Un valore già salvato che non è
+  // in elenco (per esempio una classe inventata) riapre il menu su «Altro…» con il testo al suo posto.
+  function campoOpz(name, label, lista, val) {
+    var v = val == null ? "" : String(val).trim();
+    var trovato = lista.filter(function (o) { return o.toLowerCase() === v.toLowerCase(); })[0];
+    var altro = v !== "" && !trovato;
+    return '<label class="f"><span>' + esc(label) + '</span><select name="' + name + '" data-altro="1">' +
+      '<option value="">— scegli —</option>' +
+      lista.map(function (o) { return '<option value="' + esc(o) + '"' + (o === trovato ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") +
+      '<option value="' + ALTRO + '"' + (altro ? " selected" : "") + ">Altro…</option></select>" +
+      '<input type="text" name="' + name + '_altro" value="' + esc(altro ? v : "") + '" placeholder="Scrivi qui" aria-label="' + esc(label) + ' (altro)"' + (altro ? "" : " hidden") + "></label>";
+  }
+  // Valore scelto in un modulo già aperto (se è «Altro…» vale il testo scritto).
+  function valOpz(f, name) {
+    var sl = f.elements[name];
+    if (!sl) return "";
+    return sl.value === ALTRO ? String((f.elements[name + "_altro"] || {}).value || "").trim() : sl.value;
+  }
+  // Scegliendo «Altro…» compare il campo di testo; scegliendo altro sparisce.
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (!t || !t.getAttribute || !t.getAttribute("data-altro") || !t.form) return;
+    var inp = t.form.elements[t.name + "_altro"];
+    if (inp) { inp.hidden = t.value !== ALTRO; if (t.value === ALTRO) inp.focus(); }
+  });
+
   var mod = function (v) { return Math.floor((v - 10) / 2); };
   var sgn = function (n) { return (n >= 0 ? "+" : "−") + Math.abs(n); };
   var bonusComp = function (liv) { return 2 + Math.floor((liv - 1) / 4); };
@@ -1093,6 +1127,8 @@
   function leggi(fd) {
     return {
       g: function (k) { return (fd.get(k) == null ? "" : String(fd.get(k))).trim(); },
+      // menu a tendina con «Altro…»: vale la voce scelta, oppure il testo scritto
+      o: function (k) { var v = (fd.get(k) == null ? "" : String(fd.get(k))).trim(); return v === ALTRO ? (fd.get(k + "_altro") == null ? "" : String(fd.get(k + "_altro"))).trim() : v; },
       n: function (k) { var s = (fd.get(k) == null ? "" : String(fd.get(k))).trim().replace(",", "."); return s === "" ? null : Number(s); },
       b: function (k) { return fd.get(k) === "on"; }
     };
@@ -1109,9 +1145,9 @@
     var d = s || { livello: 1, forza: 10, destrezza: 10, costituzione: 10, intelligenza: 10, saggezza: 10, carisma: 10, pf_max: semp ? 4 : 10, pf_attuali: semp ? 4 : 10, pf_temp: 0, ca_manuale: semp ? 10 : null, ca_bonus: 0, velocita: 9, competenze_ts: [], abilita: {}, azioni: [] };
     var corpo = "";
     if (!semp) {
-      corpo += fld("specie", "Specie", d.specie) + fld("background", "Background", d.background) +
-        '<div class="cols">' + fld("classe", "Classe", d.classe, 'list="listaclassi"') + fld("sottoclasse", "Sottoclasse", d.sottoclasse) +
-        fld("livello", "Livello", d.livello, 'min="1" max="20" required', "number") + "</div>" + datalistClassi();
+      corpo += '<div class="cols">' + campoOpz("specie", "Specie", SPECIE, d.specie) + campoOpz("background", "Background", BACKGROUND, d.background) + "</div>" +
+        '<div class="cols">' + campoOpz("classe", "Classe", NOMI_CLASSI, d.classe) + fld("sottoclasse", "Sottoclasse", d.sottoclasse) +
+        fld("livello", "Livello", d.livello, 'min="1" max="20" required', "number") + "</div>";
     } else {
       corpo += fld("sfida", "Grado di sfida (es. 1/4)", d.sfida);
     }
@@ -1137,7 +1173,7 @@
     modal((nuova ? "Nuova scheda: " : "Modifica scheda: ") + nomeHolder(key), corpo, function (fd) {
       var x = leggi(fd), t = parteDa(key);
       var p = { campagna_id: campId(), id: s ? s.id : null, giocatore_id: t.g, png_id: t.p, tipo: semp ? "semplificata" : "completa",
-        specie: semp ? "" : x.g("specie"), background: semp ? "" : x.g("background"), classe: semp ? "" : x.g("classe"), sottoclasse: semp ? "" : x.g("sottoclasse"),
+        specie: semp ? "" : x.o("specie"), background: semp ? "" : x.o("background"), classe: semp ? "" : x.o("classe"), sottoclasse: semp ? "" : x.g("sottoclasse"),
         livello: semp ? 1 : (x.n("livello") || 1), pf_max: x.n("pf_max") || 0, pf_attuali: x.n("pf_attuali") || 0, pf_temp: x.n("pf_temp") || 0,
         ca_manuale: x.n("ca_manuale"), ca_bonus: x.n("ca_bonus") || 0, velocita: distM(x.n("velocita")), note: x.g("note"),
         competenze_ts: [], abilita: {}, ispirazione: false, sfida: semp ? x.g("sfida") : "", tratti: semp ? x.g("tratti") : "", azioni: [] };
@@ -1158,9 +1194,6 @@
         if (nuova) apriDopo(key);
       });
     });
-  }
-  function datalistClassi() {
-    return '<datalist id="listaclassi">' + Object.keys(CLASSI).map(function (k) { return '<option value="' + CLASSI[k].n + '">'; }).join("") + "</datalist>";
   }
 
   // ---------------------------------------------------------------- creazione guidata
@@ -1188,7 +1221,7 @@
     var f = $("#wzForm");
     if (!f || !WZ) return;
     var x = leggi(new FormData(f));
-    if (WZ.step === 1) { WZ.specie = x.g("specie"); WZ.background = x.g("background"); WZ.classe = x.g("classe"); WZ.livello = Math.min(20, Math.max(1, x.n("livello") || 1)); }
+    if (WZ.step === 1) { WZ.specie = x.o("specie"); WZ.background = x.o("background"); WZ.classe = x.o("classe"); WZ.livello = Math.min(20, Math.max(1, x.n("livello") || 1)); }
     if (WZ.step === 2) {
       ABIL.forEach(function (a) { WZ.base[a[0]] = x.n("b_" + a[0]) || 0; WZ.bonus[a[0]] = x.n("bn_" + a[0]) || 0; });
       WZ.metodo = x.g("metodo") || WZ.metodo;
@@ -1226,8 +1259,9 @@
   function wzDisegna() {
     var info = classeInfo(WZ.classe), h = '<form id="wzForm" class="dlgform" data-form="wz"><h2>Nuovo personaggio: ' + esc(nomeHolder(WZ.key)) + '</h2><p class="hint">Passo ' + WZ.step + " di 4</p>";
     if (WZ.step === 1) {
-      h += fld("specie", "Specie", WZ.specie) + fld("background", "Background", WZ.background) +
-        '<div class="cols">' + fld("classe", "Classe", WZ.classe, 'list="listaclassi"') + fld("livello", "Livello", WZ.livello, 'min="1" max="20" required', "number") + "</div>" + datalistClassi() +
+      h += '<div class="cols">' + campoOpz("specie", "Specie", SPECIE, WZ.specie) + campoOpz("background", "Background", BACKGROUND, WZ.background) + "</div>" +
+        '<div class="cols">' + campoOpz("classe", "Classe", NOMI_CLASSI, WZ.classe) + fld("livello", "Livello", WZ.livello, 'min="1" max="20" required', "number") + "</div>" +
+        '<p class="hint">Non trovi la specie, il background o la classe? Scegli «Altro…» e scrivila.</p>' +
         '<p class="hint">Se la classe è una delle dodici del manuale base, i passi successivi propongono tiri salvezza, abilità e punti ferita. Altrimenti compili tu.</p>' +
         '<p><button type="button" class="link" data-act="wiz-manuale">Preferisco compilare tutto a mano</button></p>' + wzBarra(false, "Avanti");
     } else if (WZ.step === 2) {
@@ -1816,7 +1850,7 @@
     },
     "suggerisci-slot": function () {
       var f = $("#dlgForm"); if (!f) return;
-      var info = classeInfo(f.elements.classe.value), lv = Math.min(20, Math.max(1, Number(f.elements.livello.value) || 1));
+      var info = classeInfo(valOpz(f, "classe")), lv = Math.min(20, Math.max(1, Number(f.elements.livello.value) || 1));
       if (!info) { toast("Classe non riconosciuta: scrivi una delle dodici classi del manuale base.", true); return; }
       var sl = slotSuggeriti(info, lv);
       sl.tot.forEach(function (n, k) { f.elements["slot_" + (k + 1)].value = n; });
