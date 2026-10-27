@@ -117,10 +117,22 @@
   var S = {
     user: null, me: null, tab: null,
     ogg: [], oggOk: false, serv: [], pngAll: [], gioc: [], png: [], inv: [], notif: [], trasf: [], sch: [], inc: [], si: [], incOk: false, schedaAperta: null,
-    filtro: { cat: "", q: "", tip: "", n: 100, qs: "" }, nuove: {}, timer: null
+    filtro: { cat: "", q: "", tip: "", n: 100, qs: "" }, nuove: {}, timer: null,
+    auto: true, ripristino: null        // auto: al caricamento della pagina si rientra nell'ultima campagna
   };
   var isMaster = function () { return !!S.me && S.me.ruolo === "master"; };
   var campId = function () { return S.me.campagna_id; };
+
+  // ---------------------------------------------------------------- ricordare dove eri
+  // Ricaricando la pagina (F5, Aggiorna) si ritrova la stessa campagna, la stessa sezione e la stessa scheda aperta,
+  // invece di tornare all'elenco delle campagne. Si salva nel browser, solo su questo dispositivo.
+  var ULTIMA = "gdr_ultima";
+  function leggiUltima() { try { return JSON.parse(localStorage.getItem(ULTIMA) || "null"); } catch (e) { return null; } }
+  function salvaUltima() {
+    if (!S.me || !S.user) return;
+    try { localStorage.setItem(ULTIMA, JSON.stringify({ utente: S.user.id, mem: S.me.id, tab: S.tab, scheda: S.schedaAperta || null })); } catch (e) {}
+  }
+  function scordaUltima() { try { localStorage.removeItem(ULTIMA); } catch (e) {} }
 
   // ---------------------------------------------------------------- avvio
   function boot() {
@@ -165,6 +177,13 @@
       .then(function (r) {
         if (r.error) { toast(errText(r.error), true); return; }
         var mems = r.data || [];
+        // [REGOLA] Solo al caricamento della pagina: se hai premuto «Cambia campagna» l'elenco si mostra sempre.
+        var tentaAuto = S.auto; S.auto = false;
+        var ult = leggiUltima();
+        if (tentaAuto && ult && ult.utente === S.user.id) {
+          var m0 = mems.filter(function (m) { return m.id === ult.mem; })[0];
+          if (m0) { S.mems = mems; S.me = m0; S.ripristino = ult; route(); return; }
+        }
         var lista = mems.length
           ? '<ul class="camp-list">' + mems.map(function (m) {
               var c = one(m.campagne) || {};
@@ -200,6 +219,11 @@
       '<nav class="tabs" id="tabs" aria-label="Sezioni"></nav></header>' +
       '<main class="wrap" id="main"><p class="boot">Caricamento…</p></main>';
     S.tab = isMaster() ? "libreria" : "scheda";
+    var rp = S.ripristino; S.ripristino = null;
+    if (rp && rp.mem === S.me.id && tabsDef().some(function (t) { return t[0] === rp.tab; })) {
+      S.tab = rp.tab;
+      if (isMaster() && rp.tab === "schede" && rp.scheda) S.schedaAperta = rp.scheda;
+    }
     S.oggOk = false;                       // cambiando campagna gli oggetti si rileggono da capo
     caricaDati().then(function () {
       disegnaTab();
@@ -278,6 +302,7 @@
   function disegnaTab() {
     var main = $("#main");
     if (!main) return;
+    salvaUltima();
     if (S.tab === "notifiche") segnaLette();
     $("#tabs").innerHTML = tabsDef().map(function (t) {
       return '<button data-act="tab" data-tab="' + t[0] + '" aria-current="' + (S.tab === t[0]) + '">' + t[1] + "</button>";
@@ -726,7 +751,7 @@
   // ---------------------------------------------------------------- azioni
   var ACT = {
     "auth-mode": function (b) { viewAuth(b.dataset.mode); },
-    esci: function () { clearInterval(S.timer); sb.auth.signOut(); },
+    esci: function () { clearInterval(S.timer); scordaUltima(); sb.auth.signOut(); },
     cambia: function () { clearInterval(S.timer); S.me = null; route(); },
     entra: function (b) {
       var m = (S.mems || []).filter(function (x) { return String(x.id) === b.dataset.id; })[0];
