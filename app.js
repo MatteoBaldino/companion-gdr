@@ -116,7 +116,7 @@
   // ---------------------------------------------------------------- stato
   var S = {
     user: null, me: null, tab: null,
-    ogg: [], oggOk: false, serv: [], gioc: [], png: [], inv: [], notif: [], trasf: [], sch: [], inc: [], si: [], incOk: false, schedaAperta: null,
+    ogg: [], oggOk: false, serv: [], pngAll: [], gioc: [], png: [], inv: [], notif: [], trasf: [], sch: [], inc: [], si: [], incOk: false, schedaAperta: null,
     filtro: { cat: "", q: "", tip: "", n: 100, qs: "" }, nuove: {}, timer: null
   };
   var isMaster = function () { return !!S.me && S.me.ruolo === "master"; };
@@ -261,7 +261,7 @@
       S.inc = S.incOk ? (ie.data || []) : [];
       S.si = S.incOk ? (se.data || []) : [];
       if (isMaster()) {
-        S.ogg = rs[0].data; S.oggOk = true; S.gioc = rs[1].data; S.png = rs[2].data; S.inv = rs[3].data; S.trasf = rs[4].data; S.sch = rs[5].data || [];
+        S.ogg = rs[0].data; S.oggOk = true; S.gioc = rs[1].data; S.pngAll = rs[2].data || []; S.png = S.pngAll.filter(function (p) { return !p.archiviato; }); S.inv = rs[3].data; S.trasf = rs[4].data; S.sch = rs[5].data || [];
       } else {
         S.gioc = rs[0].data; S.inv = rs[1].data; S.notif = rs[2].data; S.sch = rs[3].data || [];
       }
@@ -442,8 +442,8 @@
 
   // ---------------------------------------------------------------- personaggi (master)
   function holders() {
-    var g = S.gioc.filter(function (x) { return x.ruolo === "giocatore"; }).map(function (x) { return { key: "g:" + x.id, nome: x.nome, tipo: "Giocatore" }; });
-    var p = S.png.map(function (x) { return { key: "p:" + x.id, nome: x.nome, tipo: "PNG" }; });
+    var g = S.gioc.filter(function (x) { return x.ruolo === "giocatore"; }).map(function (x) { return { key: "g:" + x.id, nome: x.nome, tipo: "PG" }; });
+    var p = S.png.map(function (x) { return { key: "p:" + x.id, nome: x.nome, tipo: "NPC" }; });
     return g.concat(p);
   }
   function invDi(key) {
@@ -459,7 +459,8 @@
     }
     out += hs.map(function (h) {
       var inv = invDi(h.key);
-      return '<section class="holder"><header><h2>' + esc(h.nome) + '</h2><span class="tag">' + h.tipo + '</span><button class="small" style="margin-left:auto" data-act="vai-scheda" data-key="' + h.key + '">Scheda</button></header>' +
+      return '<section class="holder"><header><h2>' + esc(h.nome) + '</h2><span class="tag">' + h.tipo + '</span><button class="small" style="margin-left:auto" data-act="vai-scheda" data-key="' + h.key + '">Scheda</button>' +
+        (h.tipo === "NPC" ? '<button class="small danger" data-act="elimina-png" data-key="' + h.key + '">Elimina</button>' : "") + "</header>" +
         (inv.length ? inv.map(function (i) {
           return rigaOggetto(i.oggetti, {
             qta: i.quantita, equip: i.equipaggiato, compact: true,
@@ -468,14 +469,14 @@
           });
         }).join("") : '<p class="muted" style="margin-top:.6rem">Inventario vuoto. Assegna un oggetto dalla libreria.</p>') + "</section>";
     }).join("");
-    out += '<form data-form="png" class="row" style="align-items:end;margin-top:1rem"><label class="f" style="margin:0;flex:1 1 220px"><span>Nuovo PNG (mercante, locandiere, forziere…)</span><input name="nome" type="text" required></label><button class="primary" type="submit">Aggiungi PNG</button></form>';
+    out += '<form data-form="png" class="row" style="align-items:end;margin-top:1rem"><label class="f" style="margin:0;flex:1 1 220px"><span>Nuovo NPC (mercante, locandiere, forziere…)</span><input name="nome" type="text" required></label><button class="primary" type="submit">Aggiungi NPC</button></form>';
     return out;
   }
 
   // ---------------------------------------------------------------- storico (master)
   function nomeParte(g, p) {
     if (g) { var x = S.gioc.filter(function (z) { return z.id === g; })[0]; return x ? x.nome : "giocatore"; }
-    if (p) { var y = S.png.filter(function (z) { return z.id === p; })[0]; return y ? y.nome : "PNG"; }
+    if (p) { var y = S.pngAll.filter(function (z) { return z.id === p; })[0]; return y ? y.nome : "NPC"; }
     return "nessuno";
   }
   function htmlStorico() {
@@ -708,8 +709,8 @@
   function optsDest(escludi) {
     var gs = S.gioc.filter(function (g) { return g.ruolo === "giocatore" && "g:" + g.id !== escludi; });
     var ps = S.png.filter(function (p) { return "p:" + p.id !== escludi; });
-    return (gs.length ? '<optgroup label="Giocatori">' + gs.map(function (g) { return '<option value="g:' + g.id + '">' + esc(g.nome) + "</option>"; }).join("") + "</optgroup>" : "") +
-      (ps.length ? '<optgroup label="PNG">' + ps.map(function (p) { return '<option value="p:' + p.id + '">' + esc(p.nome) + "</option>"; }).join("") + "</optgroup>" : "");
+    return (gs.length ? '<optgroup label="PG">' + gs.map(function (g) { return '<option value="g:' + g.id + '">' + esc(g.nome) + "</option>"; }).join("") + "</optgroup>" : "") +
+      (ps.length ? '<optgroup label="NPC">' + ps.map(function (p) { return '<option value="p:' + p.id + '">' + esc(p.nome) + "</option>"; }).join("") + "</optgroup>" : "");
   }
   function parteDa(key) {
     var t = key.split(":"), id = Number(t[1]);
@@ -740,6 +741,24 @@
     tab: function (b) { S.tab = b.dataset.tab; if (S.tab === "schede") S.schedaAperta = null; disegnaTab(); },
 
     nuovo: function () { editor(null); },
+    // Elimina un NPC (solo master). Se è già nello storico il database lo archivia invece di cancellarlo.
+    "elimina-png": function (b) {
+      var id = Number(b.dataset.key.split(":")[1]);
+      var p = S.png.filter(function (x) { return x.id === id; })[0];
+      if (!p) return;
+      var n = invDi(b.dataset.key).length;
+      modal("Eliminare “" + p.nome + "”?",
+        "<p>Spariscono la sua scheda" + (n ? " e il suo inventario (" + n + (n === 1 ? " oggetto" : " oggetti") + ": restano nella libreria e li puoi riassegnare)" : "") + ".</p>" +
+        '<p class="hint">Se l’NPC è già comparso nello storico non viene cancellato ma archiviato: sparisce dalle liste e lo storico resta intatto.</p>',
+        function () {
+          return run(function () { return call("elimina_png", { p_id: id }); }).then(function (r) {
+            if (!r) return false;
+            toast(r.v === "archiviato" ? "NPC archiviato" : "NPC eliminato");
+            S.schedaAperta = null;
+            return caricaDati().then(disegnaTab);
+          });
+        }, "Elimina");
+    },
     altri: function () { S.filtro.n += 100; $("#lista").innerHTML = htmlListaLibreria(); },
     modifica: function (b) { var o = oggPerId(b.dataset.ogg); if (o) editor(o); },
     esempi: function () {
@@ -764,7 +783,7 @@
     assegna: function (b) {
       var o = oggPerId(b.dataset.ogg); if (!o) return;
       var opts = optsDest("");
-      if (!opts) { toast("Non c’è nessun destinatario: invita un giocatore o crea un PNG.", true); return; }
+      if (!opts) { toast("Non c’è nessun destinatario: invita un giocatore o crea un NPC.", true); return; }
       modal("Assegna “" + o.nome + "”",
         '<label class="f"><span>A chi</span><select name="dest">' + opts + "</select></label>" + campoQta(999, o.impilabile),
         function (fd) {
@@ -847,7 +866,7 @@
       var nome = f.elements.nome.value.trim();
       run(function () {
         return sb.from("png").insert({ campagna_id: campId(), nome: nome }).then(function (r) { if (r.error) throw r.error; });
-      }, "PNG aggiunto").then(function (r) { if (r) caricaDati().then(disegnaTab); });
+      }, "NPC aggiunto").then(function (r) { if (r) caricaDati().then(disegnaTab); });
     }
   };
 
@@ -960,8 +979,8 @@
   function htmlSchede() {
     if (S.schedaAperta) return htmlScheda(S.schedaAperta, true);
     var hs = holders();
-    if (!hs.length) return '<div class="empty">Non ci sono ancora giocatori né PNG. Dalla scheda Personaggi puoi aggiungere un PNG.</div>';
-    return '<p class="hint">Ogni giocatore ha una scheda completa. Per i PNG scegli tu: semplificata (CA, PF, azioni) o completa.</p>' +
+    if (!hs.length) return '<div class="empty">Non ci sono ancora PG né NPC. Dalla scheda Personaggi puoi aggiungere un NPC.</div>';
+    return '<p class="hint">Ogni PG ha una scheda completa. Per gli NPC scegli tu: semplificata (CA, PF, azioni) o completa.</p>' +
       hs.map(function (h) {
         var s = schedaDi(h.key);
         return '<div class="mov"><div><strong>' + esc(h.nome) + '</strong> <span class="tag">' + h.tipo + '</span><br><span class="hint">' +
@@ -1275,7 +1294,7 @@
     "crea-scheda": function (b) {
       var key = b.dataset.key;
       if (key.charAt(0) === "g") { wizard(key); return; }
-      modal("Scheda per " + nomeHolder(key), '<p>Come vuoi descrivere questo PNG?</p>' +
+      modal("Scheda per " + nomeHolder(key), '<p>Come vuoi descrivere questo NPC?</p>' +
         sel("tipo", "Tipo di scheda", [["semplificata", "Semplificata: CA, PF, azioni (come un mostro)"], ["completa", "Completa: caratteristiche, tiri salvezza e abilità"]], "semplificata"),
         function (fd) {
           var t = fd.get("tipo");
