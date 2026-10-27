@@ -230,3 +230,7 @@ details.avvisi summary { cursor: pointer; }
 .barra { height: 10px; background: var(--line); border-radius: 99px; overflow: hidden; margin: .8rem 0 .4rem; }
 .barra[hidden] { display: none; }
 .barra > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+
+/* Collegamento «Battle map» nella testata scura */
+.top a.btn { background: transparent; color: inherit; border-color: rgba(255,255,255,.3); min-height: 34px; font-size: .92rem; }
+.top a.btn:hover { border-color: var(--accent); }

@@ -17,7 +17,8 @@ function viewApp() {
     (isMaster() ? "Master" : esc(S.me.nome)) + "</div></div>" +
     '<div class="tools">' +
     (isMaster() ? '<span>Codice invito <code>' + esc(c.codice_invito) + "</code></span>" : "") +
-    '<button id="btnUnita" data-act="unita">' + labelUnita() + '</button><button data-act="cambia">Cambia campagna</button><button data-act="esci">Esci</button></div></div>' +
+    '<a class="btn" href="battle.html">Battle map</a>' +
+      '<button id="btnUnita" data-act="unita">' + labelUnita() + '</button><button data-act="cambia">Cambia campagna</button><button data-act="esci">Esci</button></div></div>' +
     '<nav class="tabs" id="tabs" aria-label="Sezioni"></nav></header>' +
     '<main class="wrap" id="main"><p class="boot">Caricamento…</p></main>';
   S.tab = isMaster() ? "libreria" : "scheda";

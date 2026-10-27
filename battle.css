@@ -1,0 +1,61 @@
+/* =====================================================================
+   battle.css
+   Stile della pagina Battle map: mappa, segnalini, barra, iniziativa.
+   Usa i colori di style.css (--accent, --panel, --line…).
+   ===================================================================== */
+.battle { max-width: 1400px; margin: 0 auto; padding: 1rem; display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 1rem; align-items: start; }
+@media (max-width: 900px) { .battle { grid-template-columns: 1fr; } }
+.bcol { min-width: 0; }
+
+/* Barra degli strumenti */
+.bar { display: flex; flex-wrap: wrap; gap: .4rem .5rem; align-items: center; margin-bottom: .55rem; }
+.bar select { width: auto; min-height: 40px; }
+.tab[aria-current="true"], button.tg[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.badge { font-size: .72rem; margin-left: .4rem; padding: 0 .45rem; border-radius: 99px; background: var(--accent); color: var(--accent-ink); }
+.tab[aria-current="true"] .badge { background: var(--accent-ink); color: var(--accent); }
+.badge.grigio { background: var(--muted); color: var(--paper); }
+label.btn.file { display: inline-flex; align-items: center; min-height: 40px; padding: .45rem .9rem; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); cursor: pointer; }
+label.btn.file.spento { opacity: .5; cursor: default; }
+label.btn.file:hover { border-color: var(--accent); }
+.sl { display: inline-flex; gap: .4rem; align-items: center; font-size: .9rem; color: var(--muted); }
+.sl input { width: 110px; }
+
+/* La mappa e i segnalini */
+.scena { position: relative; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; touch-action: none; user-select: none; }
+.scena > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.scena > img[hidden], .vuoto[hidden] { display: none; }
+#strato { position: absolute; inset: 0; }
+.vuoto { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 1rem; color: var(--muted); }
+.tk { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 3px solid; background: var(--panel); box-shadow: 0 1px 4px rgba(0, 0, 0, .55); cursor: pointer; user-select: none; }
+.tk.mobile { cursor: grab; }
+.tk.pg { border-color: var(--c-armatura); color: var(--c-armatura); }
+.tk.npc { border-color: var(--c-arma); color: var(--c-arma); }
+.tk.nasc { opacity: .55; border-style: dashed; }               /* nascosto: lo vede solo il master */
+.tk.sel { outline: 3px solid var(--accent); outline-offset: 2px; }
+.tk.turno { box-shadow: 0 0 0 4px var(--brass), 0 0 14px 4px var(--brass); }
+.tk .ini { font-size: clamp(.7rem, 1.4vw, 1.05rem); pointer-events: none; }
+.tk .nm { position: absolute; top: calc(100% + 7px); left: 50%; transform: translateX(-50%); font-size: .72rem; font-weight: 400; white-space: nowrap; background: rgba(15, 15, 15, .8); color: #fff; padding: 0 .35rem; border-radius: 3px; pointer-events: none; }
+.tk .pf { position: absolute; left: 6%; right: 6%; bottom: -7px; height: 5px; background: rgba(0, 0, 0, .6); border-radius: 3px; overflow: hidden; pointer-events: none; }
+.tk .pf i { display: block; height: 100%; background: #3fa66a; }
+.tk .pf.medio i { background: #d6a52f; }
+.tk .pf.basso i { background: #d9534f; }
+.tk .pfn { position: absolute; left: calc(100% + 4px); bottom: -10px; font-size: .66rem; font-weight: 400; background: rgba(15, 15, 15, .8); color: #fff; padding: 0 .3rem; border-radius: 3px; white-space: nowrap; pointer-events: none; }
+
+/* Righello */
+.linea { position: absolute; inset: 0; pointer-events: none; }
+.linea svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.linea line { stroke: #fff; stroke-width: 3px; stroke-dasharray: 8 5; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 2px #000); }
+.etichetta { position: absolute; transform: translate(-50%, -140%); background: rgba(20, 20, 20, .88); color: #fff; padding: .1rem .5rem; border-radius: 4px; font-size: .85rem; white-space: nowrap; }
+
+/* Iniziativa */
+.iniz { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .8rem; }
+.iniz h2 { font-size: 1.25rem; margin-bottom: .3rem; }
+.iniz h3 { font-size: .95rem; color: var(--muted); margin: .8rem 0 .3rem; }
+.round { color: var(--muted); margin: 0 0 .5rem; }
+.elenco { list-style: none; margin: 0 0 .6rem; padding: 0; }
+.riga { display: flex; align-items: center; gap: .5rem; padding: .3rem .4rem; border-radius: 6px; border: 1px solid transparent; }
+.riga.turno { background: color-mix(in srgb, var(--brass) 16%, transparent); border-color: var(--brass); font-weight: 600; }
+.riga.nasc { opacity: .65; font-style: italic; }
+.riga .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.riga .pfm { color: var(--muted); font-size: .85rem; }
+.ini-in { width: 4.2rem; min-height: 34px; padding: .2rem .4rem; }

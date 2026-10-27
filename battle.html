@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Battle map · Companion GDR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="battle.css?v=1">
+</head>
+<body>
+  <!-- Battle map: mappe, segnalini, PF e iniziativa. Usa il login già fatto nel sito principale. -->
+  <div id="app"><p class="boot">Caricamento…</p></div>
+  <dialog id="dlg"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <!-- L'ORDINE DI QUESTI FILE CONTA: ognuno usa le funzioni dei file che stanno sopra.
+       Quando modifichi un file cambia il numero ?v= così il browser lo riscarica. -->
+  <!-- parti in comune con il sito principale -->
+  <script src="js/comune/base.js?v=5"></script>
+  <script src="js/comune/messaggi.js?v=5"></script>
+  <script src="js/comune/finestre.js?v=5"></script>
+  <!-- battle -->
+  <script src="js/battle/stato.js?v=1"></script>
+  <script src="js/battle/realtime.js?v=1"></script>
+  <script src="js/battle/immagini.js?v=1"></script>
+  <script src="js/battle/mappa.js?v=1"></script>
+  <script src="js/battle/trascina.js?v=1"></script>
+  <script src="js/battle/righello.js?v=1"></script>
+  <script src="js/battle/barra.js?v=1"></script>
+  <script src="js/battle/segnalino.js?v=1"></script>
+  <script src="js/battle/iniziativa.js?v=1"></script>
+  <script src="js/battle/avvio.js?v=1"></script>
+</body>
+</html>
