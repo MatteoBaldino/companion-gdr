@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Importa listini · Companion GDR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+  <!-- Pagina del master per importare i listini Excel (armi, armature, cibi, oggetti, servizi).
+       Usa il login già fatto nel sito principale: non serve accedere di nuovo.
+       I file Excel vengono letti nel tuo browser e non vanno a nessun altro server. -->
+  <div id="app"><p class="boot">Caricamento…</p></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="config.js"></script>
+  <script src="js/import/listino.js?v=1"></script>
+  <script src="js/import/pagina.js?v=1"></script>
+</body>
+</html>
