@@ -96,6 +96,18 @@ var ACT_SCHEDE = {
     rapido(s.id, null, Math.max(0, Math.floor(Number($("#pft").value) || 0)), null);
   },
   ispirazione: function (b) { var s = schedaPerId(b.dataset.id); if (s) rapido(s.id, null, null, !s.ispirazione); },
+  // Movimento: toglie o ridà la distanza scritta nel campo (nell'unità che usi: metri o piedi).
+  mov: function (b) {
+    var s = schedaPerId(b.dataset.id); if (!s) return;
+    var el = $("#mv_" + s.id), v = parseFloat(String(el ? el.value : "").replace(",", "."));
+    if (isNaN(v) || v <= 0) { toast("Scrivi quanta distanza vuoi togliere o ridare.", true); return; }
+    var d = distM(v), t = copia(s.turno || {}), tot = Number(s.velocita) || 0, usati = Math.min(tot, Number(t.mov) || 0);
+    if (b.dataset.d === "-") {
+      if (d > tot - usati + 0.001) { toast("Non puoi muoverti di " + fmtVel(d) + ": ne restano " + fmtVel(tot - usati) + ".", true); return; }
+      t.mov = Math.round((usati + d) * 100) / 100;
+    } else t.mov = Math.max(0, Math.round((usati - d) * 100) / 100);
+    gioco(s, { turno: t });
+  },
   "monete-spendi": function (b) { cambiaMonete(b.dataset.id, "spendi"); },
   "monete-incassa": function (b) { cambiaMonete(b.dataset.id, "incassa"); },
   "monete-imposta": function (b) { cambiaMonete(b.dataset.id, "imposta"); }

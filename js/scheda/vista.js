@@ -35,8 +35,8 @@ function htmlScheda(key, indietro) {
   var bc = bonusComp(s.livello);
   var sub = semp ? (s.sfida ? "Grado di sfida " + s.sfida : "NPC")
     : [s.specie, s.background, [s.classe, s.sottoclasse].filter(Boolean).join(" "), "livello " + s.livello].filter(Boolean).join(", ");
-  var tile = function (lbl, val, small) {
-    return '<div class="vit"><span class="lbl">' + lbl + "</span><strong>" + val + "</strong>" + (small ? "<small>" + esc(small) + "</small>" : "") + "</div>";
+  var tile = function (lbl, val, small, attr) {
+    return '<div class="vit"' + (attr || "") + '><span class="lbl">' + lbl + "</span><strong>" + val + "</strong>" + (small ? "<small>" + esc(small) + "</small>" : "") + "</div>";
   };
   var h = back + '<section class="scheda"><header class="sh-head"><h2>' + esc(nome) + '</h2><p class="hint">' + esc(sub) + "</p></header>";
   // Schede complete: prima le caratteristiche, poi CA/PF e il resto (come nel disegno della scheda). Gli NPC semplificati restano come prima.
@@ -46,7 +46,7 @@ function htmlScheda(key, indietro) {
     tile("Velocità", esc(fmtVel(s.velocita)));
   if (!semp) {
     var pas = 10 + totaleAbilita(s, "percezione");
-    h += tile("Iniziativa", sgn(mod(s.destrezza))) + tile("Bonus competenza", sgn(bc)) + tile("Percezione passiva", pas);
+    h += tile("Iniziativa", sgn(mod(s.destrezza)), "", ' data-act="dado" data-k="ini" data-id="' + s.id + '" role="button" tabindex="0" title="Tira l’iniziativa"') + tile("Bonus competenza", sgn(bc)) + tile("Percezione passiva", pas);
   }
   h += "</div>";
   h += '<div class="pfctrl"><label class="f"><span>Punti ferita</span><input type="number" id="pfn" min="1" value="1"></label>' +
@@ -55,19 +55,20 @@ function htmlScheda(key, indietro) {
     '<button data-act="pf-temp" data-id="' + s.id + '">Imposta</button>' +
     (!semp ? '<button data-act="ispirazione" data-id="' + s.id + '" aria-pressed="' + s.ispirazione + '">' + (s.ispirazione ? "Ispirazione: sì" : "Ispirazione: no") + "</button>" : "") + "</div>";
   h += htmlTurno(s);
+  if (!semp) h += htmlTiro();
   var corpo = h; h = h0;
   var abil = '<div class="abils">' + ABIL.map(function (a) {
-    return '<div class="ab"><span class="lbl">' + a[2] + "</span><strong>" + sgn(mod(s[a[3]])) + "</strong><small>" + s[a[3]] + "</small></div>";
+    return '<div class="ab"' + (semp ? "" : ' data-act="dado" data-k="abil" data-v="' + a[0] + '" data-id="' + s.id + '" role="button" tabindex="0" title="Tira una prova di ' + a[1] + '"') + '><span class="lbl">' + a[2] + "</span><strong>" + sgn(mod(s[a[3]])) + "</strong><small>" + s[a[3]] + "</small></div>";
   }).join("") + "</div>";
   if (!semp) h += abil + corpo; else h += corpo + abil;
   if (!semp) {
     var tsH = '<h3>Tiri salvezza</h3><ul class="plain sk">' + ABIL.map(function (a) {
       var p = (s.competenze_ts || []).indexOf(a[0]) >= 0;
-      return '<li><span class="dot" title="' + (p ? "competente" : "non competente") + '">' + (p ? "●" : "○") + "</span> " + a[1] + "<b>" + sgn(mod(s[a[3]]) + (p ? bc : 0)) + "</b></li>";
+      return '<li data-act="dado" data-k="ts" data-v="' + a[0] + '" data-id="' + s.id + '" role="button" tabindex="0"><span class="dot" title="' + (p ? "competente" : "non competente") + '">' + (p ? "●" : "○") + "</span> " + a[1] + "<b>" + sgn(mod(s[a[3]]) + (p ? bc : 0)) + "</b></li>";
     }).join("") + '</ul>';
     var abH = '<h3>Abilità</h3><ul class="plain sk">' + SKILLS.map(function (k) {
       var lv = (s.abilita || {})[k[0]] || 0;
-      return '<li><span class="dot" title="' + ["non competente", "competente", "maestria"][lv] + '">' + ["○", "●", "◆"][lv] + "</span> " + esc(k[1]) +
+      return '<li data-act="dado" data-k="skill" data-v="' + k[0] + '" data-id="' + s.id + '" role="button" tabindex="0"><span class="dot" title="' + ["non competente", "competente", "maestria"][lv] + '">' + ["○", "●", "◆"][lv] + "</span> " + esc(k[1]) +
         ' <small>' + ABK[k[2]][2] + "</small><b>" + sgn(totaleAbilita(s, k[0])) + "</b></li>";
     }).join("") + "</ul>";
     h += '<div class="duecol"><div>' + abH + htmlMonete(s) + htmlInventarioScheda(s, key) + "</div><div>" + tsH + htmlCombattimento(s, key) + "</div></div>";

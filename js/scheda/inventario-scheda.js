@@ -100,8 +100,10 @@ function statoCarico(s, tot) {
 // ---------------------------------------------------------------- barra delle monete
 function htmlMonete(s) {
   var m = moneteDi(s), t = rameTotali(m);
+  // Le caselle sono campi: scrivi il numero e premi Invio (o esci dal campo) per salvarlo.
   var casella = function (x) {
-    return '<div class="vit mon"><span class="lbl">' + x[1] + " (" + x[2] + ")</span><strong>" + m[x[0]] + "</strong></div>";
+    return '<label class="vit mon"><span class="lbl">' + x[1] + " (" + x[2] + ')</span><input type="number" min="0" step="1" id="mc_' + x[0] + '" value="' + m[x[0]] +
+      '" data-id="' + s.id + '" aria-label="' + x[1] + '"></label>';
   };
   var campi = function (pre, lbl) {
     return MON.map(function (x) {
@@ -116,10 +118,7 @@ function htmlMonete(s) {
     '<div class="row"><button data-act="monete-spendi" data-id="' + s.id + '">Spendi</button>' +
     '<button data-act="monete-incassa" data-id="' + s.id + '">Incassa</button></div>' +
     '<p class="hint">Se non hai le monete giuste, cambio io una moneta più grande e ti do il resto.</p></div></details>' +
-    '<details class="tendina"><summary>Correggi le monete</summary><div class="mform">' +
-    '<div class="row">' + campi("mc", "Monete") + "</div>" +
-    '<div class="row"><button data-act="monete-imposta" data-id="' + s.id + '">Imposta</button></div>' +
-    '<p class="hint">Usalo per sistemare un errore: scrive esattamente questi numeri.</p></div></details>';
+    '<p class="hint">Per correggere una moneta scrivi il numero nella sua casella.</p>';
 }
 
 // ---------------------------------------------------------------- inventario nella scheda
@@ -148,3 +147,9 @@ function htmlInventarioScheda(s, key) {
     (p.nMonete ? '<li><span class="n">Monete <span class="tag">' + p.nMonete + '</span></span><span class="w">' + fmtPeso(p.monete) + "</span></li>" : "") + "</ul>";
   return h;
 }
+
+// Una casella delle monete è stata cambiata: salvo tutte e quattro.
+document.addEventListener("change", function (e) {
+  var el = e.target;
+  if (el && el.matches && el.matches(".monete input") && el.dataset.id) cambiaMonete(el.dataset.id, "imposta");
+});

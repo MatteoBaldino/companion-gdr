@@ -11,10 +11,21 @@
 function htmlTurno(s) {
   if (!S.incOk) return "";
   var t = s.turno || {};
-  var bt = function (k, l) { var u = !!t[k]; return '<button class="tg' + (u ? " usato" : "") + '" data-act="turno" data-id="' + s.id + '" data-k="' + k + '" aria-pressed="' + u + '">' + l + "</button>"; };
-  return '<div class="gioco"><div class="row turno" role="group" aria-label="Turno">' + bt("azione", "Azione") + bt("bonus", "Azione bonus") + bt("reazione", "Reazione") + bt("movimento", "Movimento") +
-    '<button class="small" data-act="nuovo-turno" data-id="' + s.id + '">Nuovo turno</button></div>' +
-    '<div class="row"><button class="small" data-act="riposo-breve" data-id="' + s.id + '">Riposo breve</button><button class="small" data-act="riposo-lungo" data-id="' + s.id + '">Riposo lungo</button></div>' +
+  // Una cella del turno: verde se libera, tratteggiata se usata (con scritto cosa l'ha usata).
+  var cella = function (k, l) {
+    var u = t[k], det = typeof u === "string" ? u : (u ? "segnata a mano" : "");
+    return '<button class="cella ' + (u ? "usata" : "libera") + '" data-act="turno" data-id="' + s.id + '" data-k="' + k + '" aria-pressed="' + !!u + '">' +
+      '<span class="lbl">' + l + "</span><strong>" + (u ? "Usata" : "Disponibile") + "</strong><small>" + (det ? esc(det) : "&nbsp;") + "</small></button>";
+  };
+  // Movimento: metri rimasti, con un campo per scrivere quanti ne togli o ne ridai.
+  var tot = Number(s.velocita) || 0, usati = Math.min(tot, Number(t.mov) || 0), resta = Math.max(0, tot - usati);
+  var mov = '<div class="cella ' + (resta > 0 ? "libera" : "usata") + '"><span class="lbl">Movimento</span><strong>' + fmtVel(resta) + "</strong><small>su " + fmtVel(tot) + "</small>" +
+    '<div class="mv"><button class="small" data-act="mov" data-id="' + s.id + '" data-d="-" aria-label="Togli distanza">−</button>' +
+    '<input type="text" inputmode="decimal" id="mv_' + s.id + '" value="' + dec(distShow(1.5)) + '" aria-label="Distanza da togliere o ridare">' +
+    '<button class="small" data-act="mov" data-id="' + s.id + '" data-d="+" aria-label="Ridai distanza">+</button></div></div>';
+  return '<div class="gioco"><div class="turnocelle" role="group" aria-label="Turno">' + cella("azione", "Azione") + cella("bonus", "Azione bonus") + cella("reazione", "Reazione") + mov + "</div>" +
+    '<div class="row"><button class="small" data-act="nuovo-turno" data-id="' + s.id + '">Nuovo turno</button>' +
+    '<button class="small" data-act="riposo-breve" data-id="' + s.id + '">Riposo breve</button><button class="small" data-act="riposo-lungo" data-id="' + s.id + '">Riposo lungo</button></div>' +
     (s.concentrazione ? '<p class="conc"><strong>In concentrazione:</strong> ' + esc(s.concentrazione) + ' <button class="link" data-act="conc-fine" data-id="' + s.id + '">Termina</button></p>' : "") + "</div>";
 }
 

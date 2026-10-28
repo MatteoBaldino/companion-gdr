@@ -258,3 +258,57 @@ details.avvisi summary { cursor: pointer; }
 .invs li { display: grid; grid-template-columns: 1fr auto auto; gap: .5rem; align-items: center; padding: .25rem 0; border-bottom: 1px solid var(--line); }
 .invs .w { color: var(--muted); font-size: .9rem; }
 @media (max-width: 520px) { .monete { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---- dadi: pannello del tiro, sagome, vantaggio e svantaggio */
+[data-act="dado"] { cursor: pointer; }
+.ab[data-act="dado"]:hover, .ab[data-act="dado"]:focus-visible, .vit[data-act="dado"]:hover, .vit[data-act="dado"]:focus-visible,
+ul.sk li[data-act="dado"]:hover, ul.sk li[data-act="dado"]:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 6px; }
+.vantbar { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: .2rem 0 1rem; }
+.vantbar button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.dadobtn { white-space: normal; text-align: left; }
+.dadobtn.crit { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.tirosez { margin: 0 0 1rem; }
+.rbox { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: .8rem 1rem; min-height: 6.8rem; }
+.tiro-h { display: flex; justify-content: space-between; gap: .5rem; align-items: flex-start; margin-bottom: .5rem; }
+.tiro-dadi { display: flex; flex-wrap: wrap; gap: .6rem; align-items: flex-start; }
+.dado { position: relative; width: 3.4rem; height: 3.4rem; display: flex; align-items: center; justify-content: center; }
+.dado svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform-origin: 50% 50%; }
+.dado .sh { fill: var(--paper); stroke: var(--muted); stroke-width: 3; stroke-linejoin: round; }
+.dado .ln { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.dado .num { position: relative; font: 700 1.15rem var(--sans); }
+.dado[data-s="4"] .num { margin-top: .85rem; }
+.dado[data-s="10"] .num { margin-top: .3rem; }
+.dado.spin .num { color: var(--muted); }
+.dado.spin svg { animation: gira .6s linear infinite; }
+.dado:not(.spin) svg { animation: assesta .3s ease-out; }
+.dado.crit .sh { fill: var(--accent); stroke: var(--accent); }
+.dado.crit .num { color: var(--accent-ink); }
+.dado.uno .sh { fill: var(--danger); stroke: var(--danger); }
+.dado.uno .num { color: var(--paper); }
+.dado.scarto .sh { fill: var(--panel); stroke-dasharray: 6 5; }
+.dado.scarto .num { color: var(--muted); text-decoration: line-through; }
+.dado-cap { font-size: .72rem; color: var(--muted); text-align: center; margin-top: .1rem; }
+.dwrap { display: flex; flex-direction: column; align-items: center; }
+.tiro-mod { height: 3.4rem; display: flex; align-items: center; padding: 0 .7rem; border-radius: 8px; background: var(--paper); border: 1px solid var(--line); font-weight: 700; }
+.tiro-tot { margin-top: .5rem; color: var(--muted); min-height: 2rem; }
+.tiro-tot b { font: 700 1.7rem var(--serif); color: var(--ink); margin-left: .3rem; }
+.esito { display: block; font-weight: 700; }
+.esito.crit { color: var(--accent); }
+.esito.fail { color: var(--danger); }
+@keyframes gira { 0% { transform: rotate(0) scale(1); } 25% { transform: rotate(90deg) scale(.9); } 50% { transform: rotate(180deg) scale(1); } 75% { transform: rotate(270deg) scale(.9); } 100% { transform: rotate(360deg) scale(1); } }
+@keyframes assesta { from { transform: rotate(-14deg) scale(1.12); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .dado svg { animation: none !important; } }
+
+/* ---- turno a celle e monete modificabili */
+.turnocelle { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: .5rem; margin-bottom: .5rem; }
+.cella { display: flex; flex-direction: column; align-items: center; gap: .1rem; padding: .5rem .4rem; border-radius: 8px; border: 1px solid var(--line); text-align: center; background: var(--panel); color: var(--ink); min-height: 4.6rem; }
+.cella .lbl { font-size: .75rem; color: var(--muted); }
+.cella strong { font-size: 1.05rem; }
+.cella small { font-size: .72rem; color: var(--muted); }
+.cella.libera { border-color: var(--accent); }
+.cella.libera .lbl, .cella.libera strong { color: var(--accent); }
+.cella.usata { border-style: dashed; color: var(--muted); }
+.cella.usata strong { color: var(--muted); }
+.cella .mv { display: flex; gap: .3rem; margin-top: .3rem; }
+.cella .mv input { width: 3.6rem; text-align: center; }
+.mon input { width: 100%; text-align: center; font: 700 1.3rem var(--sans); border: 0; background: transparent; color: var(--ink); padding: .1rem 0; }
