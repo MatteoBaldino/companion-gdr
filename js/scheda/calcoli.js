@@ -13,10 +13,21 @@ var mod = function (v) { return Math.floor((v - 10) / 2); };
 var sgn = function (n) { return (n >= 0 ? "+" : "−") + Math.abs(n); };
 var bonusComp = function (liv) { return 2 + Math.floor((liv - 1) / 4); };
 var fmtVel = function (m) { return dec(distShow(m)) + " " + distUnit(); };
+// Nomi inglesi delle classi, per le schede scritte come sul manuale in inglese.
+var CLASSI_EN = { wizard: "mago", sorcerer: "stregone", warlock: "warlock", cleric: "chierico", druid: "druido", bard: "bardo", paladin: "paladino",
+  ranger: "ranger", rogue: "ladro", fighter: "guerriero", barbarian: "barbaro", monk: "monaco" };
+// Riconosce la classe dal testo scritto nella scheda: il nome esatto, il nome inglese, oppure una parola del testo
+// (per esempio «Mago evocatore», «Stregone draconico», «Wizard»).
 function classeInfo(testo) {
   var k = String(testo || "").trim().toLowerCase();
   if (!k) return null;
   for (var id in CLASSI) if (id === k || CLASSI[id].n.toLowerCase() === k) return CLASSI[id];
+  if (CLASSI_EN[k]) return CLASSI[CLASSI_EN[k]];
+  var parole = k.split(/[^a-zà-ÿ]+/);
+  for (var i = 0; i < parole.length; i++) {
+    if (CLASSI[parole[i]]) return CLASSI[parole[i]];
+    if (CLASSI_EN[parole[i]]) return CLASSI[CLASSI_EN[parole[i]]];
+  }
   return null;
 }
 function schedaDi(key) {
