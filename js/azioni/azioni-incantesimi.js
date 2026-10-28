@@ -80,37 +80,43 @@ var ACT_INC = {
     // L'elenco è quello delle classi del personaggio (tutte, se ne ha più di una). Se la classe non ha incantesimi in libreria, mostro tutto.
     var cl = classiIncantatore(s), mie = cl.length ? tutti.filter(function (i) { return fonteAuto(s, i); }) : tutti;
     var soloMie = cl.length > 0 && mie.length > 0;
+    // L'elenco è una tendina con gli incantesimi divisi per livello: si sceglie, non si scrive.
     var opzioni = function (lista) {
-      return lista.map(function (i) {
-        return '<option value="' + esc(i.nome) + '">' + (i.livello === 0 ? "Trucchetto" : i.livello + "° livello") + (i.classi ? " · " + esc(i.classi) : "") + "</option>";
-      }).join("");
+      var h = '<option value="">— scegli un incantesimo —</option>';
+      for (var lv = 0; lv <= 9; lv++) {
+        var g = lista.filter(function (i) { return i.livello === lv; });
+        if (!g.length) continue;
+        h += '<optgroup label="' + LIV_INC[lv] + '">' + g.map(function (i) { return '<option value="' + i.id + '">' + esc(i.nome) + "</option>"; }).join("") + "</optgroup>";
+      }
+      return h;
     };
     var nota = soloMie ? "Ti mostro gli incantesimi di: " + cl.join(", ") + " (" + mie.length + ")."
       : cl.length ? "Nella libreria non c’è nessun incantesimo di " + cl.join(", ") + ": ti mostro tutti."
       : "La classe della scheda non ha incantesimi o non è riconosciuta: ti mostro tutti.";
-    var f = modal("Aggiungi incantesimo", fld("inc", "Nome dell’incantesimo (tocca o scrivi per cercare)", "", 'list="listainc2" required autocomplete="off"') +
-      '<datalist id="listainc2">' + opzioni(soloMie ? mie : tutti) + "</datalist>" +
+    var f = modal("Aggiungi incantesimo",
+      '<label class="f"><span>Incantesimo</span><select name="inc" required>' + opzioni(soloMie ? mie : tutti) + "</select></label>" +
       '<p class="hint">' + esc(nota) + "</p>" +
       (soloMie ? chk("tutti", "Mostra anche gli incantesimi di altre classi", false) : "") +
       sel("stato", "Stato", [["preparato", "Preparato"], ["sempre", "Sempre preparato (da un talento o una specie)"], ["non_preparato", "Non preparato"]], "preparato") +
       fld("fonte", "Fonte (si compila da sola: puoi cambiarla, es. Magic Initiate)", "", 'autocomplete="off"') +
       '<p><button type="button" class="link" data-act="nuovo-inc-scheda" data-id="' + s.id + '">Non è in elenco? Creane uno nuovo</button></p>', function (fd) {
-      var nome = String(fd.get("inc") || "").trim().toLowerCase();
-      var i = S.inc.filter(function (z) { return z.nome.trim().toLowerCase() === nome; })[0];
-      if (!i) { toast("Non trovo questo incantesimo nella libreria: crealo con il link qui sotto.", true); return false; }
+      var i = incPerId(fd.get("inc"));
+      if (!i) { toast("Scegli un incantesimo dall’elenco.", true); return false; }
       return run(function () { return call("imposta_incantesimo_scheda", { p_scheda: s.id, p_inc: i.id, p_stato: fd.get("stato"), p_fonte: String(fd.get("fonte") || "") }); }, i.nome + " aggiunto")
         .then(function (r) { if (!r) return false; return caricaDati().then(disegnaTab); });
     }, "Aggiungi");
     // La fonte si compila da sola quando scegli l'incantesimo, finché non la scrivi tu.
     var scrittaAMano = false;
     f.elements.fonte.addEventListener("input", function () { scrittaAMano = true; });
-    f.elements.inc.addEventListener("input", function () {
+    f.elements.inc.addEventListener("change", function () {
       if (scrittaAMano) return;
-      var n = f.elements.inc.value.trim().toLowerCase();
-      var i = S.inc.filter(function (z) { return z.nome.trim().toLowerCase() === n; })[0];
+      var i = incPerId(f.elements.inc.value);
       f.elements.fonte.value = i ? fonteAuto(s, i) : "";
     });
-    if (f.elements.tutti) f.elements.tutti.addEventListener("change", function () { $("#listainc2", f).innerHTML = opzioni(f.elements.tutti.checked ? tutti : mie); });
+    if (f.elements.tutti) f.elements.tutti.addEventListener("change", function () {
+      f.elements.inc.innerHTML = opzioni(f.elements.tutti.checked ? tutti : mie);
+      if (!scrittaAMano) f.elements.fonte.value = "";
+    });
   },
   "nuovo-inc-scheda": function (b) { var id = b.dataset.id; $("#dlg").close(); editorInc(null, id); },
   "inc-prepara": function (b) {
