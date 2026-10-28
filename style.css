@@ -312,3 +312,10 @@ ul.sk li[data-act="dado"]:hover, ul.sk li[data-act="dado"]:focus-visible { outli
 .cella .mv { display: flex; gap: .3rem; margin-top: .3rem; }
 .cella .mv input { width: 3.6rem; text-align: center; }
 .mon input { width: 100%; text-align: center; font: 700 1.3rem var(--sans); border: 0; background: transparent; color: var(--ink); padding: .1rem 0; }
+
+/* ---- note degli oggetti e degli attacchi */
+.invs .nota, .invs .nota-d { grid-column: 1 / -1; }
+.invs .nota { font-size: .82rem; color: var(--muted); margin-top: -.1rem; }
+.invs .nota-d summary { cursor: pointer; font-size: .82rem; color: var(--accent); }
+.invs .nota-d p { margin: .3rem 0 0; font-size: .88rem; }
+table.att td.nota-att { font-size: .85rem; color: var(--muted); min-width: 9rem; }

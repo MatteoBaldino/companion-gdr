@@ -13,7 +13,7 @@ function rapido(id, pf, temp, isp) {
     .then(function (r) { if (r) caricaDati().then(disegnaTab); });
 }
 // ---------------------------------------------------------------- monete
-// Legge i quattro campi (platino, oro, argento, rame) con il prefisso dato: "mp" per spendere/incassare, "mc" per correggere.
+// Legge i quattro campi delle monete (platino, oro, argento, rame): le caselle hanno id mc_pt, mc_or, mc_ar, mc_ra.
 function leggiMonete(pre) {
   var r = {};
   MON.forEach(function (x) { var el = $("#" + pre + "_" + x[0]); r[x[0]] = Math.max(0, Math.floor(Number(el && el.value) || 0)); });
@@ -23,21 +23,8 @@ function salvaMonete(id, nuove, ok) {
   run(function () { return call("aggiorna_monete", { p_id: Number(id), p: nuove }); }, ok)
     .then(function (r) { if (r) caricaDati().then(disegnaTab); });
 }
-function cambiaMonete(id, modo) {
-  var s = schedaPerId(id); if (!s) return;
-  var m = moneteDi(s);
-  if (modo === "imposta") { salvaMonete(id, leggiMonete("mc"), "Monete corrette"); return; }
-  var imp = leggiMonete("mp"), valore = rameTotali(imp);
-  if (valore <= 0) { toast("Scrivi quanto " + (modo === "spendi" ? "spendere" : "incassare") + ".", true); return; }
-  if (modo === "incassa") {
-    var n = {}; MON.forEach(function (x) { n[x[0]] = m[x[0]] + imp[x[0]]; });
-    salvaMonete(id, n, "Incassati " + testoMonete(dividiMonete(valore)));
-    return;
-  }
-  var r = spendiMonete(m, valore);
-  if (r.errore) { toast(r.errore, true); return; }
-  salvaMonete(id, r.m, "Spesi " + testoMonete(dividiMonete(valore)) + (r.cambio ? ". " + r.cambio : ""));
-}
+// Salva i quattro numeri scritti nelle caselle delle monete.
+function cambiaMonete(id) { salvaMonete(id, leggiMonete("mc"), "Monete aggiornate"); }
 
 var ACT_SCHEDE = {
   "apri-scheda": function (b) { S.schedaAperta = b.dataset.key; disegnaTab(); },
@@ -107,10 +94,7 @@ var ACT_SCHEDE = {
       t.mov = Math.round((usati + d) * 100) / 100;
     } else t.mov = Math.max(0, Math.round((usati - d) * 100) / 100);
     gioco(s, { turno: t });
-  },
-  "monete-spendi": function (b) { cambiaMonete(b.dataset.id, "spendi"); },
-  "monete-incassa": function (b) { cambiaMonete(b.dataset.id, "incassa"); },
-  "monete-imposta": function (b) { cambiaMonete(b.dataset.id, "imposta"); }
+  }
 };
 Object.keys(ACT_SCHEDE).forEach(function (k) { ACT[k] = ACT_SCHEDE[k]; });
 FORMS.wz = function () { wzAvanti(); };

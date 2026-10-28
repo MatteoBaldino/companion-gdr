@@ -1,12 +1,12 @@
 /* =====================================================================
    js/scheda/inventario-scheda.js
-   Cosa fa:   Nella scheda: la barra delle monete (spendi, incassa, correggi,
-              con il resto dato da solo), l'inventario con l'etichetta del
-              peso (Leggero, Normale, Appesantito, Molto appesantito) e la
-              tendina che spiega le soglie.
+   Cosa fa:   Nella scheda: la barra delle monete (quattro caselle che si
+              scrivono e si salvano da sole), l'inventario con le note di
+              ogni oggetto e l'etichetta del peso (Leggero, Normale,
+              Appesantito, Molto appesantito) con la tendina delle soglie.
    Contiene:  pesoMoneta, moneteDi, rameTotali, dividiMonete, testoMonete,
-              spendiMonete, pesoTrasportato, statoCarico, htmlMonete,
-              htmlInventarioScheda
+              contaMonete, pesoTrasportato, statoCarico, notaOggetto,
+              htmlMonete, htmlInventarioScheda
    Database:  funzione aggiorna_monete, colonna schede.monete,
               colonna campagne.peso_moneta_kg
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
@@ -49,35 +49,6 @@ function contaMonete(m) {
   return n;
 }
 
-// Paga "costo" (in rame) con le monete che hai. Prima usa le monete esatte, dalla più preziosa alla meno;
-// se non bastano, cambia la moneta più piccola che copre il resto e prende il resto in monete più piccole.
-// Restituisce { m: nuove monete, cambio: testo o "" } oppure { errore: testo }.
-function spendiMonete(m, costo) {
-  var tot = rameTotali(m);
-  if (costo <= 0) return { errore: "Scrivi quanto spendere." };
-  if (tot < costo) return { errore: "Non hai abbastanza: ti mancano " + testoMonete(dividiMonete(costo - tot)) + "." };
-  var n = {}, rest = costo, cambio = "", i, x;
-  MON.forEach(function (y) { n[y[0]] = m[y[0]]; });
-  for (i = 0; i < MON.length; i++) {
-    x = MON[i];
-    var presa = Math.min(n[x[0]], Math.floor(rest / x[3]));
-    n[x[0]] -= presa; rest -= presa * x[3];
-  }
-  if (rest > 0) {
-    for (i = MON.length - 1; i >= 0; i--) {
-      x = MON[i];
-      if (n[x[0]] > 0 && x[3] >= rest) {
-        n[x[0]] -= 1;
-        var resto = dividiMonete(x[3] - rest);
-        MON.forEach(function (y) { n[y[0]] += resto[y[0]]; });
-        cambio = "Cambiata 1 " + x[2] + ", resto " + testoMonete(resto) + ".";
-        break;
-      }
-    }
-  }
-  return { m: n, cambio: cambio };
-}
-
 // ---------------------------------------------------------------- peso trasportato
 function pesoTrasportato(s, key) {
   var og = invDi(key).reduce(function (t, i) { return t + (Number(i.oggetti.peso) || 0) * i.quantita; }, 0);
@@ -105,23 +76,23 @@ function htmlMonete(s) {
     return '<label class="vit mon"><span class="lbl">' + x[1] + " (" + x[2] + ')</span><input type="number" min="0" step="1" id="mc_' + x[0] + '" value="' + m[x[0]] +
       '" data-id="' + s.id + '" aria-label="' + x[1] + '"></label>';
   };
-  var campi = function (pre, lbl) {
-    return MON.map(function (x) {
-      return '<label class="f"><span>' + x[2] + '</span><input type="number" min="0" step="1" id="' + pre + "_" + x[0] + '"' +
-        (pre === "mc" ? ' value="' + m[x[0]] + '"' : ' placeholder="0"') + ' aria-label="' + lbl + " " + x[1] + '"></label>';
-    }).join("");
-  };
   return '<h3>Monete</h3><div class="monete">' + MON.map(casella).join("") + "</div>" +
-    '<p class="hint">Totale: <strong>' + esc(testoMonete(dividiMonete(t))) + "</strong> · " + t.toLocaleString("it-IT") + " Ra</p>" +
-    '<details class="tendina"><summary>Spendi o incassa</summary><div class="mform">' +
-    '<div class="row">' + campi("mp", "Importo") + "</div>" +
-    '<div class="row"><button data-act="monete-spendi" data-id="' + s.id + '">Spendi</button>' +
-    '<button data-act="monete-incassa" data-id="' + s.id + '">Incassa</button></div>' +
-    '<p class="hint">Se non hai le monete giuste, cambio io una moneta più grande e ti do il resto.</p></div></details>' +
-    '<p class="hint">Per correggere una moneta scrivi il numero nella sua casella.</p>';
+    '<p class="hint">Totale: <strong>' + esc(testoMonete(dividiMonete(t))) + "</strong> · " + t.toLocaleString("it-IT") + " Ra. " +
+    "Per cambiare una moneta scrivi il numero nella sua casella e premi Invio.</p>";
 }
 
 // ---------------------------------------------------------------- inventario nella scheda
+// Le note di un oggetto: i suoi dettagli (danno, proprietà, CA, effetto...), le regole speciali, l'effetto condizionale,
+// il bonus da equipaggiato e, se c'è, la proprietà nascosta (ai giocatori solo quando è stata rivelata).
+function notaOggetto(o) {
+  var n = dettagli(o).slice();
+  if (o.regole_extra) n.push(o.regole_extra);
+  if (o.effetto_condizionale) n.push(o.effetto_condizionale);
+  if (o.bonus) n.push("equipaggiato: " + o.bonus);
+  var seg = one(o.oggetti_segreti);
+  if (seg && (isMaster() || seg.rivelato)) n.push((seg.rivelato ? "proprietà rivelata: " : "proprietà nascosta: ") + seg.testo);
+  return n.filter(Boolean).join(" · ");
+}
 function htmlInventarioScheda(s, key) {
   var righe = invDi(key).slice().sort(function (a, b) { return a.oggetti.nome.localeCompare(b.oggetti.nome, "it"); });
   var p = pesoTrasportato(s, key), st = statoCarico(s, p.tot);
@@ -141,8 +112,11 @@ function htmlInventarioScheda(s, key) {
   h += '<ul class="plain invs">' + righe.map(function (i) {
     var o = i.oggetti, eq = o.categoria !== "cibo"
       ? '<button class="small" data-act="equip" data-inv="' + i.id + '" data-v="' + (i.equipaggiato ? "0" : "1") + '">' + (i.equipaggiato ? "Rimetti nello zaino" : "Equipaggia") + "</button>" : "";
+    var nota = notaOggetto(o);
     return "<li><span class=\"n\">" + esc(o.nome) + (i.quantita > 1 ? " ×" + i.quantita : "") +
-      (i.equipaggiato ? ' <span class="tag">equipaggiato</span>' : "") + '</span><span class="w">' + fmtPeso((Number(o.peso) || 0) * i.quantita) + "</span>" + eq + "</li>";
+      (i.equipaggiato ? ' <span class="tag">equipaggiato</span>' : "") + '</span><span class="w">' + fmtPeso((Number(o.peso) || 0) * i.quantita) + "</span>" + eq +
+      (nota ? '<div class="nota">' + esc(nota) + "</div>" : "") +
+      (o.descrizione ? "<details class=\"nota-d\"><summary>Descrizione</summary><p>" + esc(o.descrizione) + "</p></details>" : "") + "</li>";
   }).join("") +
     (p.nMonete ? '<li><span class="n">Monete <span class="tag">' + p.nMonete + '</span></span><span class="w">' + fmtPeso(p.monete) + "</span></li>" : "") + "</ul>";
   return h;
@@ -151,5 +125,5 @@ function htmlInventarioScheda(s, key) {
 // Una casella delle monete è stata cambiata: salvo tutte e quattro.
 document.addEventListener("change", function (e) {
   var el = e.target;
-  if (el && el.matches && el.matches(".monete input") && el.dataset.id) cambiaMonete(el.dataset.id, "imposta");
+  if (el && el.matches && el.matches(".monete input") && el.dataset.id) cambiaMonete(el.dataset.id);
 });
