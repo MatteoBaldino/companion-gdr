@@ -321,3 +321,15 @@ ul.sk li[data-act="dado"]:hover, ul.sk li[data-act="dado"]:focus-visible { outli
 .notebtn[open] summary::after { content: "\25B4"; }
 .notebtn p { margin: .35rem 0 0; font-size: .86rem; color: var(--muted); }
 .invs .nota-i { grid-column: 1 / -1; }
+
+/* ---- zona equipaggiamento */
+.eqgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: .4rem; margin-bottom: .4rem; }
+.eqb { display: flex; flex-direction: column; align-items: flex-start; gap: .1rem; text-align: left; width: 100%; padding: .4rem .55rem; min-height: 3.2rem;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); }
+.eqb .lbl { font-size: .72rem; color: var(--muted); }
+.eqb .eqv { font-size: .9rem; font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eqb.pieno { border-color: var(--accent); }
+.eqmore > summary { cursor: pointer; list-style: none; color: var(--muted); min-height: 2rem; display: flex; align-items: center; font-size: .88rem; }
+.eqmore > summary::-webkit-details-marker { display: none; }
+.eqmore > summary::after { content: "\25BE"; margin-left: .4rem; }
+.eqmore[open] > summary::after { content: "\25B4"; }

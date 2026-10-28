@@ -71,7 +71,7 @@ function htmlScheda(key, indietro) {
       return '<li data-act="dado" data-k="skill" data-v="' + k[0] + '" data-id="' + s.id + '" role="button" tabindex="0"><span class="dot" title="' + ["non competente", "competente", "maestria"][lv] + '">' + ["○", "●", "◆"][lv] + "</span> " + esc(k[1]) +
         ' <small>' + ABK[k[2]][2] + "</small><b>" + sgn(totaleAbilita(s, k[0])) + "</b></li>";
     }).join("") + "</ul>";
-    h += '<div class="duecol"><div>' + abH + htmlMonete(s) + htmlInventarioScheda(s, key) + "</div><div>" + tsH + htmlCombattimento(s, key) + "</div></div>";
+    h += '<div class="duecol"><div>' + abH + htmlEquipaggiamento(s, key) + htmlMonete(s) + htmlInventarioScheda(s, key) + "</div><div>" + tsH + htmlCombattimento(s, key) + "</div></div>";
     h += '<p class="hint">● competenza, ◆ maestria. La CA si calcola dall’armatura e dallo scudo equipaggiati nell’inventario.</p>';
   } else {
     if (s.tratti) h += "<h3>Tratti</h3><p class=\"pre\">" + esc(s.tratti) + "</p>";
