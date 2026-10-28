@@ -37,7 +37,7 @@ function viewApp() {
 function tabsDef() {
   if (isMaster()) return [["libreria", "Libreria"], ["personaggi", "Personaggi"], ["schede", "Schede"], ["incantesimi", "Incantesimi"], ["storico", "Storico"], ["listino", "Listino prezzi"]];
   var n = S.notif.filter(function (x) { return !x.letta; }).length;
-  return [["scheda", "Scheda"], ["inventario", "Inventario"], ["listino", "Listino prezzi"], ["notifiche", "Notifiche" + (n && S.tab !== "notifiche" ? ' <span class="badge-n">' + n + "</span>" : "")]];
+  return [["scheda", "Scheda"], ["inventario", "Inventario"], ["notifiche", "Notifiche" + (n && S.tab !== "notifiche" ? ' <span class="badge-n">' + n + "</span>" : "")]];
 }
 
 // [ATTENZIONE] Supabase restituisce al massimo 1000 righe per richiesta: gli oggetti si leggono a pagine da 500.
@@ -77,8 +77,11 @@ function caricaDati(ricaricaOggetti) {
     q.push(sb.from("incantesimi").select("*").eq("campagna_id", c));
     q.push(sb.from("scheda_incantesimi").select("*"));
   }
-  // Listino dei servizi: lo leggono tutti i membri (se l'aggiornamento SQL manca, la lista resta vuota)
-  var qs = sb.from("servizi").select("*").eq("campagna_id", c).order("tipologia").order("nome").limit(300);
+  // Listino dei servizi: lo legge solo il master (per i giocatori il database non lo mostra: non lo si chiede nemmeno)
+  // (se l'aggiornamento SQL manca, la lista resta vuota)
+  var qs = isMaster()
+    ? sb.from("servizi").select("*").eq("campagna_id", c).order("tipologia").order("nome").limit(300)
+    : Promise.resolve({ data: [], error: null });
   return Promise.all([Promise.all(q), qs]).then(function (tot) {
     var rs = tot[0];
     S.serv = tot[1].error ? [] : (tot[1].data || []);

@@ -1,7 +1,7 @@
 /* =====================================================================
    js/listino/listino.js
    Cosa fa:   Listino prezzi di taverne, alloggi, viaggi e svaghi, visibile
-              a tutti.
+              solo al master.
    Contiene:  htmlListino, htmlListaServizi
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
    ===================================================================== */
@@ -11,7 +11,7 @@
 function htmlListino() {
   if (!S.serv.length) {
     return '<div class="empty"><p>Il listino dei servizi è vuoto.</p>' +
-      (isMaster() ? '<div class="row"><a class="btn" href="importa.html">Importa da Excel</a></div>' : "") + "</div>";
+      (isMaster() ? '<div class="row"><button class="primary" data-act="copia-standard">Copia listino standard</button><a class="btn" href="importa.html">Importa da Excel</a></div>' : "") + "</div>";
   }
   return '<div class="toolbar"><input type="search" id="fqs" placeholder="Cerca un servizio" aria-label="Cerca un servizio" value="' + esc(S.filtro.qs) + '"></div>' +
     '<div id="listaServ">' + htmlListaServizi() + "</div>";

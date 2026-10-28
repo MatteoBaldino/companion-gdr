@@ -45,6 +45,21 @@ var ACT = {
         });
       }, "Elimina");
   },
+  // Copia nella campagna del master gli oggetti e i servizi del listino standard (le voci già presenti restano com'erano).
+  "copia-standard": function () {
+    modal("Copiare il listino standard?",
+      "<p>Copio nella tua campagna gli oggetti e i servizi del listino standard.</p>" +
+      '<p class="hint">Le voci che hai già (stesso nome) restano come sono. Quello che modifichi dopo vale solo per la tua campagna. Puoi rifarlo quando il listino standard riceve voci nuove: arrivano solo quelle.</p>',
+      function () {
+        return run(function () { return call("copia_listino_standard", { p_camp: campId() }); }).then(function (r) {
+          if (!r) return false;
+          var x = r.v || {};
+          toast("Copiati " + (x.oggetti_creati || 0) + " oggetti e " + (x.servizi_creati || 0) + " servizi" +
+            ((x.oggetti_saltati || x.servizi_saltati) ? " (già presenti: " + ((x.oggetti_saltati || 0) + (x.servizi_saltati || 0)) + ")" : ""));
+          return caricaDati(true).then(disegnaTab);
+        });
+      }, "Copia");
+  },
   altri: function () { S.filtro.n += 100; $("#lista").innerHTML = htmlListaLibreria(); },
   modifica: function (b) { var o = oggPerId(b.dataset.ogg); if (o) editor(o); },
   esempi: function () {

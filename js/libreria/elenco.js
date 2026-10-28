@@ -20,13 +20,13 @@ function htmlLibreria() {
     CATS.map(function (c) { return '<option value="' + c.id + '"' + (S.filtro.cat === c.id ? " selected" : "") + ">" + c.plurale + "</option>"; }).join("") + "</select>" +
     (tips.length ? '<select id="ftip" aria-label="Filtra per tipologia"><option value="">Tutte le tipologie</option>' +
       tips.map(function (t) { return '<option value="' + esc(t) + '"' + (S.filtro.tip === t ? " selected" : "") + ">" + esc(t) + "</option>"; }).join("") + "</select>" : "") +
-    '<button class="primary" data-act="nuovo">Nuovo oggetto</button><a class="btn" href="importa.html">Importa da Excel</a></div>' +
+    '<button class="primary" data-act="nuovo">Nuovo oggetto</button><button data-act="copia-standard">Copia listino standard</button><a class="btn" href="importa.html">Importa da Excel</a></div>' +
     '<div id="lista">' + htmlListaLibreria() + "</div>";
 }
 function htmlListaLibreria() {
   if (!S.ogg.length) {
-    return '<div class="empty"><p>La libreria è vuota. Crea il primo oggetto, oppure importa i tuoi listini Excel.</p>' +
-      '<div class="row"><button class="primary" data-act="nuovo">Nuovo oggetto</button><a class="btn" href="importa.html">Importa da Excel</a></div></div>';
+    return '<div class="empty"><p>La libreria è vuota. Copia il listino standard, crea il primo oggetto, oppure importa i tuoi listini Excel.</p>' +
+      '<div class="row"><button class="primary" data-act="copia-standard">Copia listino standard</button><button data-act="nuovo">Nuovo oggetto</button><a class="btn" href="importa.html">Importa da Excel</a></div></div>';
   }
   var q = S.filtro.q.trim().toLowerCase();
   var l = S.ogg.filter(function (o) {
