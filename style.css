@@ -338,3 +338,19 @@ ul.sk li[data-act="dado"]:hover, ul.sk li[data-act="dado"]:focus-visible { outli
 .clsrigaed { display: grid; grid-template-columns: 1fr 5rem 1fr auto; gap: .5rem; align-items: end; margin-bottom: .5rem; }
 .clsrigaed .f { margin: 0; }
 @media (max-width: 560px) { .clsrigaed { grid-template-columns: 1fr 5rem; } .clsrigaed .f:nth-child(3) { grid-column: 1 / -1; } }
+
+/* ---- dopo il tiro per colpire: CA del bersaglio e pulsante del danno */
+.tiro-az { display: flex; flex-wrap: wrap; gap: .6rem; align-items: end; margin-top: .6rem; padding-top: .6rem; border-top: 1px solid var(--line); }
+.tiro-az .f { margin: 0; }
+.tiro-az .f input { width: 5.5rem; }
+.tiro-az .esito { flex: 1; min-width: 8rem; }
+
+/* ---- elenco incantesimi: una riga per incantesimo, con slot accanto al livello */
+h4.inc-liv { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .8rem; }
+h4.inc-liv small { color: var(--muted); font: 400 .85rem var(--sans); }
+.inc-top .small { margin-left: auto; }
+.inc-riga { display: flex; flex-wrap: wrap; gap: .4rem .8rem; align-items: center; margin-top: .4rem; }
+.inc-riga .ic-t, .inc-riga .ic-d { min-width: 3.2rem; }
+.inc-riga .ic-g { min-width: 4.5rem; }
+.inc-riga .notebtn[open] { flex-basis: 100%; }
+.inc-riga .notebtn p.row { margin-top: .5rem; }

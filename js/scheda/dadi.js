@@ -99,7 +99,7 @@ function creaTiro(o) {
     nome: o.nome, titolo: o.titolo, tipo: o.tipo, vant: o.vant, doppio: !!o.doppio,
     dadi: dadi, mod: o.mod || 0, fisso: o.fisso || 0, tot: tot, scartato: scartato,
     esito: d20 && o.tipo === "att" ? (d20.v === 20 ? "crit" : d20.v === 1 ? "fail" : "") : "",
-    chiave: o.chiave || null
+    chiave: o.chiave || null, dan: o.dan || null, d20: d20 ? d20.v : null
   };
 }
 
@@ -137,6 +137,14 @@ function mostraTiro(t) {
       (t.esito === "crit" ? ' <span class="esito crit">Critico! Il prossimo danno raddoppia i dadi.</span>' : "") +
       (t.esito === "fail" ? ' <span class="esito fail">Fallimento critico</span>' : "") +
       (t.doppio ? ' <span class="esito crit">dadi raddoppiati</span>' : "");
+    // Dopo un tiro per colpire: la CA del bersaglio (facoltativa) dice se ha colpito; se sì, si tira il danno.
+    if (t.tipo === "att" && !document.getElementById("caBers")) {
+      var box2 = document.getElementById("tiroBox");
+      if (box2) box2.insertAdjacentHTML("beforeend", '<div class="tiro-az"><label class="f"><span>CA del bersaglio (facoltativa)</span><input type="number" id="caBers" min="0" inputmode="numeric" value="' + esc(S.caBers || "") + '"></label>' +
+        '<span id="tiroEsito" class="esito"></span>' +
+        (t.dan ? '<button class="small primary" id="btnDanno" data-act="dado" data-k="dan" data-id="' + t.dan.id + '" data-r="' + t.dan.r + '">Tira il danno</button>' : "") + "</div>");
+      TIRO_ATT = t; esitoColpo();
+    }
   }
   if (!t.dadi.length) { fine(); salvaTiro(); return; }
   TIRO_TIMER = setInterval(function () {
@@ -160,6 +168,23 @@ function mostraTiro(t) {
     }
   }, 70);
 }
+// Colpito o mancato: il 20 naturale colpisce sempre, l'1 manca sempre, altrimenti conta il totale contro la CA scritta.
+var TIRO_ATT = null;
+function esitoColpo() {
+  var t = TIRO_ATT, el = document.getElementById("tiroEsito"), btn = document.getElementById("btnDanno");
+  if (!t || !el) return;
+  var ca = Number(S.caBers);
+  if (!S.caBers || isNaN(ca)) { el.textContent = "Se il totale supera la CA del bersaglio, tira il danno."; el.className = "esito"; if (btn) btn.hidden = false; salvaTiro(); return; }
+  var colpito = t.d20 === 20 ? true : t.d20 === 1 ? false : t.tot >= ca;
+  el.textContent = (colpito ? "Colpito" : "Mancato") + (t.d20 === 20 ? " (20 naturale: critico)" : t.d20 === 1 ? " (1 naturale)" : ": " + t.tot + " contro CA " + ca);
+  el.className = "esito " + (colpito ? "crit" : "fail");
+  if (btn) btn.hidden = !colpito;
+  salvaTiro();
+}
+document.addEventListener("input", function (e) {
+  if (e.target && e.target.id === "caBers") { S.caBers = e.target.value; e.target.setAttribute("value", e.target.value); esitoColpo(); }
+});
+
 // Dopo un attacco: sul 20 il danno di quell'arma raddoppia i dadi, altrimenti si azzera. Il pulsante del danno si ridisegna.
 function finisciTiro(t) {
   if (t.tipo !== "att" || !t.chiave) return;
@@ -187,6 +212,7 @@ ACT.dado = function (b) {
     if (k === "att") {
       if (r.b == null) return;
       o.titolo = "Attacco: " + r.n; o.tipo = "att"; o.mod = r.b; o.chiave = ck;
+      o.dan = r.dd ? { id: s.id, r: Number(b.dataset.r) } : null;   // dopo il tiro per colpire, il pulsante per tirare il danno
       // Un attacco con un'arma usa l'azione del turno; per gli incantesimi l'azione l'ha già usata "Lancia".
       if (!r.inc) {
         var tu = s.turno || {};
@@ -200,7 +226,7 @@ ACT.dado = function (b) {
     }
     else {
       if (!r.dd) return;
-      o.titolo = "Danno: " + r.n; o.tipo = "dan"; o.gruppi = r.dd.gruppi; o.fisso = r.dd.piatto;
+      o.titolo = (r.cura ? "Cura: " : "Danno: ") + r.n; o.tipo = "dan"; o.gruppi = r.dd.gruppi; o.fisso = r.dd.piatto;
       if (S.crit[ck]) { o.doppio = true; o.titolo += " (critico)"; S.crit[ck] = false; setTimeout(function () { if (S.me) disegnaTab(); }, 0); }
     }
   }
@@ -219,3 +245,15 @@ document.addEventListener("keydown", function (e) {
     e.preventDefault(); el.click();
   }
 });
+
+// Se il sito non sa con quale caratteristica lanci, il tocco su «attacco» apre la scelta e la salva nella scheda.
+ACT["scegli-car"] = function (b) {
+  var s = schedaPerId(b.dataset.id); if (!s) return;
+  modal("Caratteristica da incantatore: " + nomeHolder(keyDiScheda(s)),
+    "<p>Per calcolare l’attacco e la CD degli incantesimi serve la caratteristica con cui lanci (di solito Intelligenza per il Mago, Saggezza per il Chierico, Carisma per lo Stregone).</p>" +
+    sel("car", "Caratteristica", ABIL.map(function (a) { return [a[0], a[1]]; }), "int"),
+    function (fd) {
+      var p = payloadDaScheda(s); p.car_incantesimi = fd.get("car");
+      return salvaScheda(p, "Caratteristica da incantatore salvata").then(function (id) { return id != null; });
+    }, "Salva");
+};

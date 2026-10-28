@@ -45,6 +45,18 @@ function htmlSlot(s) {
   });
   return h + "</div>";
 }
+// I cerchietti degli slot di un livello (lv da 1 a 9), con «x di y». Vuoto se a quel livello non hai slot.
+function htmlPipsLivello(s, lv) {
+  var n = (s.slot_totali || [])[lv - 1] || 0, us = (s.slot_usati || [])[lv - 1] || 0;
+  if (n <= 0) return "";
+  var pips = "";
+  for (var i = 0; i < n; i++) {
+    var u = i < us;
+    pips += '<button class="pip' + (u ? " usato" : "") + '" data-act="slot" data-id="' + s.id + '" data-lv="' + (lv - 1) + '" data-i="' + i + '" aria-pressed="' + u +
+      '" aria-label="Slot di livello ' + lv + ", numero " + (i + 1) + (u ? ", usato" : ", disponibile") + '"></button>';
+  }
+  return '<span class="pips">' + pips + "</span><small>" + (n - us) + " di " + n + "</small>";
+}
 function htmlRisorse(s) {
   var r = s.risorse || [];
   if (!r.length) return "";

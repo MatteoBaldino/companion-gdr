@@ -56,12 +56,14 @@ function attacchi(s, key) {
     var tiro = "—";
     if (i.effetto === "attacco") tiro = st.att != null ? sgn(st.att) : "attacco";
     if (i.effetto === "salvezza") tiro = (st.cd != null ? "CD " + st.cd + " " : "") + ABK[i.tiro_salvezza][2];
-    righe.push({ n: i.nome, inc: true, b: (i.effetto === "attacco" && st.att != null) ? st.att : null, dd: ddInc(s, i, st), tiro: tiro, danno: dannoInc(s, i, st), gitt: gittataInc(i), note: [i.livello === 0 ? "trucchetto" : i.livello + "° livello", i.tempo_lancio ? TEMPI[i.tempo_lancio] : "", i.concentrazione ? "concentrazione" : "", i.rituale ? "rituale" : ""].filter(Boolean).join(", ") });
+    righe.push({ n: i.nome, inc: true, incId: i.id, cura: /cura/i.test(i.tipo_danno || ""), b: (i.effetto === "attacco" && st.att != null) ? st.att : null, dd: ddInc(s, i, st), tiro: tiro, danno: dannoInc(s, i, st), gitt: gittataInc(i), note: [i.livello === 0 ? "trucchetto" : i.livello + "° livello", i.tempo_lancio ? TEMPI[i.tempo_lancio] : "", i.concentrazione ? "concentrazione" : "", i.rituale ? "rituale" : ""].filter(Boolean).join(", ") });
   });
   return righe;
 }
 // Celle della tabella: il bonus per colpire e il danno sono pulsanti che tirano i dadi.
 function celTiro(s, x, n) {
+  if (x.b == null && x.inc && x.tiro === "attacco" && s.tipo === "completa")
+    return '<button class="small dadobtn" data-act="scegli-car" data-id="' + s.id + '" title="Scegli con quale caratteristica lanci">attacco ›</button>';
   if (x.b == null) return esc(x.tiro);
   return '<button class="small dadobtn" data-act="dado" data-k="att" data-id="' + s.id + '" data-r="' + n + '" aria-label="Tira per colpire: ' + esc(x.n) + '">' + esc(x.tiro) + "</button>";
 }
@@ -75,11 +77,12 @@ function celDanno(s, x, n) {
 function celNote(x) {
   return x.note ? '<details class="notebtn"><summary>Note</summary><p>' + esc(x.note) + "</p></details>" : "";
 }
+// La tabella ha solo gli attacchi fisici (armi e colpo senza armi): gli attacchi degli incantesimi stanno nella riga di ogni incantesimo.
 function htmlAttacchi(s, key) {
-  var r = attacchi(s, key);
+  var r = attacchi(s, key).map(function (x, n) { return { x: x, n: n }; }).filter(function (e) { return !e.x.inc; });
   if (!r.length) return "";
   var h = '<h3>Attacchi</h3><div class="scroll"><table class="att"><thead><tr><th>Nome</th><th>Tiro</th><th>Danno</th><th>Gittata</th><th>Note</th></tr></thead><tbody>' +
-    r.map(function (x, n) { return "<tr><td>" + esc(x.n) + "</td><td>" + celTiro(s, x, n) + "</td><td>" + celDanno(s, x, n) + "</td><td>" + esc(x.gitt) + "</td><td>" + celNote(x) + "</td></tr>"; }).join("") + "</tbody></table></div>";
+    r.map(function (e) { return "<tr><td>" + esc(e.x.n) + "</td><td>" + celTiro(s, e.x, e.n) + "</td><td>" + celDanno(s, e.x, e.n) + "</td><td>" + esc(e.x.gitt) + "</td><td>" + celNote(e.x) + "</td></tr>"; }).join("") + "</tbody></table></div>";
   if (s.tipo === "completa") h += '<p class="hint">Le armi compaiono quando le equipaggi nell’inventario. Bonus e danno usano la caratteristica giusta, la competenza e il bonus per colpire dell’oggetto.</p>';
   return h;
 }
