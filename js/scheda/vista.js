@@ -39,6 +39,8 @@ function htmlScheda(key, indietro) {
     return '<div class="vit"><span class="lbl">' + lbl + "</span><strong>" + val + "</strong>" + (small ? "<small>" + esc(small) + "</small>" : "") + "</div>";
   };
   var h = back + '<section class="scheda"><header class="sh-head"><h2>' + esc(nome) + '</h2><p class="hint">' + esc(sub) + "</p></header>";
+  // Schede complete: prima le caratteristiche, poi CA/PF e il resto (come nel disegno della scheda). Gli NPC semplificati restano come prima.
+  var h0 = h; h = "";
   h += '<div class="vitali">' + tile("CA", ca.tot, ca.desc) +
     tile("PF", s.pf_attuali + "/" + s.pf_max + (s.pf_temp ? ' <span class="tmp">+' + s.pf_temp + "</span>" : "")) +
     tile("Velocità", esc(fmtVel(s.velocita)));
@@ -53,18 +55,22 @@ function htmlScheda(key, indietro) {
     '<button data-act="pf-temp" data-id="' + s.id + '">Imposta</button>' +
     (!semp ? '<button data-act="ispirazione" data-id="' + s.id + '" aria-pressed="' + s.ispirazione + '">' + (s.ispirazione ? "Ispirazione: sì" : "Ispirazione: no") + "</button>" : "") + "</div>";
   h += htmlTurno(s);
-  h += '<div class="abils">' + ABIL.map(function (a) {
+  var corpo = h; h = h0;
+  var abil = '<div class="abils">' + ABIL.map(function (a) {
     return '<div class="ab"><span class="lbl">' + a[2] + "</span><strong>" + sgn(mod(s[a[3]])) + "</strong><small>" + s[a[3]] + "</small></div>";
   }).join("") + "</div>";
+  if (!semp) h += abil + corpo; else h += corpo + abil;
   if (!semp) {
-    h += '<div class="duecol"><div><h3>Tiri salvezza</h3><ul class="plain sk">' + ABIL.map(function (a) {
+    var tsH = '<h3>Tiri salvezza</h3><ul class="plain sk">' + ABIL.map(function (a) {
       var p = (s.competenze_ts || []).indexOf(a[0]) >= 0;
       return '<li><span class="dot" title="' + (p ? "competente" : "non competente") + '">' + (p ? "●" : "○") + "</span> " + a[1] + "<b>" + sgn(mod(s[a[3]]) + (p ? bc : 0)) + "</b></li>";
-    }).join("") + '</ul></div><div><h3>Abilità</h3><ul class="plain sk">' + SKILLS.map(function (k) {
+    }).join("") + '</ul>';
+    var abH = '<h3>Abilità</h3><ul class="plain sk">' + SKILLS.map(function (k) {
       var lv = (s.abilita || {})[k[0]] || 0;
       return '<li><span class="dot" title="' + ["non competente", "competente", "maestria"][lv] + '">' + ["○", "●", "◆"][lv] + "</span> " + esc(k[1]) +
         ' <small>' + ABK[k[2]][2] + "</small><b>" + sgn(totaleAbilita(s, k[0])) + "</b></li>";
-    }).join("") + "</ul></div></div>";
+    }).join("") + "</ul>";
+    h += '<div class="duecol"><div>' + abH + htmlMonete(s) + htmlInventarioScheda(s, key) + "</div><div>" + tsH + htmlCombattimento(s, key) + "</div></div>";
     h += '<p class="hint">● competenza, ◆ maestria. La CA si calcola dall’armatura e dallo scudo equipaggiati nell’inventario.</p>';
   } else {
     if (s.tratti) h += "<h3>Tratti</h3><p class=\"pre\">" + esc(s.tratti) + "</p>";
@@ -74,7 +80,7 @@ function htmlScheda(key, indietro) {
       }).join("") + "</ul>";
     }
   }
-  h += htmlCombattimento(s, key);
+  if (semp) h += htmlCombattimento(s, key);
   if (s.note) h += "<h3>Note</h3><p class=\"pre\">" + esc(s.note) + "</p>";
   h += '<div class="row" style="margin-top:1.2rem"><button class="primary" data-act="modifica-scheda" data-id="' + s.id + '">Modifica scheda</button>' +
     (!semp && s.livello < 20 ? '<button data-act="sali-livello" data-id="' + s.id + '">Sali di livello</button>' : "") +

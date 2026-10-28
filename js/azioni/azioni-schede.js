@@ -12,6 +12,33 @@ function rapido(id, pf, temp, isp) {
   run(function () { return call("aggiorna_scheda_rapida", { p_id: Number(id), p_pf: pf, p_temp: temp, p_isp: isp }); })
     .then(function (r) { if (r) caricaDati().then(disegnaTab); });
 }
+// ---------------------------------------------------------------- monete
+// Legge i quattro campi (platino, oro, argento, rame) con il prefisso dato: "mp" per spendere/incassare, "mc" per correggere.
+function leggiMonete(pre) {
+  var r = {};
+  MON.forEach(function (x) { var el = $("#" + pre + "_" + x[0]); r[x[0]] = Math.max(0, Math.floor(Number(el && el.value) || 0)); });
+  return r;
+}
+function salvaMonete(id, nuove, ok) {
+  run(function () { return call("aggiorna_monete", { p_id: Number(id), p: nuove }); }, ok)
+    .then(function (r) { if (r) caricaDati().then(disegnaTab); });
+}
+function cambiaMonete(id, modo) {
+  var s = schedaPerId(id); if (!s) return;
+  var m = moneteDi(s);
+  if (modo === "imposta") { salvaMonete(id, leggiMonete("mc"), "Monete corrette"); return; }
+  var imp = leggiMonete("mp"), valore = rameTotali(imp);
+  if (valore <= 0) { toast("Scrivi quanto " + (modo === "spendi" ? "spendere" : "incassare") + ".", true); return; }
+  if (modo === "incassa") {
+    var n = {}; MON.forEach(function (x) { n[x[0]] = m[x[0]] + imp[x[0]]; });
+    salvaMonete(id, n, "Incassati " + testoMonete(dividiMonete(valore)));
+    return;
+  }
+  var r = spendiMonete(m, valore);
+  if (r.errore) { toast(r.errore, true); return; }
+  salvaMonete(id, r.m, "Spesi " + testoMonete(dividiMonete(valore)) + (r.cambio ? ". " + r.cambio : ""));
+}
+
 var ACT_SCHEDE = {
   "apri-scheda": function (b) { S.schedaAperta = b.dataset.key; disegnaTab(); },
   "chiudi-scheda": function () { S.schedaAperta = null; disegnaTab(); },
@@ -68,7 +95,10 @@ var ACT_SCHEDE = {
     var s = schedaPerId(b.dataset.id); if (!s) return;
     rapido(s.id, null, Math.max(0, Math.floor(Number($("#pft").value) || 0)), null);
   },
-  ispirazione: function (b) { var s = schedaPerId(b.dataset.id); if (s) rapido(s.id, null, null, !s.ispirazione); }
+  ispirazione: function (b) { var s = schedaPerId(b.dataset.id); if (s) rapido(s.id, null, null, !s.ispirazione); },
+  "monete-spendi": function (b) { cambiaMonete(b.dataset.id, "spendi"); },
+  "monete-incassa": function (b) { cambiaMonete(b.dataset.id, "incassa"); },
+  "monete-imposta": function (b) { cambiaMonete(b.dataset.id, "imposta"); }
 };
 Object.keys(ACT_SCHEDE).forEach(function (k) { ACT[k] = ACT_SCHEDE[k]; });
 FORMS.wz = function () { wzAvanti(); };

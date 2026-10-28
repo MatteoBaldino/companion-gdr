@@ -46,7 +46,7 @@ function viewAuth(mode) {
 function viewCampagne() {
   root.innerHTML = '<main class="narrow"><p class="boot">Caricamento…</p></main>';
   sb.from("giocatori")
-    .select("id, nome, ruolo, campagna_id, campagne(id, nome, codice_invito)")
+    .select("id, nome, ruolo, campagna_id, campagne(id, nome, codice_invito, peso_moneta_kg)")
     .eq("user_id", S.user.id).order("id")
     .then(function (r) {
       if (r.error) { toast(errText(r.error), true); return; }

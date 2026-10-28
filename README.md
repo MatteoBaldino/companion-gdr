@@ -103,6 +103,10 @@ Da eseguire nello SQL Editor, ognuno una sola volta, in questo ordine:
 
 **Listino standard.** Una campagna è segnata come «listino standard» (`campagne.listino_standard`, una sola). Ogni master può copiarne gli oggetti e i servizi nella propria campagna con **Copia listino standard** in Libreria: le voci che ha già restano com’erano e le modifiche valgono solo per la sua campagna. Per cambiare campagna standard, nello SQL Editor: `update campagne set listino_standard = false;` poi `update campagne set listino_standard = true where id = NUMERO;`.
 
+**Monete sulla scheda.** Sopra l'inventario ci sono le quattro monete (Pt, Or, Ar, Ra) e la tendina «Spendi o incassa»: scrivi un importo, anche misto, e se non hai le monete giuste il sito cambia una moneta più grande e ti dà il resto. «Correggi le monete» scrive i numeri esatti. Il peso delle monete conta nel carico (peso di una moneta: `campagne.peso_moneta_kg`, 0,01 kg). Si salvano con la funzione `aggiorna_monete`: il giocatore tocca la sua scheda, il master tutte.
+
+**Peso trasportato.** Capacità = Forza × 7,5 kg. Gli stati sono una regola della casa: Leggero fino a Forza × 1,25 kg, Normale fino a Forza × 2,5, Appesantito fino a Forza × 5, Molto appesantito fino alla capacità. Il sito mostra l'etichetta e le soglie nella tendina, ma non applica ancora le penalità di velocità e di svantaggio.
+
 **Importare i listini Excel** (solo il master):
 1. Esegui `aggiornamento_listino.sql` e `aggiornamento_equipaggiamento.sql`, poi carica su GitHub i file nuovi.
 2. In **Libreria** premi **Importa da Excel**.
@@ -168,13 +172,14 @@ Il sito non è più un unico file enorme: sono tanti file piccoli (mai oltre le 
 | `js/scheda/dati.js` | Dati fissi della scheda: caratteristiche, abilità e le dodici classi (dado vita, tiri salvezza, abilità). Da controllare sul manuale. |
 | `js/scheda/menu-opzioni.js` | Menu a tendina con «Altro…» per specie, background e classe, con i relativi elenchi. |
 | `js/scheda/calcoli.js` | Calcoli della scheda: modificatori, bonus competenza, CA con armatura, scudo, elmo e protezioni, abilità. |
-| `js/scheda/vista.js` | Come si disegna la scheda personaggio e l'elenco delle schede del master. |
+| `js/scheda/vista.js` | Come si disegna la scheda personaggio e l'elenco delle schede del master. Nelle schede complete: caratteristiche e CA/PF in alto; a sinistra abilità, monete e inventario; a destra tiri salvezza, attacchi e incantesimi. |
 | `js/scheda/salvataggio.js` | Salvataggio della scheda: preparazione dei dati e chiamata al database. |
 | `js/scheda/modifica.js` | Modulo per modificare la scheda a mano (completa o semplificata). |
 | `js/scheda/creazione.js` | Creazione guidata del personaggio in 4 passi: identità, caratteristiche, competenze, riepilogo. |
 | `js/azioni/azioni-schede.js` | Pulsanti delle schede: aprire, creare, salire di livello, eliminare, danni e cure. |
 | `js/scheda/dati-incantesimi.js` | Tabelle degli slot per livello, dati extra delle classi e calcoli per incantesimi e attacchi. Da controllare sul manuale. |
 | `js/scheda/attacchi.js` | Tabella degli attacchi: armi equipaggiate e incantesimi, con bonus per colpire e danno. |
+| `js/scheda/inventario-scheda.js` | Barra delle monete (spendi, incassa, correggi, con il resto dato da solo) e inventario con l'etichetta del peso (Leggero, Normale, Appesantito, Molto appesantito) e la tendina con le soglie. |
 | `js/scheda/slot-turno.js` | Turno (azione, bonus, reazione, movimento), riposi, concentrazione, slot incantesimo e risorse. |
 | `js/scheda/incantesimi-scheda.js` | Incantesimi sulla scheda: elenco per livello, preparati e lancio. |
 | `js/scheda/gioco.js` | Stato di gioco: aggiornamento immediato di slot, turno e concentrazione, con gli avvisi sul lancio. |

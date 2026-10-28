@@ -102,6 +102,7 @@ function aggiorna() {
   if (!S.me || document.querySelector("dialog[open]")) return;
   var a = document.activeElement;
   if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName) && $("#main").contains(a)) return;
+  if (document.querySelector("#main details[open]")) return;   // una tendina aperta (monete, peso): non la chiudo ridisegnando
   caricaDati().then(disegnaTab);
 }
 
