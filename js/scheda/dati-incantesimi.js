@@ -70,6 +70,28 @@ function dannoInc(s, i, st) {
   if (i.aggiunge_mod && st.mod != null && st.mod !== 0) d += sgn(st.mod);
   return d + (i.tipo_danno ? " " + i.tipo_danno : "");
 }
+// Le liste di incantesimi da cui può scegliere una scheda: le classi scritte nel campo Classe (anche più di una, separate da / , + & o "e"),
+// più la lista del Mago per il Ladro Mistificatore Arcano e il Guerriero Cavaliere Mistico. Restituisce i nomi delle classi, es. ["Mago", "Chierico"].
+function classiIncantatore(s) {
+  var nomi = [], sotto = String(s.sottoclasse || "").toLowerCase();
+  String(s.classe || "").split(/\s*[\/,+&;]\s*|\s+e\s+/i).forEach(function (p) {
+    var info = classeInfo(p.replace(/\d+/g, "").trim());
+    if (!info) return;
+    if (info.inc) nomi.push(info.n);
+    else if (info.n === "Ladro" && sotto.indexOf("arcan") >= 0) nomi.push("Mago");
+    else if (info.n === "Guerriero" && sotto.indexOf("mistic") >= 0) nomi.push("Mago");
+  });
+  return nomi.filter(function (n, k) { return nomi.indexOf(n) === k; });
+}
+// Le classi che hanno questo incantesimo nella propria lista (dal campo Classi dell'incantesimo).
+function classiDiInc(i) {
+  return String(i.classi || "").split(/\s*[,;\/]\s*|\s+e\s+/i).map(function (x) { return x.trim(); }).filter(Boolean);
+}
+// La fonte dell'incantesimo per questa scheda: la prima delle sue classi che ha l'incantesimo in lista ("" se nessuna).
+function fonteAuto(s, i) {
+  var sue = classiDiInc(i).map(function (x) { return x.toLowerCase(); });
+  return classiIncantatore(s).filter(function (n) { return sue.indexOf(n.toLowerCase()) >= 0; })[0] || "";
+}
 function gittataInc(i) { return i.gittata_speciale || (i.gittata_m != null ? fmtDist(i.gittata_m) : "—"); }
 function competenteArma(s, a, prop) {
   var c = s.competenze_armi || [], leg = prop.indexOf("accurata") >= 0 || prop.indexOf("finesse") >= 0 || prop.indexOf("leggera") >= 0;
