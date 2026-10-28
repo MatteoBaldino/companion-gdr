@@ -313,9 +313,11 @@ ul.sk li[data-act="dado"]:hover, ul.sk li[data-act="dado"]:focus-visible { outli
 .cella .mv input { width: 3.6rem; text-align: center; }
 .mon input { width: 100%; text-align: center; font: 700 1.3rem var(--sans); border: 0; background: transparent; color: var(--ink); padding: .1rem 0; }
 
-/* ---- note degli oggetti e degli attacchi */
-.invs .nota, .invs .nota-d { grid-column: 1 / -1; }
-.invs .nota { font-size: .82rem; color: var(--muted); margin-top: -.1rem; }
-.invs .nota-d summary { cursor: pointer; font-size: .82rem; color: var(--accent); }
-.invs .nota-d p { margin: .3rem 0 0; font-size: .88rem; }
-table.att td.nota-att { font-size: .85rem; color: var(--muted); min-width: 9rem; }
+/* ---- note degli oggetti e degli attacchi: un tasto che si apre e si chiude */
+.notebtn summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: .3rem; min-height: 1.9rem; padding: 0 .65rem;
+  border: 1px solid var(--line); border-radius: 6px; font-size: .82rem; color: var(--accent); background: var(--panel); }
+.notebtn summary::-webkit-details-marker { display: none; }
+.notebtn summary::after { content: "\25BE"; color: var(--muted); }
+.notebtn[open] summary::after { content: "\25B4"; }
+.notebtn p { margin: .35rem 0 0; font-size: .86rem; color: var(--muted); }
+.invs .nota-i { grid-column: 1 / -1; }

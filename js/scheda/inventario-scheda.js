@@ -112,11 +112,10 @@ function htmlInventarioScheda(s, key) {
   h += '<ul class="plain invs">' + righe.map(function (i) {
     var o = i.oggetti, eq = o.categoria !== "cibo"
       ? '<button class="small" data-act="equip" data-inv="' + i.id + '" data-v="' + (i.equipaggiato ? "0" : "1") + '">' + (i.equipaggiato ? "Rimetti nello zaino" : "Equipaggia") + "</button>" : "";
-    var nota = notaOggetto(o);
+    var nota = notaOggetto(o), extra = (nota ? "<p>" + esc(nota) + "</p>" : "") + (o.descrizione ? "<p>" + esc(o.descrizione) + "</p>" : "");
     return "<li><span class=\"n\">" + esc(o.nome) + (i.quantita > 1 ? " ×" + i.quantita : "") +
       (i.equipaggiato ? ' <span class="tag">equipaggiato</span>' : "") + '</span><span class="w">' + fmtPeso((Number(o.peso) || 0) * i.quantita) + "</span>" + eq +
-      (nota ? '<div class="nota">' + esc(nota) + "</div>" : "") +
-      (o.descrizione ? "<details class=\"nota-d\"><summary>Descrizione</summary><p>" + esc(o.descrizione) + "</p></details>" : "") + "</li>";
+      (extra ? '<details class="notebtn nota-i"><summary>Note</summary>' + extra + "</details>" : "") + "</li>";
   }).join("") +
     (p.nMonete ? '<li><span class="n">Monete <span class="tag">' + p.nMonete + '</span></span><span class="w">' + fmtPeso(p.monete) + "</span></li>" : "") + "</ul>";
   return h;

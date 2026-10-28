@@ -71,11 +71,15 @@ function celDanno(s, x, n) {
   return '<button class="small dadobtn' + (crit ? " crit" : "") + '" data-act="dado" data-k="dan" data-id="' + s.id + '" data-r="' + n + '" aria-label="Tira il danno: ' + esc(x.n) + '">' +
     (crit ? "Danno critico " : "") + esc(x.danno) + "</button>";
 }
+// La nota è un tasto "Note" che si apre e si chiude, per non occupare spazio.
+function celNote(x) {
+  return x.note ? '<details class="notebtn"><summary>Note</summary><p>' + esc(x.note) + "</p></details>" : "";
+}
 function htmlAttacchi(s, key) {
   var r = attacchi(s, key);
   if (!r.length) return "";
   var h = '<h3>Attacchi</h3><div class="scroll"><table class="att"><thead><tr><th>Nome</th><th>Tiro</th><th>Danno</th><th>Gittata</th><th>Note</th></tr></thead><tbody>' +
-    r.map(function (x, n) { return "<tr><td>" + esc(x.n) + "</td><td>" + celTiro(s, x, n) + "</td><td>" + celDanno(s, x, n) + "</td><td>" + esc(x.gitt) + "</td><td class=\"nota-att\">" + esc(x.note) + "</td></tr>"; }).join("") + "</tbody></table></div>";
+    r.map(function (x, n) { return "<tr><td>" + esc(x.n) + "</td><td>" + celTiro(s, x, n) + "</td><td>" + celDanno(s, x, n) + "</td><td>" + esc(x.gitt) + "</td><td>" + celNote(x) + "</td></tr>"; }).join("") + "</tbody></table></div>";
   if (s.tipo === "completa") h += '<p class="hint">Le armi compaiono quando le equipaggi nell’inventario. Bonus e danno usano la caratteristica giusta, la competenza e il bonus per colpire dell’oggetto.</p>';
   return h;
 }
