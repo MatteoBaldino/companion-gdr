@@ -51,10 +51,18 @@ function incDiScheda(sid) {
   return S.si.filter(function (r) { return r.scheda_id === sid; }).map(function (r) { return { r: r, i: incPerId(r.incantesimo_id) }; })
     .filter(function (x) { return x.i; });
 }
+// Se nella scheda non è scelta la caratteristica da incantatore, la ricavo dalla classe (anche per il Ladro Mistificatore Arcano
+// e il Guerriero Cavaliere Mistico, che lanciano con Intelligenza): così attacco e CD si calcolano comunque.
+function carInferita(s) {
+  var nomi = classiIncantatore(s);
+  for (var k = 0; k < nomi.length; k++) { var info = classeInfo(nomi[k]); if (info && info.car) return info.car; }
+  return null;
+}
 function statInc(s) {
-  var bc = bonusComp(s.livello), m = (s.tipo === "completa" && s.car_incantesimi) ? mod(s[ABK[s.car_incantesimi][3]]) : null;
+  var car = s.car_incantesimi || carInferita(s);
+  var bc = bonusComp(s.livello), m = (s.tipo === "completa" && car && ABK[car]) ? mod(s[ABK[car][3]]) : null;
   return {
-    car: s.car_incantesimi, mod: m,
+    car: car, mod: m,
     cd: s.cd_incantesimi != null ? s.cd_incantesimi : (m != null ? 8 + bc + m : null),
     att: s.att_incantesimi != null ? s.att_incantesimi : (m != null ? bc + m : null)
   };

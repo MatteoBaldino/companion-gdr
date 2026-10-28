@@ -13,6 +13,7 @@ function htmlIncantesimi(s) {
   if (!S.incOk) return "";
   var st = statInc(s), lista = incDiScheda(s.id);
   var h = '<h3>Incantesimi</h3><p class="hint">' + (st.car ? "Caratteristica: " + ABK[st.car][1] + ". " : "") + (st.cd != null ? "CD " + st.cd + ". " : "") + (st.att != null ? "Attacco " + sgn(st.att) + "." : "") +
+    (!st.car && s.tipo === "completa" ? "Per calcolare attacco e CD scegli la caratteristica da incantatore in «Modifica scheda»." : "") +
     "</p><p><button class=\"small primary\" data-act=\"inc-aggiungi\" data-id=\"" + s.id + "\">Aggiungi incantesimo</button></p>";
   if (!lista.length) return h + '<p class="hint">Nessun incantesimo sulla scheda.</p>';
   for (var lv = 0; lv <= 9; lv++) {
