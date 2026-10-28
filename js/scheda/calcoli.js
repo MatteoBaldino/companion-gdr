@@ -90,5 +90,5 @@ function totaleAbilita(s, k) {
 function riassunto(s, key) {
   var ca = calcCA(s, key).tot;
   if (s.tipo === "semplificata") return "Scheda semplificata" + (s.sfida ? ", grado di sfida " + s.sfida : "") + ", CA " + ca + ", PF " + s.pf_attuali + "/" + s.pf_max;
-  return [s.classe, "livello " + s.livello].filter(Boolean).join(" ") + ", CA " + ca + ", PF " + s.pf_attuali + "/" + s.pf_max;
+  return [descriviClassi(s), "livello " + s.livello].filter(Boolean).join(" ") + ", CA " + ca + ", PF " + s.pf_attuali + "/" + s.pf_max;
 }

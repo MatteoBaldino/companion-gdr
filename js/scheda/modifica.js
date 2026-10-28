@@ -15,8 +15,7 @@ function editorScheda(key, s, tipo) {
   var corpo = "";
   if (!semp) {
     corpo += '<div class="cols">' + campoOpz("specie", "Specie", SPECIE, d.specie) + campoOpz("background", "Background", BACKGROUND, d.background) + "</div>" +
-      '<div class="cols">' + campoOpz("classe", "Classe", NOMI_CLASSI, d.classe) + fld("sottoclasse", "Sottoclasse", d.sottoclasse) +
-      fld("livello", "Livello", d.livello, 'min="1" max="20" required', "number") + "</div>";
+      htmlModuloClassi(d);
   } else {
     corpo += fld("sfida", "Grado di sfida (es. 1/4)", d.sfida);
   }
@@ -39,11 +38,15 @@ function editorScheda(key, s, tipo) {
       area("azioni", "Azioni (una per riga, nel formato  Nome | descrizione)", (d.azioni || []).map(function (a) { return a.nome + " | " + a.testo; }).join("\n"));
   }
   corpo += camposGioco(d, semp) + area("note", "Note", d.note);
-  modal((nuova ? "Nuova scheda: " : "Modifica scheda: ") + nomeHolder(key), corpo, function (fd) {
-    var x = leggi(fd), t = parteDa(key);
+  var form = modal((nuova ? "Nuova scheda: " : "Modifica scheda: ") + nomeHolder(key), corpo, function (fd, f) {
+    var x = leggi(fd), t = parteDa(key), cls = semp ? [] : clsLeggi(f), sc = semp ? null : classiScrivi(cls);
+    if (!semp) {
+      if (!cls.length) { toast("Scrivi almeno una classe.", true); return false; }
+      if (cls.reduce(function (n, c) { return n + c.lv; }, 0) > 20) { toast("Il livello totale non può superare 20.", true); return false; }
+    }
     var p = { campagna_id: campId(), id: s ? s.id : null, giocatore_id: t.g, png_id: t.p, tipo: semp ? "semplificata" : "completa",
-      specie: semp ? "" : x.o("specie"), background: semp ? "" : x.o("background"), classe: semp ? "" : x.o("classe"), sottoclasse: semp ? "" : x.g("sottoclasse"),
-      livello: semp ? 1 : (x.n("livello") || 1), pf_max: x.n("pf_max") || 0, pf_attuali: x.n("pf_attuali") || 0, pf_temp: x.n("pf_temp") || 0,
+      specie: semp ? "" : x.o("specie"), background: semp ? "" : x.o("background"), classe: semp ? "" : sc.classe, sottoclasse: semp ? "" : sc.sottoclasse,
+      livello: semp ? 1 : sc.livello, pf_max: x.n("pf_max") || 0, pf_attuali: x.n("pf_attuali") || 0, pf_temp: x.n("pf_temp") || 0,
       ca_manuale: x.n("ca_manuale"), ca_bonus: x.n("ca_bonus") || 0, velocita: distM(x.n("velocita")), note: x.g("note"),
       competenze_ts: [], abilita: {}, ispirazione: false, sfida: semp ? x.g("sfida") : "", tratti: semp ? x.g("tratti") : "", azioni: [] };
     ABIL.forEach(function (a) { p[a[3]] = x.n("a_" + a[0]) || 10; });
@@ -63,4 +66,5 @@ function editorScheda(key, s, tipo) {
       if (nuova) apriDopo(key);
     });
   });
+  if (!semp) clsAggiorna(form, true);
 }

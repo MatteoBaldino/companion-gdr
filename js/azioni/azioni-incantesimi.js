@@ -147,16 +147,14 @@ var ACT_INC = {
   },
   "suggerisci-slot": function () {
     var f = $("#dlgForm"); if (!f) return;
-    var info = classeInfo(valOpz(f, "classe")), lv = Math.min(20, Math.max(1, Number(f.elements.livello.value) || 1));
-    if (!info) { toast("Classe non riconosciuta: scrivi una delle dodici classi del manuale base.", true); return; }
-    var sl = slotSuggeriti(info, lv);
-    sl.tot.forEach(function (n, k) { f.elements["slot_" + (k + 1)].value = n; });
-    f.elements.slot_riposo.value = sl.riposo;
-    if (info.car && !f.elements.car_incantesimi.value) f.elements.car_incantesimi.value = info.car;
+    var l = clsLeggi(f), prima = l.filter(function (c) { return c.info; })[0];
+    if (!prima) { toast("Classe non riconosciuta: scrivi una delle dodici classi del manuale base.", true); return; }
+    clsAggiorna(f);
+    var info = prima.info;
     if (!f.elements.arm_semplici.checked && !f.elements.arm_guerra.checked && !f.elements.arm_guerra_leggere.checked) {
       f.elements.arm_semplici.checked = info.armi.indexOf("semplici") >= 0; f.elements.arm_guerra.checked = info.armi.indexOf("da_guerra") >= 0; f.elements.arm_guerra_leggere.checked = info.armi.indexOf("da_guerra_leggere") >= 0;
     }
-    toast("Valori proposti per " + info.n + " di livello " + lv + ": controllali.");
+    toast("Slot e caratteristica proposti da classe e livello (" + descriviClassi({ classe: classiScrivi(l).classe, sottoclasse: classiScrivi(l).sottoclasse, livello: classiScrivi(l).livello }) + "): controllali.");
   }
 };
 Object.keys(ACT_INC).forEach(function (k) { ACT[k] = ACT_INC[k]; });

@@ -47,17 +47,41 @@ var ACT_SCHEDE = {
   "modifica-scheda": function (b) { var s = schedaPerId(b.dataset.id); if (s) editorScheda(keyDiScheda(s), s); },
   "sali-livello": function (b) {
     var s = schedaPerId(b.dataset.id); if (!s) return;
-    var info = classeInfo(s.classe), dado = info ? info.dado : 8, guad = Math.max(1, Math.floor(dado / 2) + 1 + mod(s.costituzione));
-    modal("Sali di livello: " + nomeHolder(keyDiScheda(s)),
+    var lista = classiDi(s), nome = nomeHolder(keyDiScheda(s));
+    var guadDi = function (info) { var dado = info ? info.dado : 8; return Math.max(1, Math.floor(dado / 2) + 1 + mod(s.costituzione)); };
+    var opz = lista.map(function (c, i) { return [String(i), c.n + " (livello " + c.lv + " → " + (c.lv + 1) + ")"]; });
+    opz.push(["nuova", "Una nuova classe (multiclasse)"]);
+    var f = modal("Sali di livello: " + nome,
       "<p>Da livello " + s.livello + " a livello <strong>" + (s.livello + 1) + "</strong>. Il bonus competenza passa a " + sgn(bonusComp(s.livello + 1)) + ".</p>" +
-      fld("guadagno", "Punti ferita in più" + (info ? " (media del d" + dado + " più Costituzione)" : " (stima con un d8)"), guad, 'min="0" required', "number") +
-      '<p class="hint">Controlla sul manuale se a questo livello la tua classe dà un aumento di caratteristica o un talento: in quel caso modifica le caratteristiche dalla scheda.</p>',
+      (lista.length ? sel("quale", "In quale classe sali", opz, "0") + sel("nuova", "Se è una nuova classe, quale", [["", "—"]].concat(NOMI_CLASSI.map(function (n) { return [n, n]; })), "") : "") +
+      fld("guadagno", "Punti ferita in più (media del dado vita più Costituzione)", guadDi(lista.length ? lista[0].info : null), 'min="0" required', "number") +
+      '<p class="hint">Controlla sul manuale se a questo livello la tua classe dà un aumento di caratteristica o un talento: in quel caso modifica le caratteristiche dalla scheda. Gli slot incantesimo si aggiornano da soli, se non li avevi cambiati a mano.</p>',
       function (fd) {
-        var g = Number(fd.get("guadagno")) || 0, p = payloadDaScheda(s);
-        p.livello = s.livello + 1; p.pf_max = s.pf_max + g; p.pf_attuali = s.pf_attuali + g;
-        if (info && info.inc && uguali(s.slot_totali, slotSuggeriti(info, s.livello).tot)) { var sn = slotSuggeriti(info, p.livello); p.slot_totali = sn.tot; p.slot_riposo = sn.riposo; }
+        var g = Number(fd.get("guadagno")) || 0, p = payloadDaScheda(s), nuova = lista.map(function (c) { return { n: c.n, info: c.info, lv: c.lv, sub: c.sub }; });
+        p.pf_max = s.pf_max + g; p.pf_attuali = s.pf_attuali + g;
+        if (!lista.length) { p.livello = s.livello + 1; }
+        else {
+          var q = fd.get("quale");
+          if (q === "nuova") {
+            var n = String(fd.get("nuova") || "");
+            if (!n) { toast("Scegli la nuova classe.", true); return false; }
+            if (lista.some(function (c) { return c.n === n; })) { toast("Hai già " + n + ": sceglila nell’elenco «In quale classe sali».", true); return false; }
+            nuova.push({ n: n, info: classeInfo(n), lv: 1, sub: "" });
+          } else nuova[Number(q)].lv++;
+          var sc = classiScrivi(nuova); p.classe = sc.classe; p.sottoclasse = sc.sottoclasse; p.livello = sc.livello;
+          var prima = slotDaClassi(lista), dopo = slotDaClassi(nuova);
+          if (uguali(s.slot_totali || [], prima.tot) || (!(s.slot_totali || []).some(function (x) { return x > 0; }) && !prima.tot.some(function (x) { return x > 0; }))) {
+            p.slot_totali = dopo.tot; p.slot_riposo = dopo.riposo; p.risorse = risorsePatto(s.risorse, dopo.patto);
+          }
+        }
         return salvaScheda(p, "Sei salito al livello " + p.livello).then(function (id) { return id != null; });
       }, "Sali di livello");
+    // Cambiando classe, propongo i punti ferita del suo dado vita.
+    if (lista.length) f.addEventListener("change", function (e) {
+      if (e.target.name !== "quale" && e.target.name !== "nuova") return;
+      var q = f.elements.quale.value, info = q === "nuova" ? classeInfo(f.elements.nuova.value) : lista[Number(q)].info;
+      f.elements.guadagno.value = guadDi(info);
+    });
   },
   "elimina-scheda": function (b) {
     var s = schedaPerId(b.dataset.id); if (!s) return;

@@ -34,7 +34,7 @@ function htmlScheda(key, indietro) {
   var ca = calcCA(s, key);
   var bc = bonusComp(s.livello);
   var sub = semp ? (s.sfida ? "Grado di sfida " + s.sfida : "NPC")
-    : [s.specie, s.background, [s.classe, s.sottoclasse].filter(Boolean).join(" "), "livello " + s.livello].filter(Boolean).join(", ");
+    : [s.specie, s.background, descriviClassi(s), "livello " + s.livello].filter(Boolean).join(", ");
   var tile = function (lbl, val, small, attr) {
     return '<div class="vit"' + (attr || "") + '><span class="lbl">' + lbl + "</span><strong>" + val + "</strong>" + (small ? "<small>" + esc(small) + "</small>" : "") + "</div>";
   };

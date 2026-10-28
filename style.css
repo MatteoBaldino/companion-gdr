@@ -333,3 +333,8 @@ ul.sk li[data-act="dado"]:hover, ul.sk li[data-act="dado"]:focus-visible { outli
 .eqmore > summary::-webkit-details-marker { display: none; }
 .eqmore > summary::after { content: "\25BE"; margin-left: .4rem; }
 .eqmore[open] > summary::after { content: "\25B4"; }
+
+/* ---- più classi nella modifica della scheda */
+.clsrigaed { display: grid; grid-template-columns: 1fr 5rem 1fr auto; gap: .5rem; align-items: end; margin-bottom: .5rem; }
+.clsrigaed .f { margin: 0; }
+@media (max-width: 560px) { .clsrigaed { grid-template-columns: 1fr 5rem; } .clsrigaed .f:nth-child(3) { grid-column: 1 / -1; } }

@@ -58,8 +58,16 @@ function carInferita(s) {
   for (var k = 0; k < nomi.length; k++) { var info = classeInfo(nomi[k]); if (info && info.car) return info.car; }
   return null;
 }
-function statInc(s) {
-  var car = s.car_incantesimi || carInferita(s);
+// Con più classi, ogni incantesimo usa la caratteristica della classe che lo dà (la sua Fonte).
+function carDiFonte(s, fonte) {
+  var l = classiDi(s), f = String(fonte || "").trim().toLowerCase();
+  if (l.length < 2 || !f) return null;
+  var c = l.filter(function (x) { return x.n.toLowerCase() === f; })[0];
+  if (!c) return null;
+  return (c.info && c.info.car) || (tipoInc(c) === "terzo" ? "int" : null);
+}
+function statInc(s, fonte) {
+  var car = carDiFonte(s, fonte) || s.car_incantesimi || carInferita(s);
   var bc = bonusComp(s.livello), m = (s.tipo === "completa" && car && ABK[car]) ? mod(s[ABK[car][3]]) : null;
   return {
     car: car, mod: m,
@@ -78,16 +86,13 @@ function dannoInc(s, i, st) {
   if (i.aggiunge_mod && st.mod != null && st.mod !== 0) d += sgn(st.mod);
   return d + (i.tipo_danno ? " " + i.tipo_danno : "");
 }
-// Le liste di incantesimi da cui può scegliere una scheda: le classi scritte nel campo Classe (anche più di una, separate da / , + & o "e"),
-// più la lista del Mago per il Ladro Mistificatore Arcano e il Guerriero Cavaliere Mistico. Restituisce i nomi delle classi, es. ["Mago", "Chierico"].
+// Le liste di incantesimi da cui può scegliere una scheda: le classi della scheda che lanciano incantesimi (anche più di una),
+// più la lista del Mago per il Ladro Mistificatore Arcano e il Guerriero Cavaliere Mistico. Restituisce i nomi, es. ["Mago", "Chierico"].
 function classiIncantatore(s) {
-  var nomi = [], sotto = String(s.sottoclasse || "").toLowerCase();
-  String(s.classe || "").split(/\s*[\/,+&;]\s*|\s+e\s+/i).forEach(function (p) {
-    var info = classeInfo(p.replace(/\d+/g, "").trim());
-    if (!info) return;
-    if (info.inc) nomi.push(info.n);
-    else if (info.n === "Ladro" && sotto.indexOf("arcan") >= 0) nomi.push("Mago");
-    else if (info.n === "Guerriero" && sotto.indexOf("mistic") >= 0) nomi.push("Mago");
+  var nomi = [];
+  classiDi(s).forEach(function (c) {
+    var t = tipoInc(c);
+    if (t === "terzo") nomi.push("Mago"); else if (t) nomi.push(c.n);
   });
   return nomi.filter(function (n, k) { return nomi.indexOf(n) === k; });
 }

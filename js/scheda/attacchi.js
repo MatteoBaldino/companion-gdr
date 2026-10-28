@@ -50,7 +50,7 @@ function attacchi(s, key) {
     righe.push({ n: "Colpo senza armi", b: fo + bc, dd: { gruppi: [], piatto: Math.max(0, 1 + fo) }, tiro: sgn(fo + bc), danno: Math.max(0, 1 + fo) + " contundenti", gitt: fmtDist(1.5), note: "" });
   }
   incDiScheda(s.id).forEach(function (x) {
-    var i = x.i;
+    var i = x.i, st = statInc(s, x.r.fonte);
     if (i.livello > 0 && x.r.stato === "non_preparato") return;
     if (i.effetto === "automatico" && !i.danno) return;
     var tiro = "—";
