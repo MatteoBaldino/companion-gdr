@@ -1,0 +1,148 @@
+/* =====================================================================
+   tema.css  -  Stile «Tavolo»: colori vivaci ma morbidi, per giocare a lungo
+   Cosa fa:   Ridefinisce i colori del sito e aggiunge qualche tocco da gioco
+              di ruolo (banda colorata in alto, ogni caratteristica col suo
+              colore, riquadri più arrotondati). Si carica DOPO style.css
+              (la riga è in index.html).
+   Per tornare allo stile di prima: togli da index.html la riga che carica
+   tema.css. Non serve toccare altro.
+   Occhi: niente bianco o nero puri (carta color pergamena di giorno, blu
+   notte di sera), colori vivaci a luminosità media, contrasto del testo
+   sempre alto, nessuna animazione.
+   ===================================================================== */
+:root {
+  --ink: #2b2540;
+  --muted: #655c82;
+  --paper: #f6efe0;
+  --panel: #fffaf1;
+  --line: #ddd0b0;
+  --accent: #0a7b6a;
+  --accent-ink: #ffffff;
+  --brass: #a85f00;
+  --danger: #c3303f;
+  --ok: #1d8a4a;
+  --c-arma: #c3414c;
+  --c-armatura: #2c6db3;
+  --c-cibo: #58851a;
+  --c-vario: #7650c4;
+  --a-for: #c3414c;
+  --a-des: #2a9455;
+  --a-cos: #cf6f12;
+  --a-int: #2c6db3;
+  --a-sag: #0a7b6a;
+  --a-car: #8350cf;
+  --viola: #7650c4;
+  --top1: #5a3fc0;
+  --top2: #176d9c;
+  --top3: #0e8271;
+  --glow1: rgba(131, 80, 207, .13);
+  --glow2: rgba(13, 138, 119, .13);
+  --glow-accent: rgba(10, 123, 106, .14);
+  --ombra: rgba(70, 50, 120, .16);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #ece9fa;
+    --muted: #aaa5d4;
+    --paper: #151330;
+    --panel: #201d40;
+    --line: #3b3770;
+    --accent: #4fd9bd;
+    --accent-ink: #0b2229;
+    --brass: #ffc45e;
+    --danger: #ff8090;
+    --ok: #72e49c;
+    --c-arma: #ff8f8f;
+    --c-armatura: #74c6ff;
+    --c-cibo: #b9e76c;
+    --c-vario: #c6a6ff;
+    --a-for: #ff8f8f;
+    --a-des: #72e49c;
+    --a-cos: #ffb25e;
+    --a-int: #74c6ff;
+    --a-sag: #4fd9bd;
+    --a-car: #c6a6ff;
+    --viola: #c6a6ff;
+    --top1: #35297c;
+    --top2: #11506f;
+    --top3: #0d6b5c;
+    --glow1: rgba(150, 110, 255, .16);
+    --glow2: rgba(79, 217, 189, .10);
+    --glow-accent: rgba(79, 217, 189, .16);
+    --ombra: rgba(0, 0, 0, .35);
+  }
+}
+
+/* Sfondo: la carta (o la notte) con due aloni di colore molto leggeri */
+body {
+  background:
+    radial-gradient(900px 480px at 6% -8%, var(--glow1), transparent 62%),
+    radial-gradient(800px 460px at 100% 0%, var(--glow2), transparent 58%),
+    var(--paper);
+  background-attachment: fixed;
+  line-height: 1.55;
+}
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* Banda in alto e schede */
+.top { background: linear-gradient(100deg, var(--top1), var(--top2) 55%, var(--top3)); color: #ffffff; border-bottom: 0; box-shadow: 0 4px 18px var(--ombra); }
+.top h1 { text-shadow: 0 1px 0 rgba(0, 0, 0, .18); }
+.tabs button { opacity: .82; }
+.tabs button[aria-current=true] { opacity: 1; border-bottom-color: #ffd36b; }
+.badge-n { background: #ffd36b; color: #2b2540; }
+
+/* Pulsanti e campi */
+button { border-radius: 10px; }
+button:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow-accent); }
+button.primary { box-shadow: 0 2px 0 rgba(0, 0, 0, .18); }
+button.primary:hover { box-shadow: 0 2px 0 rgba(0, 0, 0, .18), 0 0 0 3px var(--glow-accent); }
+input[type=text], input[type=email], input[type=password], input[type=number], input[type=search], select, textarea { border-radius: 10px; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+/* Titoli e liste */
+h2.sec { border-left: 5px solid var(--accent); padding-left: .6rem; }
+.holder > header { border-bottom: 3px solid var(--accent); }
+.holder h2 { color: var(--ink); }
+.tag { background: var(--glow-accent); color: var(--accent); border-radius: 99px; padding: 0 .6rem; font-weight: 600; }
+.item { border-radius: 4px; }
+.item .qta { color: var(--brass); }
+.empty { border-radius: 12px; background: var(--glow-accent); border-color: var(--accent); }
+dialog { border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 18px 50px var(--ombra); }
+dialog::backdrop { background: rgba(21, 19, 48, .55); }
+
+/* Scheda del personaggio */
+.sh-head { border-bottom: 3px solid; border-image: linear-gradient(90deg, var(--accent), var(--viola), var(--brass)) 1; }
+.sh-head h2 { font-size: 1.8rem; }
+.vit, .ab, .rbox, .cella, .eqb, .att, .morte { border-radius: 12px; }
+.vitali .vit { border-top: 4px solid var(--accent); box-shadow: 0 2px 8px var(--ombra); }
+.vitali .vit:nth-child(1) { border-top-color: var(--a-int); }
+.vitali .vit:nth-child(2) { border-top-color: var(--a-for); }
+.vitali .vit:nth-child(3) { border-top-color: var(--a-des); }
+.vitali .vit:nth-child(4) { border-top-color: var(--a-cos); }
+.vitali .vit:nth-child(5) { border-top-color: var(--a-car); }
+.vitali .vit:nth-child(6) { border-top-color: var(--a-sag); }
+.vitali .vit:nth-child(2) strong { color: var(--a-for); }
+
+/* Ogni caratteristica col suo colore: FOR rosso, DES verde, COS ambra, INT azzurro, SAG verde acqua, CAR viola */
+.abils .ab { border-top: 4px solid var(--accent); box-shadow: 0 2px 8px var(--ombra); }
+.abils .ab:nth-child(1) { border-top-color: var(--a-for); } .abils .ab:nth-child(1) strong { color: var(--a-for); }
+.abils .ab:nth-child(2) { border-top-color: var(--a-des); } .abils .ab:nth-child(2) strong { color: var(--a-des); }
+.abils .ab:nth-child(3) { border-top-color: var(--a-cos); } .abils .ab:nth-child(3) strong { color: var(--a-cos); }
+.abils .ab:nth-child(4) { border-top-color: var(--a-int); } .abils .ab:nth-child(4) strong { color: var(--a-int); }
+.abils .ab:nth-child(5) { border-top-color: var(--a-sag); } .abils .ab:nth-child(5) strong { color: var(--a-sag); }
+.abils .ab:nth-child(6) { border-top-color: var(--a-car); } .abils .ab:nth-child(6) strong { color: var(--a-car); }
+
+/* Turno, dadi, slot */
+.cella.libera { background: var(--glow-accent); }
+.cella.usata { background: transparent; }
+.rbox { border-left: 4px solid var(--viola); box-shadow: 0 2px 8px var(--ombra); }
+.pip { box-shadow: 0 0 8px var(--glow-accent); }
+.pip.usato { box-shadow: none; }
+.morte .pip.morte-s { background: var(--ok); border-color: var(--ok); box-shadow: none; }
+.morte .pip.morte-f { background: var(--danger); border-color: var(--danger); box-shadow: none; }
+.morte .pip.usato { background: transparent; border-color: var(--line); }
+.eqb.pieno { box-shadow: inset 0 0 0 1px var(--accent), 0 2px 8px var(--ombra); background: var(--glow-accent); }
+.sezioni { border-radius: 12px; }
+.sezioni button[aria-current=true] { box-shadow: 0 2px 0 rgba(0, 0, 0, .18); }
+.att { border-radius: 12px; }
+.dlista { border-radius: 12px; }
