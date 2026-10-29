@@ -24,6 +24,19 @@ function htmlPersonaggi() {
   if (!S.gioc.some(function (x) { return x.ruolo === "giocatore"; })) {
     out += '<div class="empty" style="margin-bottom:1.5rem">Nessun giocatore è ancora entrato. Dai loro il codice invito <strong>' + esc(c.codice_invito) + "</strong>: lo inseriscono dopo aver creato l’account.</div>";
   }
+  // Gli oggetti che i giocatori hanno dato al master (di solito per un NPC): «Dai» li passa a un NPC o a un PG, scelto da un elenco con ricerca.
+  var ric = invDi("g:" + S.me.id);
+  if (ric.length) {
+    out += '<section class="holder"><header><h2>Ricevuti dai giocatori</h2><span class="tag">' + ric.length + (ric.length === 1 ? " oggetto" : " oggetti") + "</span></header>" +
+      '<p class="hint">Passali a un NPC con «Dai», oppure toglili.</p>' +
+      ric.map(function (i) {
+        return rigaOggetto(i.oggetti, {
+          qta: i.quantita, compact: true,
+          azioni: '<button class="small" data-act="dai" data-inv="' + i.id + '" data-key="g:' + S.me.id + '">Dai</button>' +
+            '<button class="small danger" data-act="togli" data-inv="' + i.id + '" data-key="g:' + S.me.id + '">Togli</button>'
+        });
+      }).join("") + "</section>";
+  }
   out += hs.map(function (h) {
     var inv = invDi(h.key);
     return '<section class="holder"><header><h2>' + esc(h.nome) + '</h2><span class="tag">' + h.tipo + '</span><button class="small" style="margin-left:auto" data-act="vai-scheda" data-key="' + h.key + '">Scheda</button>' +

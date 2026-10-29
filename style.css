@@ -355,6 +355,7 @@ ul.sk li[data-act="dado"]:hover, ul.sk li[data-act="dado"]:focus-visible { outli
 .notebtn[open] summary::after { content: "\25B4"; }
 .notebtn p { margin: .35rem 0 0; font-size: .86rem; color: var(--muted); }
 .invs .nota-i { grid-column: 1 / -1; }
+.invs .inv-az { grid-column: 1 / -1; display: flex; gap: .4rem; }
 
 /* ---- zona equipaggiamento */
 .eqgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: .4rem; margin-bottom: .4rem; }
@@ -409,3 +410,12 @@ h4.inc-liv small { color: var(--muted); font: 400 .85rem var(--sans); }
 .morte .pip.usato { background: transparent; border-color: var(--line); }
 .duecol > div { min-width: 0; }
 @media (max-width: 740px) { .duecol { grid-template-columns: 1fr; } }
+
+/* ---- elenco dei destinatari con ricerca (Dai, Sposta) */
+.dlista { max-height: 14rem; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; margin-bottom: .6rem; }
+.dlista .dest { display: flex; align-items: center; gap: .6rem; padding: .5rem .7rem; border-bottom: 1px solid var(--line); cursor: pointer; }
+.dlista .dest[hidden] { display: none; }
+.dlista .dest:last-child { border-bottom: 0; }
+.dlista .dest span { flex: 1; }
+.dlista .dest small { color: var(--muted); }
+.dlista .dest input { width: auto; min-height: 0; }

@@ -95,11 +95,12 @@ var ACT = {
   },
   sposta: function (b) {
     var i = invPerId(b.dataset.inv); if (!i) return;
-    var opts = optsDest(b.dataset.key);
-    if (!opts) { toast("Non c’è nessun altro destinatario.", true); return; }
+    var lista = htmlListaDest(b.dataset.key);
+    if (!lista) { toast("Non c’è nessun altro destinatario.", true); return; }
     modal("Sposta “" + i.oggetti.nome + "”",
-      '<label class="f"><span>A chi</span><select name="dest">' + opts + "</select></label>" + campoQta(i.quantita, i.oggetti.impilabile),
+      lista + campoQta(i.quantita, i.oggetti.impilabile),
       function (fd) {
+        if (!fd.get("dest")) { toast("Scegli a chi darlo.", true); return false; }
         var da = parteDa(b.dataset.key), a = parteDa(fd.get("dest"));
         return run(function () {
           return call("trasferisci", { p_camp: campId(), p_ogg: i.oggetto_id, p_qta: Number(fd.get("qta")), da_g: da.g, da_p: da.p, a_g: a.g, a_p: a.p });
@@ -129,18 +130,37 @@ var ACT = {
     run(function () { return posto ? call("equipaggia_posto", { p_inv: i.id, p_posto: posto }) : call("equipaggia", { p_inv: i.id, p_eq: eq }); })
       .then(function (r) { if (r) caricaDati().then(disegnaTab); });
   },
+  // Dai: il master sceglie tra PG e NPC in un elenco con ricerca; il giocatore dà ad altri giocatori o al master (che poi lo passa a un NPC), dal proprio inventario.
   dai: function (b) {
     var i = invPerId(b.dataset.inv); if (!i) return;
-    var altri = S.gioc.filter(function (g) { return g.ruolo === "giocatore" && g.id !== S.me.id; });
-    if (!altri.length) { toast("Non ci sono altri giocatori nella campagna.", true); return; }
+    var key = b.dataset.key || "g:" + S.me.id, da = parteDa(key), scelta;
+    if (isMaster()) scelta = htmlListaDest(key);
+    else {
+      var altri = S.gioc.filter(function (g) { return g.id !== S.me.id; });
+      scelta = altri.length ? '<label class="f"><span>A chi</span><select name="dest">' + altri.map(function (g) { return '<option value="g:' + g.id + '">' + esc(g.nome) + (g.ruolo === "master" ? " (master)" : "") + "</option>"; }).join("") + "</select></label>" +
+        (altri.some(function (g) { return g.ruolo === "master"; }) ? '<p class="hint">Per darlo a un NPC, daglielo al master: lo passa lui.</p>' : "") : "";
+    }
+    if (!scelta) { toast(isMaster() ? "Non c’è nessun altro destinatario." : "Non ci sono altri giocatori nella campagna.", true); return; }
     modal("Dai “" + i.oggetti.nome + "”",
-      '<label class="f"><span>A chi</span><select name="dest">' + altri.map(function (g) { return '<option value="' + g.id + '">' + esc(g.nome) + "</option>"; }).join("") + "</select></label>" +
-      campoQta(i.quantita, i.oggetti.impilabile),
+      scelta + campoQta(i.quantita, i.oggetti.impilabile),
       function (fd) {
+        if (!fd.get("dest")) { toast("Scegli a chi darlo.", true); return false; }
+        var a = parteDa(fd.get("dest"));
         return run(function () {
-          return call("trasferisci", { p_camp: campId(), p_ogg: i.oggetto_id, p_qta: Number(fd.get("qta")), da_g: S.me.id, da_p: null, a_g: Number(fd.get("dest")), a_p: null });
+          return call("trasferisci", { p_camp: campId(), p_ogg: i.oggetto_id, p_qta: Number(fd.get("qta")), da_g: da.g, da_p: da.p, a_g: a.g, a_p: a.p });
         }, "Oggetto consegnato").then(function (r) { if (!r) return false; return caricaDati().then(disegnaTab); });
       }, "Dai");
+  },
+  // Scarta: l'oggetto resta a terra. Esce dall'inventario e il movimento resta nello storico.
+  scarta: function (b) {
+    var i = invPerId(b.dataset.inv); if (!i) return;
+    var key = b.dataset.key || "g:" + S.me.id, da = parteDa(key);
+    modal("Scarta “" + i.oggetti.nome + "”",
+      "<p>L’oggetto resta a terra: esce dall’inventario e il movimento resta nello storico.</p>" + campoQta(i.quantita, i.oggetti.impilabile),
+      function (fd) {
+        return run(function () { return call("scarta", { p_camp: campId(), p_ogg: i.oggetto_id, p_qta: Number(fd.get("qta")), p_g: da.g, p_p: da.p }); }, "Oggetto scartato")
+          .then(function (r) { if (!r) return false; return caricaDati().then(disegnaTab); });
+      }, "Scarta");
   }
 };
 

@@ -21,7 +21,8 @@ function htmlInventario() {
         ? '<button class="small" data-act="equip" data-inv="' + i.id + '" data-v="' + (i.equipaggiato ? "0" : "1") + '">' + (i.equipaggiato ? "Rimetti nello zaino" : "Equipaggia") + "</button>" : "";
       return rigaOggetto(i.oggetti, {
         qta: i.quantita, equip: i.equipaggiato,
-        azioni: eq + '<button class="small" data-act="dai" data-inv="' + i.id + '">Dai a un compagno</button>'
+        azioni: eq + '<button class="small" data-act="dai" data-inv="' + i.id + '">Dai</button>' +
+          '<button class="small" data-act="scarta" data-inv="' + i.id + '">Scarta</button>'
       });
     }).join("");
   });

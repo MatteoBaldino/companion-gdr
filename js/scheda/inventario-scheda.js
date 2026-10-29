@@ -8,7 +8,8 @@
               contaMonete, pesoTrasportato, statoCarico, notaOggetto,
               htmlMonete, htmlInventarioScheda
    Database:  funzione aggiorna_monete, colonna schede.monete,
-              colonna campagne.peso_moneta_kg
+              colonna campagne.peso_moneta_kg, funzioni trasferisci e scarta
+              (pulsanti Dai e Scarta di ogni oggetto)
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
    ===================================================================== */
 "use strict";
@@ -107,9 +108,13 @@ function htmlInventarioScheda(s, key) {
     "La soglia del Leggero e gli effetti sono regole della casa di questa scheda: per ora il sito non li applica da solo.</p></details>";
   if (st.oltre) h += '<p class="avviso">Superi la capacità di carico di ' + fmtPeso(st.M) + ".</p>";
   if (!righe.length && !p.nMonete) return h + '<p class="hint">Inventario vuoto.</p>';
+  // Dai e Scarta li vede il master (per qualunque scheda) e il giocatore sul proprio inventario.
+  var puoAgire = isMaster() || key === "g:" + (S.me && S.me.id);
   h += '<ul class="plain invs">' + righe.map(function (i) {
     var o = i.oggetti, eq = o.categoria !== "cibo"
       ? '<button class="small" data-act="equip" data-inv="' + i.id + '" data-v="' + (i.equipaggiato ? "0" : "1") + '">' + (i.equipaggiato ? "Rimetti nello zaino" : "Equipaggia") + "</button>" : "";
+    if (puoAgire) eq += '<span class="inv-az"><button class="small" data-act="dai" data-inv="' + i.id + '" data-key="' + key + '">Dai</button>' +
+      '<button class="small" data-act="scarta" data-inv="' + i.id + '" data-key="' + key + '">Scarta</button></span>';
     var nota = notaOggetto(o), extra = (nota ? "<p>" + esc(nota) + "</p>" : "") + (o.descrizione ? "<p>" + esc(o.descrizione) + "</p>" : "");
     return "<li><span class=\"n\">" + esc(o.nome) + (i.quantita > 1 ? " ×" + i.quantita : "") +
       (i.equipaggiato ? ' <span class="tag">equipaggiato</span>' : "") + '</span><span class="w">' + fmtPeso((Number(o.peso) || 0) * i.quantita) + "</span>" + eq +
