@@ -124,7 +124,9 @@ var ACT = {
   },
 
   equip: function (b) {
-    run(function () { return call("equipaggia", { p_inv: Number(b.dataset.inv), p_eq: b.dataset.v === "1" }); })
+    var i = invPerId(b.dataset.inv); if (!i) return;
+    var eq = b.dataset.v === "1", posto = eq ? postoAuto(i) : null;   // la casella la sceglie il sito; il database libera da solo quella già occupata
+    run(function () { return posto ? call("equipaggia_posto", { p_inv: i.id, p_posto: posto }) : call("equipaggia", { p_inv: i.id, p_eq: eq }); })
       .then(function (r) { if (r) caricaDati().then(disegnaTab); });
   },
   dai: function (b) {

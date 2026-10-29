@@ -363,6 +363,9 @@ ul.sk li[data-act="dado"]:hover, ul.sk li[data-act="dado"]:focus-visible { outli
 .eqb .lbl { font-size: .72rem; color: var(--muted); }
 .eqb .eqv { font-size: .9rem; font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .eqb.pieno { border-color: var(--accent); }
+.eqgrid.nove { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.eqb.largo { grid-column: 1 / -1; }
+.eqb.occupata { opacity: .55; }
 .eqmore > summary { cursor: pointer; list-style: none; color: var(--muted); min-height: 2rem; display: flex; align-items: center; font-size: .88rem; }
 .eqmore > summary::-webkit-details-marker { display: none; }
 .eqmore > summary::after { content: "\25BE"; margin-left: .4rem; }
