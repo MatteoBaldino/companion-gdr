@@ -8,7 +8,7 @@
               Il risultato compare in un riquadro dentro la scheda, sopra le
               due colonne. Un attacco con un'arma segna l'azione del turno.
    Contiene:  dieSvg, leggiDanno, htmlTiro, aggiornaVant, creaTiro,
-              mostraTiro, ACT.dado, ACT.vant
+              mostraTiro, testoMorte, applicaMorte, ACT.dado, ACT.vant
    Per ora il tiro lo vede solo chi lo fa: la chat con i tiri condivisi
    e segreti verrà dopo.
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
@@ -99,7 +99,7 @@ function creaTiro(o) {
     nome: o.nome, titolo: o.titolo, tipo: o.tipo, vant: o.vant, doppio: !!o.doppio,
     dadi: dadi, mod: o.mod || 0, fisso: o.fisso || 0, tot: tot, scartato: scartato,
     esito: d20 && o.tipo === "att" ? (d20.v === 20 ? "crit" : d20.v === 1 ? "fail" : "") : "",
-    chiave: o.chiave || null, dan: o.dan || null, d20: d20 ? d20.v : null
+    chiave: o.chiave || null, dan: o.dan || null, d20: d20 ? d20.v : null, sid: o.sid || null
   };
 }
 
@@ -136,15 +136,8 @@ function mostraTiro(t) {
     el.innerHTML = (t.dadi.length ? "Dadi: " + esc(testo) + esc(mm) + (t.scartato != null ? " (scartato " + t.scartato + ")" : "") + " =" : "Totale") + " <b>" + t.tot + "</b>" +
       (t.esito === "crit" ? ' <span class="esito crit">Critico! Il prossimo danno raddoppia i dadi.</span>' : "") +
       (t.esito === "fail" ? ' <span class="esito fail">Fallimento critico</span>' : "") +
-      (t.doppio ? ' <span class="esito crit">dadi raddoppiati</span>' : "");
-    // Dopo un tiro per colpire: la CA del bersaglio (facoltativa) dice se ha colpito; se sì, si tira il danno.
-    if (t.tipo === "att" && !document.getElementById("caBers")) {
-      var box2 = document.getElementById("tiroBox");
-      if (box2) box2.insertAdjacentHTML("beforeend", '<div class="tiro-az"><label class="f"><span>CA del bersaglio (facoltativa)</span><input type="number" id="caBers" min="0" inputmode="numeric" value="' + esc(S.caBers || "") + '"></label>' +
-        '<span id="tiroEsito" class="esito"></span>' +
-        (t.dan ? '<button class="small primary" id="btnDanno" data-act="dado" data-k="dan" data-id="' + t.dan.id + '" data-r="' + t.dan.r + '">Tira il danno</button>' : "") + "</div>");
-      TIRO_ATT = t; esitoColpo();
-    }
+      (t.doppio ? ' <span class="esito crit">dadi raddoppiati</span>' : "") +
+      (t.tipo === "morte" ? ' <span class="esito ' + (t.d20 >= 10 ? "crit" : "fail") + '">' + testoMorte(t.d20) + "</span>" : "");
   }
   if (!t.dadi.length) { fine(); salvaTiro(); return; }
   TIRO_TIMER = setInterval(function () {
@@ -168,25 +161,24 @@ function mostraTiro(t) {
     }
   }, 70);
 }
-// Colpito o mancato: il 20 naturale colpisce sempre, l'1 manca sempre, altrimenti conta il totale contro la CA scritta.
-var TIRO_ATT = null;
-function esitoColpo() {
-  var t = TIRO_ATT, el = document.getElementById("tiroEsito"), btn = document.getElementById("btnDanno");
-  if (!t || !el) return;
-  var ca = Number(S.caBers);
-  if (!S.caBers || isNaN(ca)) { el.textContent = "Se il totale supera la CA del bersaglio, tira il danno."; el.className = "esito"; if (btn) btn.hidden = false; salvaTiro(); return; }
-  var colpito = t.d20 === 20 ? true : t.d20 === 1 ? false : t.tot >= ca;
-  el.textContent = (colpito ? "Colpito" : "Mancato") + (t.d20 === 20 ? " (20 naturale: critico)" : t.d20 === 1 ? " (1 naturale)" : ": " + t.tot + " contro CA " + ca);
-  el.className = "esito " + (colpito ? "crit" : "fail");
-  if (btn) btn.hidden = !colpito;
-  salvaTiro();
-}
-document.addEventListener("input", function (e) {
-  if (e.target && e.target.id === "caBers") { S.caBers = e.target.value; e.target.setAttribute("value", e.target.value); esitoColpo(); }
-});
-
 // Dopo un attacco: sul 20 il danno di quell'arma raddoppia i dadi, altrimenti si azzera. Il pulsante del danno si ridisegna.
+// Cosa dice il dado in un tiro contro morte.
+function testoMorte(v) {
+  return v === 20 ? "20 naturale: torni a 1 PF e riprendi i sensi" : v === 1 ? "1 naturale: due fallimenti" : v >= 10 ? "Successo" : "Fallimento";
+}
+// Segna da solo il risultato sulla scheda quando i dadi si sono fermati.
+function applicaMorte(t) {
+  var s = schedaPerId(t.sid); if (!s) return;
+  var v = t.d20, m = morteDi(s);
+  if (v === 20) { gioco(s, { pf_attuali: 1 }, "20 naturale: torni a 1 PF e riprendi i sensi"); return; }   // gioco() azzera i tiri contro morte
+  if (v === 1) m.f = Math.min(3, m.f + 2); else if (v >= 10) m.s = Math.min(3, m.s + 1); else m.f = Math.min(3, m.f + 1);
+  scriviMorte(s, m).then(function () {
+    if (m.f >= 3) toast("Tre fallimenti: il personaggio è morto.", true);
+    else if (m.s >= 3) toast("Tre successi: sei stabilizzato.");
+  });
+}
 function finisciTiro(t) {
+  if (t.tipo === "morte") { applicaMorte(t); return; }
   if (t.tipo !== "att" || !t.chiave) return;
   S.crit = S.crit || {};
   var era = !!S.crit[t.chiave], ora = t.esito === "crit";
@@ -204,6 +196,12 @@ ACT.dado = function (b) {
   else if (k === "ts") { o.titolo = "Tiro salvezza " + ABK[v][1]; o.mod = mod(s[ABK[v][3]]) + ((s.competenze_ts || []).indexOf(v) >= 0 ? bc : 0); }
   else if (k === "skill") { o.titolo = SKILL[v][1] + " (" + ABK[SKILL[v][2]][2] + ")"; o.mod = totaleAbilita(s, v); }
   else if (k === "ini") { o.titolo = "Iniziativa"; o.mod = mod(s.destrezza); }
+  else if (k === "morte") {
+    var md = morteDi(s);
+    if (Number(s.pf_attuali) > 0) { toast("Hai più di 0 PF: non serve un tiro contro morte."); return; }
+    if (md.s >= 3 || md.f >= 3) return;
+    o.titolo = "Tiro contro morte"; o.tipo = "morte"; o.vant = "n"; o.sid = s.id;   // nessun vantaggio né svantaggio, nessun modificatore
+  }
   else if (k === "att" || k === "dan") {
     var r = attacchi(s, key)[Number(b.dataset.r)];
     if (!r) return;
@@ -234,7 +232,7 @@ ACT.dado = function (b) {
   var usaD20 = o.gruppi.some(function (g) { return g.s === 20; });
   if (!usaD20) o.vant = "n";
   var t = creaTiro(o);
-  if (usaD20 && S.vant && S.vant !== "n") { S.vant = "n"; aggiornaVant(); }
+  if (usaD20 && o.tipo !== "morte" && S.vant && S.vant !== "n") { S.vant = "n"; aggiornaVant(); }
   mostraTiro(t);
 };
 

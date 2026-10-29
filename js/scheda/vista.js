@@ -54,6 +54,7 @@ function htmlScheda(key, indietro) {
     '<label class="f"><span>PF temporanei</span><input type="number" id="pft" min="0" value="' + s.pf_temp + '"></label>' +
     '<button data-act="pf-temp" data-id="' + s.id + '">Imposta</button>' +
     (!semp ? '<button data-act="ispirazione" data-id="' + s.id + '" aria-pressed="' + s.ispirazione + '">' + (s.ispirazione ? "Ispirazione: sì" : "Ispirazione: no") + "</button>" : "") + "</div>";
+  if (!semp) h += htmlMorte(s);
   h += htmlTurno(s);
   if (!semp) h += htmlTiro();
   var corpo = h; h = h0;
@@ -64,12 +65,11 @@ function htmlScheda(key, indietro) {
   if (!semp) {
     var tsH = '<h3>Tiri salvezza</h3><ul class="plain sk">' + ABIL.map(function (a) {
       var p = (s.competenze_ts || []).indexOf(a[0]) >= 0;
-      return '<li data-act="dado" data-k="ts" data-v="' + a[0] + '" data-id="' + s.id + '" role="button" tabindex="0"><span class="dot" title="' + (p ? "competente" : "non competente") + '">' + (p ? "●" : "○") + "</span> " + a[1] + "<b>" + sgn(mod(s[a[3]]) + (p ? bc : 0)) + "</b></li>";
+      return '<li data-act="dado" data-k="ts" data-v="' + a[0] + '" data-id="' + s.id + '" role="button" tabindex="0"><span class="dot" title="' + (p ? "competente" : "non competente") + '">' + (p ? "●" : "○") + "</span><span class=\"nm\">" + a[1] + "</span><b>" + sgn(mod(s[a[3]]) + (p ? bc : 0)) + "</b></li>";
     }).join("") + '</ul>';
     var abH = '<h3>Abilità</h3><ul class="plain sk">' + SKILLS.map(function (k) {
       var lv = (s.abilita || {})[k[0]] || 0;
-      return '<li data-act="dado" data-k="skill" data-v="' + k[0] + '" data-id="' + s.id + '" role="button" tabindex="0"><span class="dot" title="' + ["non competente", "competente", "maestria"][lv] + '">' + ["○", "●", "◆"][lv] + "</span> " + esc(k[1]) +
-        ' <small>' + ABK[k[2]][2] + "</small><b>" + sgn(totaleAbilita(s, k[0])) + "</b></li>";
+      return '<li data-act="dado" data-k="skill" data-v="' + k[0] + '" data-id="' + s.id + '" role="button" tabindex="0"><span class="dot" title="' + ["non competente", "competente", "maestria"][lv] + '">' + ["○", "●", "◆"][lv] + "</span><span class=\"nm\">" + esc(k[1]) + "</span><b>" + sgn(totaleAbilita(s, k[0])) + "</b><small>(" + ABK[k[2]][2] + ")</small></li>";
     }).join("") + "</ul>";
     h += '<div class="duecol"><div>' + abH + htmlEquipaggiamento(s, key) + htmlMonete(s) + htmlInventarioScheda(s, key) + "</div><div>" + tsH + htmlCombattimento(s, key) + "</div></div>";
     h += '<p class="hint">● competenza, ◆ maestria. La CA si calcola dall’armatura e dallo scudo equipaggiati nell’inventario.</p>';

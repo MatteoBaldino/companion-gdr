@@ -76,9 +76,7 @@ function htmlMonete(s) {
     return '<label class="vit mon"><span class="lbl">' + x[1] + " (" + x[2] + ')</span><input type="number" min="0" step="1" id="mc_' + x[0] + '" value="' + m[x[0]] +
       '" data-id="' + s.id + '" aria-label="' + x[1] + '"></label>';
   };
-  return '<h3>Monete</h3><div class="monete">' + MON.map(casella).join("") + "</div>" +
-    '<p class="hint">Totale: <strong>' + esc(testoMonete(dividiMonete(t))) + "</strong> · " + t.toLocaleString("it-IT") + " Ra. " +
-    "Per cambiare una moneta scrivi il numero nella sua casella e premi Invio.</p>";
+  return '<h3>Monete</h3><div class="monete">' + MON.map(casella).join("") + "</div>";
 }
 
 // ---------------------------------------------------------------- inventario nella scheda

@@ -2,7 +2,7 @@
    js/scheda/slot-turno.js
    Cosa fa:   Turno (azione, bonus, reazione, movimento), riposi,
               concentrazione, slot incantesimo e risorse.
-   Contiene:  htmlTurno, htmlSlot, htmlRisorse
+   Contiene:  htmlTurno, htmlMorte, htmlSlot, htmlRisorse
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
    ===================================================================== */
 "use strict";
@@ -15,11 +15,11 @@ function htmlTurno(s) {
   var cella = function (k, l) {
     var u = t[k], det = typeof u === "string" ? u : (u ? "segnata a mano" : "");
     return '<button class="cella ' + (u ? "usata" : "libera") + '" data-act="turno" data-id="' + s.id + '" data-k="' + k + '" aria-pressed="' + !!u + '">' +
-      '<span class="lbl">' + l + "</span><strong>" + (u ? "Usata" : "Disponibile") + "</strong><small>" + (det ? esc(det) : "&nbsp;") + "</small></button>";
+      '<span class="lbl">' + l + "</span><strong>" + (u ? "Usata" : "Disponibile") + "</strong>" + (det ? "<small>" + esc(det) + "</small>" : "") + "</button>";
   };
   // Movimento: metri rimasti, con un campo per scrivere quanti ne togli o ne ridai.
   var tot = Number(s.velocita) || 0, usati = Math.min(tot, Number(t.mov) || 0), resta = Math.max(0, tot - usati);
-  var mov = '<div class="cella ' + (resta > 0 ? "libera" : "usata") + '"><span class="lbl">Movimento</span><strong>' + fmtVel(resta) + "</strong><small>su " + fmtVel(tot) + "</small>" +
+  var mov = '<div class="cella cmov ' + (resta > 0 ? "libera" : "usata") + '"><span class="lbl">Movimento</span><strong>' + fmtVel(resta) + "</strong><small>su " + fmtVel(tot) + "</small>" +
     '<div class="mv"><button class="small" data-act="mov" data-id="' + s.id + '" data-d="-" aria-label="Togli distanza">−</button>' +
     '<input type="text" inputmode="decimal" id="mv_' + s.id + '" value="' + dec(distShow(1.5)) + '" aria-label="Distanza da togliere o ridare">' +
     '<button class="small" data-act="mov" data-id="' + s.id + '" data-d="+" aria-label="Ridai distanza">+</button></div></div>';
@@ -27,6 +27,29 @@ function htmlTurno(s) {
     '<div class="row"><button class="small" data-act="nuovo-turno" data-id="' + s.id + '">Nuovo turno</button>' +
     '<button class="small" data-act="riposo-breve" data-id="' + s.id + '">Riposo breve</button><button class="small" data-act="riposo-lungo" data-id="' + s.id + '">Riposo lungo</button></div>' +
     (s.concentrazione ? '<p class="conc"><strong>In concentrazione:</strong> ' + esc(s.concentrazione) + ' <button class="link" data-act="conc-fine" data-id="' + s.id + '">Termina</button></p>' : "") + "</div>";
+}
+
+// ---------------------------------------------------------------- tiri contro morte
+// Sempre visibile (più chiaro quando i PF sono sopra 0). I cerchietti si toccano per correggere a mano, «Azzera» li svuota, il pulsante tira il dado e segna da solo.
+function htmlMorte(s) {
+  if (s.tipo !== "completa") return "";
+  var m = morteDi(s), morto = m.f >= 3, stab = !morto && m.s >= 3;
+  var pips = function (k, tot) {
+    var h = "";
+    for (var n = 1; n <= 3; n++)
+      h += '<button class="pip morte-' + k + (n <= tot ? "" : " usato") + '" data-act="morte-pip" data-id="' + s.id + '" data-k="' + k + '" data-n="' + n + '" aria-pressed="' + (n <= tot) +
+        '" aria-label="' + (k === "s" ? "Successo " : "Fallimento ") + n + (n <= tot ? ", segnato" : ", vuoto") + '"></button>';
+    return h;
+  };
+  // Una sola riga: a sinistra i fallimenti (rossi), al centro il pulsante, a destra i successi (verdi).
+  return '<div class="morte' + (Number(s.pf_attuali) > 0 ? " spento" : "") + '"><div class="morte-testa"><h3>Tiri contro morte</h3>' +
+    (m.s || m.f ? '<button class="small" data-act="morte-azzera" data-id="' + s.id + '">Azzera</button>' : "") + "</div>" +
+    '<div class="morte-riga">' +
+    '<div class="morte-lato"><span class="lbl">Fallimenti</span><span class="pips">' + pips("f", m.f) + "</span></div>" +
+    '<button class="small primary" data-act="dado" data-k="morte" data-id="' + s.id + '"' + (morto || stab ? " disabled" : "") + '>Tira contro morte</button>' +
+    '<div class="morte-lato"><span class="lbl">Successi</span><span class="pips">' + pips("s", m.s) + "</span></div></div>" +
+    (morto ? '<p class="avviso">Tre fallimenti: il personaggio è morto.</p>' : stab ? '<p class="hint">Tre successi: sei stabilizzato. Resti a 0 PF finché qualcuno non ti cura.</p>' : "") +
+    "</div>";
 }
 
 // ---------------------------------------------------------------- slot e risorse

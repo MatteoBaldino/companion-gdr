@@ -10,7 +10,17 @@
 // ---------------------------------------------------------------- azioni
 var ACT_INC = {
   turno: function (b) { var s = schedaPerId(b.dataset.id); if (!s) return; var t = copia(s.turno || {}); t[b.dataset.k] = !t[b.dataset.k]; gioco(s, { turno: t }); },
-  "nuovo-turno": function (b) { var s = schedaPerId(b.dataset.id); if (s) gioco(s, { turno: {} }); },
+  "nuovo-turno": function (b) { var s = schedaPerId(b.dataset.id); if (!s) return; var t = {}; if ((s.turno || {}).morte) t.morte = copia(s.turno.morte); gioco(s, { turno: t }); },
+  "morte-pip": function (b) {
+    var s = schedaPerId(b.dataset.id); if (!s) return;
+    var m = morteDi(s), k = b.dataset.k, n = Number(b.dataset.n);
+    m[k] = m[k] === n ? n - 1 : n;
+    scriviMorte(s, m);
+  },
+  "morte-azzera": function (b) {
+    var s = schedaPerId(b.dataset.id); if (!s) return;
+    scriviMorte(s, { s: 0, f: 0 });
+  },
   "conc-fine": function (b) { var s = schedaPerId(b.dataset.id); if (s) gioco(s, { concentrazione: null }); },
   slot: function (b) {
     var s = schedaPerId(b.dataset.id); if (!s) return;

@@ -83,6 +83,5 @@ function htmlAttacchi(s, key) {
   if (!r.length) return "";
   var h = '<h3>Attacchi</h3><div class="scroll"><table class="att"><thead><tr><th>Nome</th><th>Tiro</th><th>Danno</th><th>Gittata</th><th>Note</th></tr></thead><tbody>' +
     r.map(function (e) { return "<tr><td>" + esc(e.x.n) + "</td><td>" + celTiro(s, e.x, e.n) + "</td><td>" + celDanno(s, e.x, e.n) + "</td><td>" + esc(e.x.gitt) + "</td><td>" + celNote(e.x) + "</td></tr>"; }).join("") + "</tbody></table></div>";
-  if (s.tipo === "completa") h += '<p class="hint">Le armi compaiono quando le equipaggi nell’inventario. Bonus e danno usano la caratteristica giusta, la competenza e il bonus per colpire dell’oggetto.</p>';
   return h;
 }

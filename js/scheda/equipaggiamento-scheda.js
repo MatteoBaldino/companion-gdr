@@ -57,9 +57,7 @@ function htmlEquipaggiamento(s, key) {
   var nAltri = (e.barda ? 1 : 0) + e.arti.length + e.altro.length;
   return "<h3>Equipaggiamento</h3>" +
     '<div class="eqgrid">' + main + "</div>" +
-    '<details class="eqmore"><summary>Altri slot' + (nAltri ? " (" + nAltri + ")" : "") + '</summary><div class="eqgrid">' + altri + "</div></details>" +
-    '<p class="hint">Tocca una casella per scegliere cosa equipaggiare, tra gli oggetti dell’inventario. Cambiare un’arma o lo scudo costa l’azione del turno. ' +
-    "La CA e gli attacchi usano ciò che è equipaggiato.</p>";
+    '<details class="eqmore"><summary>Altri slot' + (nAltri ? " (" + nAltri + ")" : "") + '</summary><div class="eqgrid">' + altri + "</div></details>";
 }
 
 // Tocco su una casella: scelgo cosa metterci (o lo rimetto nello zaino).

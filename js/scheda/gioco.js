@@ -2,13 +2,16 @@
    js/scheda/gioco.js
    Cosa fa:   Stato di gioco: aggiornamento immediato di slot, turno e
               concentrazione, con gli avvisi sul lancio.
-   Contiene:  gioco, copia, avvisiLancio, applicaLancio
+   Contiene:  gioco, copia, morteDi, scriviMorte, avvisiLancio, applicaLancio
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
    ===================================================================== */
 "use strict";
 
 // ---------------------------------------------------------------- stato di gioco (aggiornamento immediato, poi salvataggio)
 function gioco(s, patch, msg) {
+  // Se i PF tornano sopra 0 (una cura, un riposo), i tiri contro morte si azzerano.
+  var tu0 = patch.turno || s.turno || {};
+  if (patch.pf_attuali > 0 && tu0.morte) { tu0 = copia(tu0); delete tu0.morte; patch.turno = tu0; }
   Object.keys(patch).forEach(function (k) { s[k] = patch[k]; });
   disegnaTab();
   return call("aggiorna_gioco", { p_id: s.id, p: patch }).then(function () { if (msg) toast(msg); }, function (e) {
@@ -17,6 +20,17 @@ function gioco(s, patch, msg) {
   });
 }
 function copia(o) { return JSON.parse(JSON.stringify(o)); }
+// Tiri contro morte: successi (s) e fallimenti (f), da 0 a 3. Stanno dentro il campo «turno» della scheda ({ morte: { s, f } }),
+// quindi non serve cambiare il database. «Nuovo turno» li lascia com'è; si azzerano quando i PF tornano sopra 0 o con «Azzera».
+function morteDi(s) {
+  var m = (s.turno || {}).morte || {};
+  return { s: Math.min(3, Math.max(0, Number(m.s) || 0)), f: Math.min(3, Math.max(0, Number(m.f) || 0)) };
+}
+function scriviMorte(s, m) {
+  var t = copia(s.turno || {});
+  if (m.s || m.f) t.morte = { s: m.s, f: m.f }; else delete t.morte;
+  return gioco(s, { turno: t });
+}
 function avvisiLancio(s, i, rituale) {
   var t = s.turno || {}, a = [];
   if (!rituale) {
