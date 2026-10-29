@@ -2,7 +2,7 @@
    js/scheda/gioco.js
    Cosa fa:   Stato di gioco: aggiornamento immediato di slot, turno e
               concentrazione, con gli avvisi sul lancio.
-   Contiene:  gioco, copia, morteDi, scriviMorte, avvisiLancio, applicaLancio
+   Contiene:  gioco, copia, morteDi, scriviMorte, inCombattimento, avvisiLancio, applicaLancio
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
    ===================================================================== */
 "use strict";
@@ -31,9 +31,11 @@ function scriviMorte(s, m) {
   if (m.s || m.f) t.morte = { s: m.s, f: m.f }; else delete t.morte;
   return gioco(s, { turno: t });
 }
+// In combattimento (interruttore nella scheda, salvato dentro «turno»): solo allora azione, azione bonus e reazione si consumano da sole.
+function inCombattimento(s) { return !!(s.turno || {}).combat; }
 function avvisiLancio(s, i, rituale) {
   var t = s.turno || {}, a = [];
-  if (!rituale) {
+  if (!rituale && inCombattimento(s)) {
     if (i.tempo_lancio === "azione" && t.azione) a.push("Hai già usato l’azione in questo turno.");
     if (i.tempo_lancio === "azione_bonus" && t.bonus) a.push("Hai già usato l’azione bonus in questo turno.");
     if (i.tempo_lancio === "reazione" && t.reazione) a.push("Hai già usato la reazione.");
@@ -46,7 +48,7 @@ function avvisiLancio(s, i, rituale) {
 function applicaLancio(s, i, lv) {   // lv: livello dello slot usato, oppure 0 per trucchetto, oppure "rituale"
   var patch = {}, t = copia(s.turno || {});
   if (typeof lv === "number" && lv > 0) { var us = (s.slot_usati || []).slice(); us[lv - 1] = (us[lv - 1] || 0) + 1; patch.slot_usati = us; }
-  if (lv !== "rituale") {
+  if (lv !== "rituale" && inCombattimento(s)) {
     if (i.tempo_lancio === "azione") { t.azione = true; if (i.livello > 0) t.liv_azione = true; }
     if (i.tempo_lancio === "azione_bonus") { t.bonus = true; t.inc_bonus = true; }
     if (i.tempo_lancio === "reazione") t.reazione = true;

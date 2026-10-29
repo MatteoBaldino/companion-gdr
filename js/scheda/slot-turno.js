@@ -2,7 +2,7 @@
    js/scheda/slot-turno.js
    Cosa fa:   Turno (azione, bonus, reazione, movimento), riposi,
               concentrazione, slot incantesimo e risorse.
-   Contiene:  htmlTurno, htmlMorte, htmlSlot, htmlRisorse
+   Contiene:  htmlTurno, htmlMorte, htmlSlotNumeri, htmlSlot, htmlRisorse
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
    ===================================================================== */
 "use strict";
@@ -10,7 +10,7 @@
 // ---------------------------------------------------------------- turno, concentrazione, riposi
 function htmlTurno(s) {
   if (!S.incOk) return "";
-  var t = s.turno || {};
+  var t = s.turno || {}, fight = inCombattimento(s);
   // Una cella del turno: verde se libera, tratteggiata se usata (con scritto cosa l'ha usata).
   var cella = function (k, l) {
     var u = t[k], det = typeof u === "string" ? u : (u ? "segnata a mano" : "");
@@ -23,8 +23,9 @@ function htmlTurno(s) {
     '<div class="mv"><button class="small" data-act="mov" data-id="' + s.id + '" data-d="-" aria-label="Togli distanza">−</button>' +
     '<input type="text" inputmode="decimal" id="mv_' + s.id + '" value="' + dec(distShow(1.5)) + '" aria-label="Distanza da togliere o ridare">' +
     '<button class="small" data-act="mov" data-id="' + s.id + '" data-d="+" aria-label="Ridai distanza">+</button></div></div>';
-  return '<div class="gioco"><div class="turnocelle" role="group" aria-label="Turno">' + cella("azione", "Azione") + cella("bonus", "Azione bonus") + cella("reazione", "Reazione") + mov + "</div>" +
-    '<div class="row"><button class="small" data-act="nuovo-turno" data-id="' + s.id + '">Nuovo turno</button>' +
+  return '<div class="gioco"><div class="turnocelle' + (fight ? "" : " fuori") + '" role="group" aria-label="Turno">' + cella("azione", "Azione") + cella("bonus", "Azione bonus") + cella("reazione", "Reazione") + mov + "</div>" +
+    '<div class="row"><button class="small tg-fight' + (fight ? " on" : "") + '" data-act="combat" data-id="' + s.id + '" aria-pressed="' + fight + '">Combattimento: ' + (fight ? "sì" : "no") + "</button>" +
+    '<button class="small" data-act="nuovo-turno" data-id="' + s.id + '">Nuovo turno</button>' +
     '<button class="small" data-act="riposo-breve" data-id="' + s.id + '">Riposo breve</button><button class="small" data-act="riposo-lungo" data-id="' + s.id + '">Riposo lungo</button></div>' +
     (s.concentrazione ? '<p class="conc"><strong>In concentrazione:</strong> ' + esc(s.concentrazione) + ' <button class="link" data-act="conc-fine" data-id="' + s.id + '">Termina</button></p>' : "") + "</div>";
 }
@@ -53,6 +54,12 @@ function htmlMorte(s) {
 }
 
 // ---------------------------------------------------------------- slot e risorse
+// Solo i numeri (per la sezione Scheda): per ogni livello, quanti slot restano. Gli slot si segnano nella sezione Incantesimi.
+function htmlSlotNumeri(s) {
+  var tot = s.slot_totali || [], us = s.slot_usati || [], p = [];
+  tot.forEach(function (n, lv) { if (n > 0) p.push((lv + 1) + "° livello: " + (n - (us[lv] || 0)) + " di " + n); });
+  return p.length ? '<h3>Slot incantesimo</h3><p class="slotnum">' + p.join(" · ") + "</p>" : "";
+}
 function htmlSlot(s) {
   var tot = s.slot_totali || [], us = s.slot_usati || [];
   if (!tot.some(function (n) { return n > 0; })) return "";

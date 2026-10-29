@@ -64,7 +64,7 @@ function htmlEquipaggiamento(s, key) {
 ACT["eq-scegli"] = function (b) {
   var s = schedaPerId(b.dataset.id); if (!s) return;
   var key = keyDiScheda(s), posto = b.dataset.posto, vecchio = b.dataset.inv ? invPerId(b.dataset.inv) : null;
-  var costaAzione = posto === "arma" || posto === "scudo";
+  var costaAzione = (posto === "arma" || posto === "scudo") && inCombattimento(s);   // fuori dal combattimento non costa niente
   if (costaAzione && (s.turno || {}).azione) {
     var gia = s.turno.azione;
     toast("Non puoi cambiare " + (posto === "scudo" ? "lo scudo" : "arma") + ": l’azione è già usata in questo turno" + (typeof gia === "string" ? " (" + gia + ")" : "") + ". Se il master lo permette, tocca la cella Azione per liberarla.", true);

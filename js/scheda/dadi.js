@@ -211,8 +211,8 @@ ACT.dado = function (b) {
       if (r.b == null) return;
       o.titolo = "Attacco: " + r.n; o.tipo = "att"; o.mod = r.b; o.chiave = ck;
       o.dan = r.dd ? { id: s.id, r: Number(b.dataset.r) } : null;   // dopo il tiro per colpire, il pulsante per tirare il danno
-      // Un attacco con un'arma usa l'azione del turno; per gli incantesimi l'azione l'ha già usata "Lancia".
-      if (!r.inc) {
+      // In combattimento, un attacco con un'arma usa l'azione del turno; per gli incantesimi l'azione l'ha già usata "Lancia". Fuori dal combattimento non si consuma nulla.
+      if (!r.inc && inCombattimento(s)) {
         var tu = s.turno || {};
         if (tu.azione) {
           toast("Non puoi: attacco con " + r.n + ". L’azione è già usata in questo turno" + (typeof tu.azione === "string" ? " (" + tu.azione + ")" : "") + ". Se il master lo permette, tocca la cella Azione per liberarla.", true);

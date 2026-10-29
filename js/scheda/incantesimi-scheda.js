@@ -2,22 +2,25 @@
    js/scheda/incantesimi-scheda.js
    Cosa fa:   Incantesimi sulla scheda: elenco per livello, preparati e
               lancio.
-   Contiene:  puoModificareInc, htmlIncantesimi, rigaInc, htmlCombattimento
+   Contiene:  puoModificareInc, htmlIncantesimi, rigaInc, htmlSezIncantesimi, htmlCombattimento
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
    ===================================================================== */
 "use strict";
 
 // ---------------------------------------------------------------- incantesimi sulla scheda
 function puoModificareInc(i) { return isMaster() || (S.me && i.creato_da === S.me.id); }
-function htmlIncantesimi(s) {
+// solo = "trucchetti": solo i trucchetti (livello 0), per la sezione Scheda. Senza: tutti gli incantesimi, per la sezione Incantesimi.
+function htmlIncantesimi(s, solo) {
   if (!S.incOk) return "";
   var st = statInc(s), lista = incDiScheda(s.id), righe = attacchi(s, keyDiScheda(s)), perInc = {};
   righe.forEach(function (x, n) { if (x.incId) perInc[x.incId] = { x: x, n: n }; });
-  var h = '<h3>Incantesimi</h3><p class="hint">' + (st.car ? "Caratteristica: " + ABK[st.car][1] + ". " : "") + (st.cd != null ? "CD " + st.cd + ". " : "") + (st.att != null ? "Attacco " + sgn(st.att) + "." : "") +
+  var soloTr = solo === "trucchetti";
+  var h = soloTr ? "<h3>Trucchetti</h3>" :
+    '<h3>Incantesimi</h3><p class="hint">' + (st.car ? "Caratteristica: " + ABK[st.car][1] + ". " : "") + (st.cd != null ? "CD " + st.cd + ". " : "") + (st.att != null ? "Attacco " + sgn(st.att) + "." : "") +
     (!st.car && s.tipo === "completa" ? "Per calcolare attacco e CD scegli la caratteristica da incantatore in «Modifica scheda»." : "") +
     "</p>" + htmlClassiMulti(s) + "<p><button class=\"small primary\" data-act=\"inc-aggiungi\" data-id=\"" + s.id + "\">Aggiungi incantesimo</button></p>";
-  if (!lista.length) return h + '<p class="hint">Nessun incantesimo sulla scheda.</p>';
-  for (var lv = 0; lv <= 9; lv++) {
+  if (!lista.length || (soloTr && !lista.some(function (x) { return x.i.livello === 0; }))) return h + '<p class="hint">Nessun ' + (soloTr ? "trucchetto" : "incantesimo") + " sulla scheda.</p>";
+  for (var lv = 0; lv <= (soloTr ? 0 : 9); lv++) {
     var l = lista.filter(function (x) { return x.i.livello === lv; }).sort(function (a, b) { return a.i.nome.localeCompare(b.i.nome, "it"); });
     if (!l.length) continue;
     // Accanto al titolo del livello ci sono i suoi slot: si toccano per segnarli usati.
@@ -49,6 +52,12 @@ function rigaInc(s, r, i, st, ra) {
     '<span class="inc-meta">' + [tempo, gittataInc(i)].concat(tag).filter(function (t) { return t && t !== "—"; }).map(esc).join(", ") + (r.stato === "sempre" ? ", sempre preparato" : dim ? ", non preparato" : "") + "</span>" + lancia + "</div>" +
     '<div class="inc-riga"><span class="ic-t">' + (ra ? celTiro(s, ra.x, ra.n) : "—") + '</span><span class="ic-d">' + (ra ? celDanno(s, ra.x, ra.n) : "—") + '</span>' +
     '<span class="ic-g">' + esc(gittataInc(i)) + "</span>" + prepara + note + "</div></div>";
+}
+// La sezione «Incantesimi» della scheda completa: slot, risorse, trucchetti e incantesimi.
+function htmlSezIncantesimi(s) {
+  var h = htmlSlot(s) + htmlRisorse(s) + htmlIncantesimi(s);
+  if (!S.incOk) h += '<p class="hint">Per attivare incantesimi, slot e turno esegui <code>aggiornamento_incantesimi.sql</code> nello SQL Editor di Supabase.</p>';
+  return h;
 }
 function htmlCombattimento(s, key) {
   var h = htmlAttacchi(s, key) + htmlSlot(s) + htmlRisorse(s) + htmlIncantesimi(s);

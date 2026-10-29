@@ -10,7 +10,10 @@
 // ---------------------------------------------------------------- azioni
 var ACT_INC = {
   turno: function (b) { var s = schedaPerId(b.dataset.id); if (!s) return; var t = copia(s.turno || {}); t[b.dataset.k] = !t[b.dataset.k]; gioco(s, { turno: t }); },
-  "nuovo-turno": function (b) { var s = schedaPerId(b.dataset.id); if (!s) return; var t = {}; if ((s.turno || {}).morte) t.morte = copia(s.turno.morte); gioco(s, { turno: t }); },
+  "nuovo-turno": function (b) { var s = schedaPerId(b.dataset.id); if (!s) return; var t = {}; if ((s.turno || {}).morte) t.morte = copia(s.turno.morte); if (inCombattimento(s)) t.combat = true; gioco(s, { turno: t }); },
+  // Interruttore del combattimento: entrando o uscendo il turno riparte da zero (azioni libere, movimento intero).
+  combat: function (b) { var s = schedaPerId(b.dataset.id); if (!s) return; var t = {}; if ((s.turno || {}).morte) t.morte = copia(s.turno.morte); if (!inCombattimento(s)) t.combat = true; gioco(s, { turno: t }); },
+  "sez-scheda": function (b) { S.sezScheda = b.dataset.v; disegnaTab(); },
   "morte-pip": function (b) {
     var s = schedaPerId(b.dataset.id); if (!s) return;
     var m = morteDi(s), k = b.dataset.k, n = Number(b.dataset.n);

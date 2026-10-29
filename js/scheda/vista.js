@@ -38,10 +38,20 @@ function htmlScheda(key, indietro) {
   var tile = function (lbl, val, small, attr) {
     return '<div class="vit"' + (attr || "") + '><span class="lbl">' + lbl + "</span><strong>" + val + "</strong>" + (small ? "<small>" + esc(small) + "</small>" : "") + "</div>";
   };
-  var h = back + '<section class="scheda"><header class="sh-head"><h2>' + esc(nome) + '</h2><p class="hint">' + esc(sub) + "</p></header>";
+  // Schede complete: tre sezioni, che si cambiano in alto a destra. Caratteristiche, PF, turno e tiri restano sempre sopra.
+  var sez = S.sezScheda || "scheda";
+  var tabSez = semp ? "" : '<nav class="sezioni" aria-label="Sezioni della scheda">' + [["scheda", "Scheda"], ["incantesimi", "Incantesimi"], ["equip", "Equipaggiamento"]].map(function (x) {
+    return '<button data-act="sez-scheda" data-v="' + x[0] + '" aria-current="' + (sez === x[0]) + '">' + x[1] + "</button>";
+  }).join("") + "</nav>";
+  // CA: niente testo sotto il numero, ma un piccolo pulsante «i» che apre la spiegazione del calcolo.
+  var tileCA = '<div class="vit vit-ca"><span class="lbl">CA</span><strong>' + ca.tot + "</strong>" + ((ca.parts || []).length
+    ? '<details class="cainfo"><summary aria-label="Come si calcola la CA" title="Come si calcola la CA">i</summary><div class="cainfo-box"><strong>Come si calcola la CA</strong><ul>' +
+      ca.parts.map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul><p>Totale: <b>" + ca.tot + "</b></p></div></details>"
+    : "") + "</div>";
+  var h = back + '<section class="scheda"><header class="sh-head"><div class="sh-tit"><h2>' + esc(nome) + '</h2><p class="hint">' + esc(sub) + "</p></div>" + tabSez + "</header>";
   // Schede complete: prima le caratteristiche, poi CA/PF e il resto (come nel disegno della scheda). Gli NPC semplificati restano come prima.
   var h0 = h; h = "";
-  h += '<div class="vitali">' + tile("CA", ca.tot, ca.desc) +
+  h += '<div class="vitali">' + tileCA +
     tile("PF", s.pf_attuali + "/" + s.pf_max + (s.pf_temp ? ' <span class="tmp">+' + s.pf_temp + "</span>" : "")) +
     tile("Velocità", esc(fmtVel(s.velocita)));
   if (!semp) {
@@ -71,8 +81,15 @@ function htmlScheda(key, indietro) {
       var lv = (s.abilita || {})[k[0]] || 0;
       return '<li data-act="dado" data-k="skill" data-v="' + k[0] + '" data-id="' + s.id + '" role="button" tabindex="0"><span class="dot" title="' + ["non competente", "competente", "maestria"][lv] + '">' + ["○", "●", "◆"][lv] + "</span><span class=\"nm\">" + esc(k[1]) + "</span><b>" + sgn(totaleAbilita(s, k[0])) + "</b><small>(" + ABK[k[2]][2] + ")</small></li>";
     }).join("") + "</ul>";
-    h += '<div class="duecol"><div>' + abH + htmlEquipaggiamento(s, key) + htmlMonete(s) + htmlInventarioScheda(s, key) + "</div><div>" + tsH + htmlCombattimento(s, key) + "</div></div>";
-    h += '<p class="hint">● competenza, ◆ maestria. La CA si calcola dall’armatura e dallo scudo equipaggiati nell’inventario.</p>';
+    if (sez === "incantesimi") {
+      h += '<div class="sezione">' + htmlSezIncantesimi(s) + "</div>";
+    } else if (sez === "equip") {
+      h += '<div class="sezione">' + htmlEquipaggiamento(s, key) + htmlMonete(s) + htmlInventarioScheda(s, key) +
+        '<p class="hint">La CA si calcola dall’armatura e dallo scudo equipaggiati nell’inventario.</p></div>';
+    } else {
+      h += '<div class="duecol"><div>' + abH + "</div><div>" + tsH + htmlAttacchi(s, key) + htmlSlotNumeri(s) + htmlIncantesimi(s, "trucchetti") + "</div></div>" +
+        '<p class="hint">● competenza, ◆ maestria.</p>';
+    }
   } else {
     if (s.tratti) h += "<h3>Tratti</h3><p class=\"pre\">" + esc(s.tratti) + "</p>";
     if ((s.azioni || []).length) {
@@ -88,3 +105,8 @@ function htmlScheda(key, indietro) {
     (isMaster() ? '<button class="danger" data-act="elimina-scheda" data-id="' + s.id + '">Elimina scheda</button>' : "") + "</div></section>";
   return h;
 }
+
+// Il riquadro della CA si chiude toccando fuori.
+document.addEventListener("click", function (e) {
+  document.querySelectorAll("details.cainfo[open]").forEach(function (d) { if (!d.contains(e.target)) d.removeAttribute("open"); });
+});

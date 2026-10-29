@@ -52,7 +52,7 @@ function postoArm(a) {
   return "corpo";
 }
 function calcCA(s, key) {
-  if (s.ca_manuale != null) return { tot: s.ca_manuale, desc: s.tipo === "semplificata" ? "" : "valore fisso" };
+  if (s.ca_manuale != null) return { tot: s.ca_manuale, desc: s.tipo === "semplificata" ? "" : "valore fisso", parts: s.tipo === "semplificata" ? [] : ["Valore fisso, scritto a mano nella scheda"] };
   var des = mod(s.destrezza), arm = null, scudo = null, elmo = null, arti = 0;
   invDi(key).forEach(function (i) {
     if (!i.equipaggiato || i.oggetti.categoria !== "armatura") return;
@@ -81,7 +81,7 @@ function calcCA(s, key) {
   // [REGOLA] Tre protezioni degli arti indossate insieme (anche di tipo diverso) danno +1 CA in totale.
   if (arti >= 3) { tot += 1; parts.push("protezioni degli arti +1"); }
   if (s.ca_bonus) { tot += s.ca_bonus; parts.push("bonus " + sgn(s.ca_bonus)); }
-  return { tot: tot, desc: parts.join(", ") };
+  return { tot: tot, desc: parts.join(", "), parts: parts };
 }
 function totaleAbilita(s, k) {
   var lv = (s.abilita || {})[k] || 0;
