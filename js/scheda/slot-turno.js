@@ -42,12 +42,12 @@ function htmlMorte(s) {
         '" aria-label="' + (k === "s" ? "Successo " : "Fallimento ") + n + (n <= tot ? ", segnato" : ", vuoto") + '"></button>';
     return h;
   };
-  // Una sola riga: a sinistra i fallimenti (rossi), al centro il pulsante, a destra i successi (verdi).
-  return '<div class="morte' + (Number(s.pf_attuali) > 0 ? " spento" : "") + '"><div class="morte-testa"><h3>Tiri contro morte</h3>' +
-    (m.s || m.f ? '<button class="small" data-act="morte-azzera" data-id="' + s.id + '">Azzera</button>' : "") + "</div>" +
+  // Una sola riga, senza titolo: a sinistra i fallimenti (rossi), al centro il pulsante, a destra i successi (verdi).
+  return '<div class="morte' + (Number(s.pf_attuali) > 0 ? " spento" : "") + (m.s || m.f ? " segnato" : "") + '" role="group" aria-label="Tiri contro morte">' +
+    (m.s || m.f ? '<button class="small morte-azzera" data-act="morte-azzera" data-id="' + s.id + '">Azzera</button>' : "") +
     '<div class="morte-riga">' +
     '<div class="morte-lato"><span class="lbl">Fallimenti</span><span class="pips">' + pips("f", m.f) + "</span></div>" +
-    '<button class="small primary" data-act="dado" data-k="morte" data-id="' + s.id + '"' + (morto || stab ? " disabled" : "") + '>Tira contro morte</button>' +
+    '<button class="small primary" data-act="dado" data-k="morte" data-id="' + s.id + '"' + (morto || stab ? " disabled" : "") + '>Tiro contro morte</button>' +
     '<div class="morte-lato"><span class="lbl">Successi</span><span class="pips">' + pips("s", m.s) + "</span></div></div>" +
     (morto ? '<p class="avviso">Tre fallimenti: il personaggio è morto.</p>' : stab ? '<p class="hint">Tre successi: sei stabilizzato. Resti a 0 PF finché qualcuno non ti cura.</p>' : "") +
     "</div>";
@@ -62,7 +62,7 @@ function htmlSlot(s) {
     if (n <= 0) return;
     var pips = "";
     for (var i = 0; i < n; i++) {
-      var u = i < (us[lv] || 0);
+      var u = i >= n - (us[lv] || 0);   // gli slot usati sono quelli di destra
       pips += '<button class="pip' + (u ? " usato" : "") + '" data-act="slot" data-id="' + s.id + '" data-lv="' + lv + '" data-i="' + i + '" aria-pressed="' + u + '" aria-label="Slot di livello ' + (lv + 1) + ", numero " + (i + 1) + (u ? ", usato" : ", disponibile") + '"></button>';
     }
     h += '<div class="slotriga"><span class="slotlv">' + (lv + 1) + '°</span><span class="pips">' + pips + "</span><small>" + (n - (us[lv] || 0)) + " di " + n + "</small></div>";
@@ -75,7 +75,7 @@ function htmlPipsLivello(s, lv) {
   if (n <= 0) return "";
   var pips = "";
   for (var i = 0; i < n; i++) {
-    var u = i < us;
+    var u = i >= n - us;   // gli slot usati sono quelli di destra
     pips += '<button class="pip' + (u ? " usato" : "") + '" data-act="slot" data-id="' + s.id + '" data-lv="' + (lv - 1) + '" data-i="' + i + '" aria-pressed="' + u +
       '" aria-label="Slot di livello ' + lv + ", numero " + (i + 1) + (u ? ", usato" : ", disponibile") + '"></button>';
   }

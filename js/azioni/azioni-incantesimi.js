@@ -28,7 +28,9 @@ var ACT_INC = {
   slot: function (b) {
     var s = schedaPerId(b.dataset.id); if (!s) return;
     var lv = Number(b.dataset.lv), i = Number(b.dataset.i), us = (s.slot_usati || []).slice();
-    us[lv] = i < (us[lv] || 0) ? i : i + 1;
+    // Gli slot si svuotano da destra verso sinistra: «r» è la posizione del cerchietto contata da destra (1 = l'ultimo a destra).
+    var r = ((s.slot_totali || [])[lv] || 0) - i;
+    us[lv] = r <= (us[lv] || 0) ? r - 1 : r;
     gioco(s, { slot_usati: us });
   },
   risorsa: function (b) {

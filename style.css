@@ -388,23 +388,18 @@ h4.inc-liv small { color: var(--muted); font: 400 .85rem var(--sans); }
 :root { --ok: #2f8a46; }
 @media (prefers-color-scheme: dark) {
   :root { --ok: #5cc47a; } }
-.morte { margin: 0 0 .5rem; padding: .25rem .5rem .3rem; border: 1px solid var(--line); border-radius: 8px; display: grid; gap: .1rem; }
-.morte h3 { margin: 0; font-size: .85rem; }
-.morte-testa { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-.morte-testa button { min-height: 22px; padding: 0 .5rem; font-size: .75rem; }
+.morte { position: relative; margin: 0 0 .5rem; padding: .3rem .6rem; border: 1px solid var(--line); border-radius: 8px; display: grid; gap: .2rem; }
+.morte.segnato { padding-top: 1.85rem; }
 .morte.spento { opacity: .65; }
 .morte p { margin: 0; }
-@media (min-width: 700px) {
-  .morte { display: flex; flex-wrap: wrap; align-items: center; gap: .1rem 1.2rem; padding: .25rem .7rem; }
-  .morte-testa { gap: .8rem; }
-  .morte-riga { gap: 1.2rem; justify-content: flex-start; }
-  .morte p { flex-basis: 100%; }
-}
-.morte-riga { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.morte .morte-azzera { position: absolute; top: .25rem; right: .4rem; min-height: 22px; padding: 0 .5rem; font-size: .75rem; }
+.morte-riga { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .5rem; }
 .morte-lato { display: grid; gap: 0; justify-items: center; }
+.morte-lato:first-child { justify-self: start; }
+.morte-lato:last-child { justify-self: end; }
 .morte-lato .lbl { font-size: .62rem; color: var(--muted); line-height: 1.1; }
 .morte .pips { flex-wrap: nowrap; gap: .25rem; }
-.morte-riga > button { flex: 0 1 auto; padding: 0 .6rem; min-height: 26px; font-size: .8rem; white-space: nowrap; line-height: 1.2; }
+.morte-riga > button { padding: 0 .8rem; min-height: 30px; font-size: .85rem; white-space: nowrap; line-height: 1.2; }
 .morte .pip { width: 16px; height: 16px; min-height: 16px; border-width: 1.5px; }
 .morte .pip.morte-s { background: var(--ok); border-color: var(--ok); }
 .morte .pip.morte-f { background: var(--danger); border-color: var(--danger); }
