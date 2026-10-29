@@ -87,7 +87,7 @@ function htmlScheda(key, indietro) {
       h += '<div class="sezione">' + htmlEquipaggiamento(s, key) + htmlMonete(s) + htmlInventarioScheda(s, key) +
         '<p class="hint">La CA si calcola dall’armatura e dallo scudo equipaggiati nell’inventario.</p></div>';
     } else {
-      h += '<div class="duecol"><div>' + abH + "</div><div>" + tsH + htmlAttacchi(s, key) + htmlSlotNumeri(s) + htmlIncantesimi(s, "trucchetti") + "</div></div>" +
+      h += '<div class="duecol"><div>' + abH + "</div><div>" + tsH + htmlAttacchi(s, key) + htmlSlot(s) + htmlIncantesimi(s, "trucchetti") + "</div></div>" +
         '<p class="hint">● competenza, ◆ maestria.</p>';
     }
   } else {

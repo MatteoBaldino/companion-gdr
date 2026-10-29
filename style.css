@@ -162,7 +162,6 @@ h3 { font-size: 1.15rem; margin: 1.1rem 0 .4rem; }
 .sezioni button { background: transparent; border: 0; border-radius: 8px; color: var(--muted); font-size: .85rem; font-weight: 600; min-height: 32px; padding: 0 .6rem; white-space: nowrap; }
 .sezioni button[aria-current=true] { background: var(--accent); color: var(--accent-ink, #fff); }
 @media (max-width: 400px) { .sezioni button { padding: 0 .4rem; font-size: .8rem; } }
-.slotnum { margin: 0 0 .6rem; font-weight: 600; }
 .sh-head p { margin: .1rem 0 0; }
 .vitali { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .6rem; margin-bottom: .9rem; }
 .vit { border: 1px solid var(--line); border-radius: 8px; padding: .5rem .7rem; background: var(--panel); display: flex; flex-direction: column; }

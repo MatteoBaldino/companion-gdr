@@ -53,9 +53,9 @@ function rigaInc(s, r, i, st, ra) {
     '<div class="inc-riga"><span class="ic-t">' + (ra ? celTiro(s, ra.x, ra.n) : "—") + '</span><span class="ic-d">' + (ra ? celDanno(s, ra.x, ra.n) : "—") + '</span>' +
     '<span class="ic-g">' + esc(gittataInc(i)) + "</span>" + prepara + note + "</div></div>";
 }
-// La sezione «Incantesimi» della scheda completa: slot, risorse, trucchetti e incantesimi.
+// La sezione «Incantesimi» della scheda completa: risorse, trucchetti e incantesimi (gli slot stanno nella sezione Scheda).
 function htmlSezIncantesimi(s) {
-  var h = htmlSlot(s) + htmlRisorse(s) + htmlIncantesimi(s);
+  var h = htmlRisorse(s) + htmlIncantesimi(s);
   if (!S.incOk) h += '<p class="hint">Per attivare incantesimi, slot e turno esegui <code>aggiornamento_incantesimi.sql</code> nello SQL Editor di Supabase.</p>';
   return h;
 }

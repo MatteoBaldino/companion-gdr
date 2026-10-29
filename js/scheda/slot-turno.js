@@ -2,7 +2,7 @@
    js/scheda/slot-turno.js
    Cosa fa:   Turno (azione, bonus, reazione, movimento), riposi,
               concentrazione, slot incantesimo e risorse.
-   Contiene:  htmlTurno, htmlMorte, htmlSlotNumeri, htmlSlot, htmlRisorse
+   Contiene:  htmlTurno, htmlMorte, htmlSlot, htmlRisorse
    L'ordine di caricamento è in index.html: conta, non cambiarlo.
    ===================================================================== */
 "use strict";
@@ -54,12 +54,6 @@ function htmlMorte(s) {
 }
 
 // ---------------------------------------------------------------- slot e risorse
-// Solo i numeri (per la sezione Scheda): per ogni livello, quanti slot restano. Gli slot si segnano nella sezione Incantesimi.
-function htmlSlotNumeri(s) {
-  var tot = s.slot_totali || [], us = s.slot_usati || [], p = [];
-  tot.forEach(function (n, lv) { if (n > 0) p.push((lv + 1) + "° livello: " + (n - (us[lv] || 0)) + " di " + n); });
-  return p.length ? '<h3>Slot incantesimo</h3><p class="slotnum">' + p.join(" · ") + "</p>" : "";
-}
 function htmlSlot(s) {
   var tot = s.slot_totali || [], us = s.slot_usati || [];
   if (!tot.some(function (n) { return n > 0; })) return "";
