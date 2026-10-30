@@ -68,7 +68,7 @@ function htmlScheda(key, indietro) {
     (!semp ? '<button data-act="ispirazione" data-id="' + s.id + '" aria-pressed="' + s.ispirazione + '">' + (s.ispirazione ? "Ispirazione: sì" : "Ispirazione: no") + "</button>" : "") + "</div>";
   if (!semp) h += htmlMorte(s);
   h += htmlTurno(s);
-  if (!semp) h += htmlTiro();
+  if (!semp) h += htmlTiro(s, key);
   var corpo = h; h = h0;
   var abil = '<div class="abils">' + ABIL.map(function (a) {
     return '<div class="ab"' + (semp ? "" : ' data-act="dado" data-k="abil" data-v="' + a[0] + '" data-id="' + s.id + '" role="button" tabindex="0" title="Tira una prova di ' + a[1] + '"') + '><span class="lbl">' + a[2] + "</span><strong>" + sgn(mod(s[a[3]])) + "</strong><small>" + s[a[3]] + "</small></div>";

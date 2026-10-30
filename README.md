@@ -25,6 +25,7 @@ Un sito per te e i tuoi amici: il master crea armi, armature, cibo e oggetti (an
 | `supabase/aggiornamento_listino_standard.sql` | listino standard copiabile da ogni master (pulsante «Copia listino standard» in Libreria) e servizi visibili solo al master: da eseguire una volta, dopo `aggiornamento_battle.sql` |
 | `supabase/aggiornamento_posti_equipaggiamento.sql` | le nove caselle dell’equipaggiamento (elmo, mantello, torace, guanti, pantaloni, scarpe, mano destra, mano sinistra, a due mani): da eseguire una volta, dopo `aggiornamento_listino_standard.sql`, prima di caricare i file del sito |
 | `supabase/aggiornamento_dai_scarta.sql` | «Scarta» (l’oggetto resta a terra) e «Dai» al master: da eseguire una volta, prima di caricare i file del sito |
+| `supabase/aggiornamento_tiri.sql` | tiri di dado condivisi (sopra la mappa e nella cronologia), con visibilità tutti / master / segreto: da eseguire una volta, dopo `aggiornamento_battle.sql` |
 | `supabase/prova_tre_account.sql` | facoltativo: prepara una campagna di prova con tre account (vedi sotto) |
 
 ## Messa online, passo per passo
@@ -96,6 +97,7 @@ Da eseguire nello SQL Editor, ognuno una sola volta, in questo ordine:
 7. `aggiornamento_png.sql`
 8. `aggiornamento_battle.sql`
 9. `aggiornamento_listino_standard.sql`
+10. `aggiornamento_tiri.sql`
 
 `prova_tre_account.sql` è facoltativo e sta fuori da quest’ordine. Se uno script dà errore non cambia niente: è un unico blocco.
 
@@ -117,7 +119,7 @@ Da eseguire nello SQL Editor, ognuno una sola volta, in questo ordine:
 
 **Dai e Scarta.** Nell’inventario (nella scheda e nella pagina Inventario del giocatore) ogni oggetto ha «Dai» e «Scarta». «Dai»: il giocatore dà ad altri giocatori o al master, dal proprio inventario (lo decide la funzione `trasferisci`); non può dare direttamente a un NPC, quindi lo dà al master. Il master vede gli oggetti ricevuti in Personaggi → «Ricevuti dai giocatori» e li passa con «Dai»: sceglie PG o NPC da un elenco con ricerca (si scrive una parte del nome, maiuscole e accenti non contano). L’elenco con ricerca c’è anche in «Sposta». «Scarta» lascia l’oggetto a terra: esce dall’inventario e il movimento resta nello storico come rimozione; il giocatore può scartare solo dal proprio inventario, il master da qualunque (funzione `scarta`).
 
-**Tiri di dado.** Nella scheda completa ogni caratteristica, tiro salvezza, abilità e l'iniziativa si toccano per tirare; nella tabella degli attacchi il bonus per colpire e il danno sono pulsanti (armi, colpo senza armi, incantesimi). Il risultato compare nel riquadro dentro la scheda, sopra le due colonne, con i dadi dalla loro sagoma (se la scheda è lunga il riquadro viene portato in vista). «Prossimo tiro» sceglie Normale, Vantaggio o Svantaggio e dopo ogni d20 torna su Normale; con vantaggio o svantaggio il d20 scartato resta barrato. Dopo un tiro per colpire il riquadro mostra un campo «CA del bersaglio» (facoltativo): il 20 naturale colpisce sempre, l'1 manca sempre, altrimenti conta il totale contro la CA scritta; se ha colpito (o se non scrivi la CA) compare «Tira il danno», e il danno raddoppia i dadi dopo un 20. Se il sito non sa con quale caratteristica lanci, nella colonna Tiro compare «attacco ›»: toccandolo scegli la caratteristica e la salva nella scheda. Un attacco con un'arma o a mani nude segna l'**Azione** del turno e, se è già usata, non parte: per liberarla si tocca la cella Azione. Gli attacchi degli incantesimi non la segnano, perché lo fa già «Lancia». Il 20 naturale di un attacco è un critico: il danno successivo di quell'arma raddoppia i dadi (non il modificatore). Per ora il tiro lo vede solo chi lo fa: la chat con i tiri condivisi e segreti verrà dopo.
+**Tiri di dado.** Nella scheda completa ogni caratteristica, tiro salvezza, abilità e l'iniziativa si toccano per tirare; nella tabella degli attacchi il bonus per colpire e il danno sono pulsanti (armi, colpo senza armi, incantesimi). Il risultato compare nel riquadro dentro la scheda, sopra le due colonne, con i dadi dalla loro sagoma (se la scheda è lunga il riquadro viene portato in vista). «Prossimo tiro» sceglie Normale, Vantaggio o Svantaggio e dopo ogni d20 torna su Normale; con vantaggio o svantaggio il d20 scartato resta barrato. Dopo un tiro per colpire il riquadro mostra un campo «CA del bersaglio» (facoltativo): il 20 naturale colpisce sempre, l'1 manca sempre, altrimenti conta il totale contro la CA scritta; se ha colpito (o se non scrivi la CA) compare «Tira il danno», e il danno raddoppia i dadi dopo un 20. Se il sito non sa con quale caratteristica lanci, nella colonna Tiro compare «attacco ›»: toccandolo scegli la caratteristica e la salva nella scheda. Un attacco con un'arma o a mani nude segna l'**Azione** del turno e, se è già usata, non parte: per liberarla si tocca la cella Azione. Gli attacchi degli incantesimi non la segnano, perché lo fa già «Lancia». Il 20 naturale di un attacco è un critico: il danno successivo di quell'arma raddoppia i dadi (non il modificatore). Ogni tiro viene anche salvato nel database (serve `supabase/aggiornamento_tiri.sql`): nella Battle map compare sopra la mappa e nella cronologia, con le regole su chi lo vede.
 
 **Monete sulla scheda.** Sopra l'inventario ci sono le quattro monete (Pt, Or, Ar, Ra), ognuna in una casella: scrivi il numero e premi Invio (o esci dal campo) e si salva. Sotto compare il totale. Il peso delle monete conta nel carico (peso di una moneta: `campagne.peso_moneta_kg`, 0,01 kg). Si salvano con la funzione `aggiorna_monete`: il giocatore tocca la sua scheda, il master tutte.
 
@@ -145,7 +147,18 @@ Da eseguire nello SQL Editor, ognuno una sola volta, in questo ordine:
 
 ## Battle map
 
-Si apre da **Battle map** nella testata del sito (pagina `battle.html`). Serve aver eseguito `supabase/aggiornamento_battle.sql`.
+Si apre da **Battle map** nella testata del sito (pagina `battle.html`). Serve aver eseguito `supabase/aggiornamento_battle.sql` e, per i tiri e le schede, anche `supabase/aggiornamento_tiri.sql`.
+
+**La pagina a tre colonne** (sotto i 1200 px le colonne si mettono una sotto l'altra: prima la mappa)
+- **Al centro** la mappa, con sotto la barra degli strumenti (mappe, scena, segnalini, righello, **Dadi**).
+- **A destra** la scheda del giocatore e, sotto, la **Cronologia eventi** (si apre e si chiude). Il master sceglie quale PG vedere con le linguette, o tocca il suo segnalino; un giocatore ha sempre la propria.
+- **A sinistra** l'iniziativa e, solo per il master, la scheda dell'NPC (linguette, o tocco sul segnalino). Gli NPC con scheda «semplificata» non hanno i dadi, come nel sito principale.
+
+**I dadi**
+- I tiri si fanno dalla scheda, come nel sito principale: attacco, danno (compare dopo l'attacco, con la CA del bersaglio), tiri salvezza, abilità, iniziativa, vantaggio e svantaggio.
+- Ogni tiro compare **sopra la mappa** con la forma del dado e finisce nella **Cronologia eventi**. Il pulsante **Dadi** nella barra apre la tenda con i tiri liberi (D4, D6, D8, D10, D12, D20, D100, Fudge, tiro avanzato con numero bersaglio).
+- **Chi vede cosa.** *Tutti*: lo vedono tutti. *Master*: lo vedono il master e chi ha tirato. *Segreto*: lo vede solo il master, chi ha tirato non vede il risultato. Un giocatore tira come ha deciso il master per lui (scelta nella sua scheda: Tutti / Nascosti / Segreti, di solito «Tutti»). Il master, quando tira per un NPC, sceglie lui; di solito resta nascosto e lo mostra con **Mostra a tutti**. Le regole sono nel database: un tiro nascosto non arriva ai giocatori nemmeno dal codice della pagina.
+- Si conservano gli ultimi 300 tiri; il master può svuotare la cronologia.
 
 **Per il master**
 - **Nuova mappa**: scegli un'immagine dal computer. Viene ridotta (lato massimo 2048 px, circa mezzo MB) e salvata nell'archivio privato. Massimo 10 mappe per campagna.

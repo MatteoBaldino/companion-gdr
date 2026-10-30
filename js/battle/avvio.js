@@ -19,11 +19,13 @@ function collega() {
   sc.addEventListener("pointermove", bMuovi);
   sc.addEventListener("pointerup", bSu);
   sc.addEventListener("pointercancel", bSu);
+  // Il dado sopra la mappa ha i suoi pulsanti: un tocco lì non deve far partire il righello o il trascinamento.
+  $("#dadoMappa").addEventListener("pointerdown", function (e) { e.stopPropagation(); });
   root.addEventListener("click", function (e) {
     var b = e.target.closest("[data-b]"); if (!b) return;
     var a = b.dataset.b;
     if (a === "unita") { U.sys = imp() ? "metric" : "imperial"; try { localStorage.setItem("gdr_unita", U.sys); } catch (x) {} b.textContent = labelUnita(); disegna(); return; }
-    if (!azioneBarra(a, b)) azioneIniziativa(a);
+    if (!azioneBarra(a, b) && !azioneTiri(a, b) && !azioneSchede(a, b)) azioneIniziativa(a);
   });
   root.addEventListener("change", function (e) {
     var t = e.target;
@@ -51,7 +53,7 @@ function collega() {
 function entraInCampagna() {
   montaPagina();
   collega();
-  return caricaBattle().then(function () { disegna(); avviaRealtime(); },
+  return caricaBattle().then(function () { disegna(); avviaRealtime(); avviaTiri(); return iniziaSchede(); },
     function (e) { toast(errText(e), true); });
 }
 
@@ -60,7 +62,7 @@ function avviaBattle() {
   sb.auth.getSession().then(function (r) {
     B.user = r.data && r.data.session ? r.data.session.user : null;
     if (!B.user) return messaggioBattle("Per usare la Battle map devi aver fatto l’accesso. Apri il sito, accedi, poi torna qui.");
-    return sb.from("giocatori").select("id, nome, ruolo, campagna_id, campagne(id, nome)").eq("user_id", B.user.id).order("id").then(function (q) {
+    return sb.from("giocatori").select("id, nome, ruolo, campagna_id, campagne(id, nome, codice_invito, peso_moneta_kg)").eq("user_id", B.user.id).order("id").then(function (q) {
       if (q.error) return messaggioBattle("Errore: " + esc(q.error.message));
       B.mems = q.data || [];
       if (!B.mems.length) return messaggioBattle("Non fai ancora parte di nessuna campagna.");

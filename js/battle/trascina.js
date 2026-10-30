@@ -25,6 +25,7 @@ function bGiu(e) {
   if (tk) {
     var s = segnalinoPerId(tk.dataset.id); if (!s) return;
     B.sel = s.id;
+    selezionaScheda(s);                     // si apre la scheda del segnalino toccato
     if (!possoMuovere(s)) { toast("Puoi muovere solo il tuo segnalino.", true); return; }
     B.drag = { id: s.id, el: tk, x0: p.x, y0: p.y, mosso: false, ultimo: 0 };
     bCattura(e);

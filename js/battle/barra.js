@@ -16,8 +16,9 @@ var MAX_MAPPE = 10;          // lo stesso limite è nel database (salva_mappa)
 function aggiornaBarra() {
   var b = $("#barra"), m = mappaVista();
   var righello = '<button class="tg" data-b="righello" aria-pressed="' + B.righello + '">Righello</button>';
+  var dadi = '<button class="tg" data-b="tenda" aria-pressed="' + TI.tenda + '" aria-controls="tenda">Dadi</button>';
   if (!bMaster()) {
-    b.innerHTML = '<div class="bar">' + righello +
+    b.innerHTML = '<div class="bar">' + righello + dadi +
       (m && m.larghezza_m ? '<span class="hint">La mappa è larga ' + dec(distShow(Number(m.larghezza_m))) + " " + distUnit() + ".</span>" : "") + "</div>";
     return;
   }
@@ -27,7 +28,7 @@ function aggiornaBarra() {
     return '<button class="tab" data-b="vista" data-id="' + x.id + '" aria-current="' + !!(m && m.id === x.id) + '">' + esc(x.nome) +
       (inScena === x.id ? '<span class="badge' + (visibile ? "" : " grigio") + '">' + (visibile ? "in scena" : "scelta") + "</span>" : "") + "</button>";
   }).join("") + '<label class="btn file' + (pieno ? " spento" : "") + '" title="' + (pieno ? "Hai già " + MAX_MAPPE + " mappe" : "Carica un’immagine") + '">Nuova mappa' +
-    '<input type="file" id="fileMappa" accept="image/*" hidden' + (pieno ? " disabled" : "") + "></label></div>";
+    '<input type="file" id="fileMappa" accept="image/*" hidden' + (pieno ? " disabled" : "") + "></label>" + dadi + "</div>";
   if (!m) { b.innerHTML = h; return; }
   var opt = function (pref) { return function (x) { return '<option value="' + pref + x.id + '">' + esc(x.nome) + "</option>"; }; };
   h += '<div class="bar">' +

@@ -8,8 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=6">
-  <link rel="stylesheet" href="battle.css?v=1">
+  <link rel="stylesheet" href="style.css?v=24">
+  <link rel="stylesheet" href="tema.css?v=1">
+  <link rel="stylesheet" href="battle.css?v=2">
 </head>
 <body>
   <!-- Battle map: mappe, segnalini, PF e iniziativa. Usa il login già fatto nel sito principale. -->
@@ -22,19 +23,54 @@
   <!-- L'ORDINE DI QUESTI FILE CONTA: ognuno usa le funzioni dei file che stanno sopra.
        Quando modifichi un file cambia il numero ?v= così il browser lo riscarica. -->
   <!-- parti in comune con il sito principale -->
+  <!-- comune e scheda: gli stessi file del sito principale (index.html), nello stesso ordine -->
   <script src="js/comune/base.js?v=5"></script>
+  <script src="js/comune/costanti.js?v=5"></script>
   <script src="js/comune/messaggi.js?v=5"></script>
+  <script src="js/comune/stato.js?v=5"></script>
+  <script src="js/app/struttura.js?v=8"></script>
+  <script src="js/libreria/riga-oggetto.js?v=5"></script>
+  <script src="js/libreria/elenco.js?v=6"></script>
+  <script src="js/listino/listino.js?v=6"></script>
+  <script src="js/personaggi/personaggi.js?v=6"></script>
+  <script src="js/storico/storico.js?v=5"></script>
+  <script src="js/inventario/inventario.js?v=7"></script>
   <script src="js/comune/finestre.js?v=5"></script>
+  <script src="js/libreria/modulo-oggetto.js?v=5"></script>
+  <script src="js/personaggi/destinatari.js?v=6"></script>
+  <script src="js/azioni/azioni-oggetti.js?v=9"></script>
+  <script src="js/scheda/dati.js?v=5"></script>
+  <script src="js/scheda/menu-opzioni.js?v=5"></script>
+  <script src="js/scheda/calcoli.js?v=8"></script>
+  <script src="js/scheda/vista.js?v=15"></script>
+  <script src="js/scheda/salvataggio.js?v=5"></script>
+  <script src="js/scheda/modifica.js?v=6"></script>
+  <script src="js/scheda/creazione.js?v=5"></script>
+  <script src="js/azioni/azioni-schede.js?v=9"></script>
+  <script src="js/scheda/dati-incantesimi.js?v=8"></script>
+  <script src="js/scheda/attacchi.js?v=14"></script>
+  <script src="js/scheda/slot-turno.js?v=11"></script>
+  <script src="js/scheda/inventario-scheda.js?v=9"></script>
+  <script src="js/scheda/equipaggiamento-scheda.js?v=4"></script>
+  <script src="js/scheda/dadi.js?v=7"></script>
+  <script src="js/scheda/classi-scheda.js?v=1"></script>
+  <script src="js/scheda/incantesimi-scheda.js?v=10"></script>
+  <script src="js/scheda/gioco.js?v=7"></script>
+  <script src="js/incantesimi/libreria-incantesimi.js?v=5"></script>
+  <script src="js/scheda/campi-gioco.js?v=5"></script>
+  <script src="js/azioni/azioni-incantesimi.js?v=12"></script>
   <!-- battle -->
   <script src="js/battle/stato.js?v=1"></script>
   <script src="js/battle/realtime.js?v=1"></script>
   <script src="js/battle/immagini.js?v=1"></script>
-  <script src="js/battle/mappa.js?v=1"></script>
-  <script src="js/battle/trascina.js?v=1"></script>
+  <script src="js/battle/mappa.js?v=2"></script>
+  <script src="js/battle/trascina.js?v=2"></script>
   <script src="js/battle/righello.js?v=1"></script>
-  <script src="js/battle/barra.js?v=1"></script>
+  <script src="js/battle/barra.js?v=2"></script>
   <script src="js/battle/segnalino.js?v=1"></script>
   <script src="js/battle/iniziativa.js?v=1"></script>
-  <script src="js/battle/avvio.js?v=1"></script>
+  <script src="js/battle/tiri.js?v=1"></script>
+  <script src="js/battle/schede.js?v=1"></script>
+  <script src="js/battle/avvio.js?v=2"></script>
 </body>
 </html>

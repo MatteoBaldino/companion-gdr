@@ -3,9 +3,73 @@
    Stile della pagina Battle map: mappa, segnalini, barra, iniziativa.
    Usa i colori di style.css (--accent, --panel, --line…).
    ===================================================================== */
-.battle { max-width: 1400px; margin: 0 auto; padding: 1rem; display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 1rem; align-items: start; }
-@media (max-width: 900px) { .battle { grid-template-columns: 1fr; } }
-.bcol { min-width: 0; }
+/* Tre colonne: a sinistra iniziativa e NPC, al centro mappa e strumenti, a destra scheda del giocatore e cronologia.
+   Sotto i 1200 px le colonne si mettono una sotto l'altra: prima la mappa, poi la scheda, poi iniziativa e NPC. */
+.battle3 { max-width: 1760px; margin: 0 auto; padding: .75rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }
+.bcol { min-width: 0; order: 1; }
+.coldx { min-width: 0; order: 2; }
+.colsx { min-width: 0; order: 3; }
+@media (min-width: 1200px) {
+  .battle3 { grid-template-columns: 300px minmax(0, 1fr) 460px; }   /* [MODIFICA QUI] larghezza delle colonne laterali */
+  .bcol, .coldx, .colsx { order: 0; }
+  .colsx, .coldx { position: sticky; top: .5rem; max-height: calc(100vh - 1rem); overflow: auto; }
+}
+
+/* Le schede dentro la Battle map */
+.pannello { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .6rem .75rem; margin-bottom: .8rem; min-width: 0; }
+.pannello[hidden] { display: none; }
+.ptit { font-size: 1.1rem; margin: 0 0 .45rem; color: var(--accent); }
+.ptabs { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .6rem; }
+.ptabs button { min-height: 38px; }
+.ptabs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.pannello .scheda h2 { font-size: 1.5rem; }
+.pannello .duecol { grid-template-columns: 1fr; }
+.pannello .abils { grid-template-columns: repeat(3, 1fr); }
+.pannello .sh-head { margin-bottom: .6rem; }
+
+/* Il dado che compare sopra la mappa */
+.dadomappa { position: absolute; top: .6rem; right: .6rem; z-index: 5; max-width: min(340px, calc(100% - 1.2rem)); padding: .5rem .7rem .6rem; background: var(--panel); border: 2px solid var(--accent); border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, .35); }
+.dadomappa[hidden] { display: none; }
+.dadomappa.nascosto { border-style: dashed; border-color: var(--muted); }
+.dadomappa .chiudi { position: absolute; top: 2px; right: 2px; min-height: 30px; width: 30px; padding: 0; border: 0; background: transparent; font-size: 1.2rem; line-height: 1; }
+.dadomappa .tiro-h { padding-right: 1.6rem; }
+.dadomappa .dado { width: 2.8rem; height: 2.8rem; }
+.dadomappa .dado .num { font-size: 1.05rem; }
+.dadomappa .vis, .cl .vis { font-size: .8rem; color: var(--accent); margin-top: .15rem; }
+.dadomappa .vis.nasc, .cl .vis.nasc { color: var(--brass); }
+.esito { font-size: .82rem; font-weight: 600; }
+.esito.crit { color: var(--accent); }
+.esito.fail { color: var(--danger); }
+
+/* Cronologia degli eventi */
+.cron { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .2rem .75rem .5rem; }
+.cron .cb { width: 100%; display: flex; justify-content: space-between; align-items: center; min-height: 44px; padding: 0 .1rem; background: transparent; border: 0; font: 700 1.05rem var(--serif); color: var(--accent); }
+.cl { list-style: none; margin: 0; padding: 0; max-height: 280px; overflow: auto; }
+.cl li { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; padding: .4rem 0; border-top: 1px solid var(--line); font-size: .9rem; }
+.cl li .t { flex: 1 1 14rem; min-width: 0; }
+.cl li.nasc { font-style: italic; }
+
+/* La tenda «Dadi»: si apre dal pulsante nella barra degli strumenti */
+.tenda { position: fixed; left: 1rem; bottom: 1rem; z-index: 20; width: min(360px, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); overflow: auto; padding: .4rem .8rem .9rem; background: var(--panel); border: 1px solid var(--accent); border-radius: 12px; box-shadow: 0 8px 28px rgba(0, 0, 0, .4); }
+.tenda[hidden] { display: none; }
+.tenda-h { display: flex; justify-content: space-between; align-items: center; }
+.tenda h2 { font-size: 1.2rem; color: var(--accent); margin: 0; }
+.tenda h3 { font-size: .95rem; color: var(--muted); margin: .8rem 0 .3rem; }
+.tenda .chiudi { min-height: 40px; width: 40px; padding: 0; border: 0; background: transparent; font-size: 1.4rem; }
+.tenda .seg { display: flex; gap: .25rem; padding: .2rem; border: 1px solid var(--line); border-radius: 10px; }
+.tenda .seg button { flex: 1; min-height: 40px; border: 0; background: transparent; }
+.tenda .seg button.on { background: var(--accent); color: var(--accent-ink); }
+.tenda .dg { display: grid; grid-template-columns: repeat(4, 1fr); gap: .35rem; }
+.tenda .dg button { display: flex; flex-direction: column; align-items: center; gap: .1rem; min-height: 64px; padding: .3rem 0; font-size: .85rem; }
+.tenda .dado.ico { width: 1.9rem; height: 1.9rem; }
+.tenda .dado.ico .sh { fill: none; stroke: currentColor; stroke-width: 5; }
+.tenda .avanzato { display: flex; align-items: center; gap: .4rem; margin-bottom: .5rem; }
+.tenda .avanzato input[type="number"] { width: 4.2rem; min-height: 44px; }
+.tenda .avanzato select { flex: 1; min-width: 0; min-height: 44px; }
+.tenda .chk { display: flex; align-items: center; gap: .4rem; min-height: 44px; }
+.tenda > .primary { width: 100%; min-height: 48px; margin-top: .3rem; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 600px) { .tenda { left: .5rem; right: .5rem; bottom: .5rem; width: auto; } }
 
 /* Barra degli strumenti */
 .bar { display: flex; flex-wrap: wrap; gap: .4rem .5rem; align-items: center; margin-bottom: .55rem; }
