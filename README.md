@@ -151,16 +151,20 @@ Da eseguire nello SQL Editor, ognuno una sola volta, in questo ordine:
 
 Si apre da **Battle map** nella testata del sito (pagina `battle.html`). Serve aver eseguito `supabase/aggiornamento_battle.sql` e, per i tiri e le schede, anche `supabase/aggiornamento_tiri.sql`.
 
-**La pagina a tre colonne**, larghe 20% · 60% · 20%. Su schermi larghi la pagina non scorre: la mappa si adatta allo spazio che resta e le schede, la barra sotto la mappa, l'iniziativa e la cronologia scorrono da sole se non ci stanno. Sotto i 1200 px le colonne si mettono una sotto l'altra (prima la mappa) e la pagina scorre
+**La pagina a tre colonne**, larghe 22% · 58% · 20% (scheda NPC con l'iniziativa in basso · mappa · scheda giocatori con la cronologia in basso). Su schermi larghi la pagina non scorre: la mappa si adatta allo spazio che resta e le schede, la barra sotto la mappa, l'iniziativa e la cronologia scorrono da sole se non ci stanno. Sotto i 1200 px le colonne si mettono una sotto l'altra (prima la mappa) e la pagina scorre
 - **Al centro** la mappa, con sotto la barra degli strumenti (mappe, scena, segnalini, righello, **Dadi**).
 - **A destra** la scheda del giocatore e, sotto, la **Cronologia eventi** (si apre e si chiude). Il master sceglie quale PG vedere con le linguette, o tocca il suo segnalino; un giocatore ha sempre la propria.
-- **A sinistra** la scheda dell'NPC (solo master) e, in basso, l'iniziativa (linguette, o tocco sul segnalino). Gli NPC con scheda «semplificata» non hanno i dadi, come nel sito principale.
+- **A sinistra** la scheda dell'NPC (solo master) e, in basso, l'iniziativa (linguette, o tocco sul segnalino). Anche gli NPC con scheda «semplificata» hanno i dadi, come i PG: prove di caratteristica, tiri salvezza, iniziativa e, dove il testo dell'azione contiene «+N al colpire» e un danno come «1d6 + 2», i pulsanti per colpire e per il danno. Nel sito principale restano senza dadi.
 
 **I token** (più token dello stesso personaggio)
 - Accanto al nome di ogni PG e NPC, nelle linguette delle schede, c'è un **«+»** che mette un suo token sulla mappa che stai guardando (il secondo si chiama «Goblin 2», il terzo «Goblin 3»…). Toccando un token qualsiasi si apre la stessa scheda; l'iniziativa è di ogni token, i PF sono quelli della scheda (uguali per tutti i suoi token).
 - Sopra ogni scheda c'è la striscia **Token** con i token di quel personaggio sulla mappa: **occhio** per nasconderlo o mostrarlo ai giocatori (solo il master), **×** per toglierlo dalla mappa, nome per evidenziarlo sulla mappa.
 - **Master:** aggiunge e toglie token di chiunque e li nasconde. **Giocatore:** aggiunge e toglie solo i token del proprio PG (fino a 10 per mappa, solo se la mappa è in scena); non può aggiungere NPC né nascondere token. Le regole sono nel database (`aggiornamento_token_multipli.sql`).
 - «Duplica» (dalla finestra del segnalino) ora mantiene il collegamento con la stessa scheda. Rinominando un token cambia solo il suo nome; il token che porta il nome del personaggio rinomina anche il personaggio.
+
+**L'iniziativa**
+- Si tira dalla scheda (tessera **Iniziativa**): il risultato entra da solo nell'elenco, sui token di quel personaggio sulla mappa (se hai selezionato uno dei suoi token, solo su quello). Un giocatore imposta solo i propri.
+- L'elenco mostra solo chi ha un'iniziativa. Si può **ridurre** ed **estendere** con il pulsante nell'intestazione. **Nuovo scontro** svuota tutto l'elenco, azzera round e turno e lascia i segnalini sulla mappa. Per mettere a mano un'iniziativa si usa la finestra del segnalino.
 
 **I dadi**
 - I tiri si fanno dalla scheda, come nel sito principale: attacco, danno (il pulsante del danno della tabella; dopo un 20 naturale raddoppia i dadi), tiri salvezza, abilità, iniziativa, vantaggio e svantaggio.

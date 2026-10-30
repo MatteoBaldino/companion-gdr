@@ -73,7 +73,7 @@ function duplicaSegnalino(s) {
     var d = { campagna_id: bCamp(), mappa_id: s.mappa_id, nome: nomeSuccessivo(s.nome, s.mappa_id),
       x: Math.min(1, Number(s.x) + 0.03), y: Math.min(1, Number(s.y) + 0.03), taglia: s.taglia, pf_max: p ? p.pf_max : null };
     if (s.giocatore_id != null) d.giocatore_id = s.giocatore_id; else if (s.png_id != null) d.png_id = s.png_id;   // resta legato alla stessa scheda
-    return call("aggiungi_segnalino", { p: d });
+    return aggiungiSegnalinoDb(d);
   }, "Segnalino duplicato").then(function (r) { if (r) ricaricaBattle(); });
 }
 function eliminaSegnalinoDlg(s) {

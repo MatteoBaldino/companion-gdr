@@ -10,7 +10,7 @@
               Ogni tiro viene anche salvato nel database (tabella «tiri»):
               nella Battle map compare sopra la mappa e nella cronologia.
    Contiene:  dieSvg, leggiDanno, htmlVisTiro, htmlTiro, aggiornaVant, visTiro,
-              registraTiro, creaTiro, mostraTiro, testoMorte, applicaMorte,
+              registraTiro, leggiAzione, htmlAzioneDadi, creaTiro, mostraTiro, testoMorte, applicaMorte,
               ACT.dado, ACT.vant, ACT["vis-master"], ACT["vis-pg"]
    Chi vede un tiro: «tutti», «master» (il master e chi ha tirato) o «segreto»
    (solo il master). Un giocatore tira come ha deciso il master per lui; il
@@ -69,7 +69,7 @@ function htmlVisTiro(s, key) {
   if (isMaster() && key.charAt(0) === "p")
     return gruppo(S.visMaster || "master", "vis-master", "", [["tutti", "Tutti"], ["master", "Solo master"], ["segreto", "Segreto"]], "Chi vede i tuoi tiri");
   if (isMaster())
-    return gruppo((s.turno || {}).vis || "tutti", "vis-pg", s.id, [["tutti", "Tutti"], ["master", "Nascosti"], ["segreto", "Segreti"]], "Tiri di questo giocatore");
+    return gruppo((s.turno || {}).vis || "tutti", "vis-pg", s.id, [["tutti", "Tutti"], ["master", "Nascosti"], ["segreto", "Segreti"]], "Tiro Giocatore");
   var v = (s.turno || {}).vis || "tutti";
   if (v === "tutti") return "";
   return '<p class="hint">' + (v === "segreto" ? "Il master ha chiesto tiri segreti: il risultato lo vede solo lui." : "Il master ha chiesto tiri nascosti: li vedete solo tu e il master.") + "</p>";
@@ -145,7 +145,7 @@ function creaTiro(o) {
     nome: o.nome, titolo: o.titolo, tipo: o.tipo, vant: o.vant, doppio: !!o.doppio,
     dadi: dadi, mod: o.mod || 0, fisso: o.fisso || 0, tot: tot, scartato: scartato,
     esito: d20 && o.tipo === "att" ? (d20.v === 20 ? "crit" : d20.v === 1 ? "fail" : "") : "",
-    chiave: o.chiave || null, dan: o.dan || null, d20: d20 ? d20.v : null, sid: o.sid || null
+    chiave: o.chiave || null, dan: o.dan || null, ini: o.ini || null, d20: d20 ? d20.v : null, sid: o.sid || null
   };
 }
 
@@ -228,11 +228,35 @@ function applicaMorte(t) {
   });
 }
 function finisciTiro(t) {
+  if (t.ini) { if (typeof impostaIniziativaDaTiro === "function") impostaIniziativaDaTiro(t); return; }   // Battle map: l'iniziativa entra nell'ordine
   if (t.tipo === "morte") { applicaMorte(t); return; }
   if (t.tipo !== "att" || !t.chiave) return;
   S.crit = S.crit || {};
   var era = !!S.crit[t.chiave], ora = t.esito === "crit";
   if (era !== ora) { S.crit[t.chiave] = ora; if (S.me) disegnaTab(); }
+}
+
+// ---------------------------------------------------------------- azioni degli NPC semplificati
+// Il testo di un'azione («Scimitarra. Attacco in mischia: +4 al colpire… 5 (1d6 + 2) danni taglienti») si legge così:
+// il primo «+N» vicino a «colpire» o «Attacco» è il bonus per colpire, la prima espressione di dadi è il danno. Se non si trova niente, l'azione resta solo testo.
+function leggiAzione(testo) {
+  var t = String(testo || "").replace(/−/g, "-"), att = null, dd = null, dtxt = "", m;
+  m = /([+-]\s?\d{1,2})\s*(?:al|per|to)?\s*(?:tiro\s+per\s+)?(?:colpire|hit)/i.exec(t) || /(?:attacco|tiro per colpire)[^:.]*:\s*([+-]\s?\d{1,2})/i.exec(t);
+  if (m) att = Number(m[1].replace(/\s/g, ""));
+  m = /(\d+d\d+(?:\s*[+-]\s*\d+)?)/i.exec(t);
+  if (m) { dd = leggiDanno(m[1]); dtxt = m[1].replace(/\s+/g, ""); }
+  return att == null && !dd ? null : { att: att, dd: dd, dtxt: dtxt };
+}
+// I pulsanti accanto al testo di un'azione (solo dove la scheda semplificata ha i dadi: Battle map).
+function htmlAzioneDadi(s, a, i) {
+  var pa = leggiAzione(a.testo), h = "";
+  if (!pa) return "";
+  if (pa.att != null) h += '<button class="small dadobtn" data-act="dado" data-k="nat" data-id="' + s.id + '" data-i="' + i + '" aria-label="Tira per colpire: ' + esc(a.nome) + '">' + sgn(pa.att) + " colpire</button>";
+  if (pa.dd) {
+    var crit = !!(S.crit && S.crit[s.id + ":a" + i]);
+    h += '<button class="small dadobtn' + (crit ? " crit" : "") + '" data-act="dado" data-k="ndan" data-id="' + s.id + '" data-i="' + i + '" aria-label="Tira il danno: ' + esc(a.nome) + '">' + (crit ? "Danno critico " : "") + esc(pa.dtxt) + "</button>";
+  }
+  return ' <span class="azdadi">' + h + "</span>";
 }
 
 // ---------------------------------------------------------------- pulsanti
@@ -245,7 +269,7 @@ ACT.dado = function (b) {
   if (k === "abil") { o.titolo = "Prova di " + ABK[v][1]; o.mod = mod(s[ABK[v][3]]); }
   else if (k === "ts") { o.titolo = "Tiro salvezza " + ABK[v][1]; o.mod = mod(s[ABK[v][3]]) + ((s.competenze_ts || []).indexOf(v) >= 0 ? bc : 0); }
   else if (k === "skill") { o.titolo = SKILL[v][1] + " (" + ABK[SKILL[v][2]][2] + ")"; o.mod = totaleAbilita(s, v); }
-  else if (k === "ini") { o.titolo = "Iniziativa"; o.mod = mod(s.destrezza); }
+  else if (k === "ini") { o.titolo = "Iniziativa"; o.mod = mod(s.destrezza); o.ini = { key: key, nome: nomeHolder(key) }; }
   else if (k === "morte") {
     var md = morteDi(s);
     if (Number(s.pf_attuali) > 0) { toast("Hai più di 0 PF: non serve un tiro contro morte."); return; }
@@ -276,6 +300,29 @@ ACT.dado = function (b) {
       if (!r.dd) return;
       o.titolo = (r.cura ? "Cura: " : "Danno: ") + r.n; o.tipo = "dan"; o.gruppi = r.dd.gruppi; o.fisso = r.dd.piatto;
       if (S.crit[ck]) { o.doppio = true; o.titolo += " (critico)"; S.crit[ck] = false; setTimeout(function () { if (S.me) disegnaTab(); }, 0); }
+    }
+  }
+  else if (k === "nat" || k === "ndan") {
+    var az = (s.azioni || [])[Number(b.dataset.i)]; if (!az) return;
+    var pa = leggiAzione(az.testo), ck2 = s.id + ":a" + b.dataset.i;
+    S.crit = S.crit || {};
+    if (k === "nat") {
+      if (!pa || pa.att == null) return;
+      o.titolo = "Attacco: " + az.nome; o.tipo = "att"; o.mod = pa.att; o.chiave = ck2;
+      // Come per le armi dei PG: in combattimento un attacco usa l'azione del turno.
+      if (inCombattimento(s)) {
+        var tu2 = s.turno || {};
+        if (tu2.azione) {
+          toast("Non puoi: attacco con " + az.nome + ". L’azione è già usata in questo turno" + (typeof tu2.azione === "string" ? " (" + tu2.azione + ")" : "") + ". Se il master lo permette, tocca la cella Azione per liberarla.", true);
+          return;
+        }
+        var nt2 = copia(tu2); nt2.azione = "Attacco: " + az.nome;
+        gioco(s, { turno: nt2 });
+      }
+    } else {
+      if (!pa || !pa.dd) return;
+      o.titolo = "Danno: " + az.nome; o.tipo = "dan"; o.gruppi = pa.dd.gruppi; o.fisso = pa.dd.piatto;
+      if (S.crit[ck2]) { o.doppio = true; o.titolo += " (critico)"; S.crit[ck2] = false; setTimeout(function () { if (S.me) disegnaTab(); }, 0); }
     }
   }
   else return;

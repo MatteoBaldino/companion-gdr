@@ -6,7 +6,7 @@
               del sito principale, con gli stessi pulsanti per i dadi.
    Contiene:  chiaveSegnalino, selezionaScheda, iniziaSchede, disegnaTab,
               disegnaPannelli, aggiornaSchede, azioneSchede, htmlToken,
-              aggiornaToken, aggiungiToken, nascondiToken
+              aggiornaToken, aggiungiToken, nascondiToken, impostaIniziativaDaTiro,
    Le schede del sito usano lo stato «S» e la funzione disegnaTab: qui S si
    riempie con i dati della campagna e disegnaTab ridisegna i due pannelli.
    L'ordine di caricamento è in battle.html: conta, non cambiarlo.
@@ -29,6 +29,7 @@ function selezionaScheda(s) {
 
 // ---------------------------------------------------------------- dati
 function iniziaSchede() {
+  S.dadiSemplificata = true;   // anche gli NPC con scheda semplificata hanno i dadi, come i PG
   S.senzaRiquadro = true;      // il risultato dei dadi si vede sopra la mappa, non dentro la scheda
   S.user = B.user; S.me = B.me; S.mems = B.mems; S.oggOk = false;
   return caricaDati().then(function () {
@@ -77,6 +78,28 @@ function disegnaPannelli() {
   if (typeof syncTenda === "function") syncTenda();     // il tiro libero di un giocatore dipende da come il master ha impostato la sua scheda
 }
 
+// ---------------------------------------------------------------- iniziativa dalla scheda
+// Toccando «Iniziativa» nella scheda, il risultato entra nell'ordine dell'iniziativa: nei token di quel personaggio sulla mappa dell'elenco.
+// Se hai selezionato uno dei suoi token vale per quello, altrimenti per tutti i suoi token (un giocatore può cambiare solo i propri).
+function impostaIniziativaDaTiro(t) {
+  var m = bMaster() ? mappaScena() : mappaVista(), nome = (t.ini && t.ini.nome) || "";
+  if (!m || !t.ini) { toast("Iniziativa " + t.tot + ": per metterla nell’ordine serve una mappa in scena.", true); return; }
+  var suoi = tokenDi(t.ini.key, m).filter(possoMuovere);
+  if (!suoi.length) { toast("Iniziativa " + t.tot + ": " + nome + " non ha token sulla mappa, quindi non entra nell’ordine.", true); return; }
+  var sel = suoi.filter(function (x) { return x.id === B.sel; })[0], bers = sel ? [sel] : suoi;
+  bers.reduce(function (prec, x) { return prec.then(function () { return call("imposta_iniziativa", { p_id: x.id, p_valore: t.tot }); }); }, Promise.resolve())
+    .then(function () { toast("Iniziativa " + t.tot + " segnata per " + (bers.length === 1 ? bers[0].nome : nome)); return ricaricaBattle(); },
+          function (e) { toast(errText(e), true); });
+}
+
+// Aggiungere un token: se il database non ha ancora l'aggiornamento risponde «già sulla mappa» e lo spieghiamo.
+function aggiungiSegnalinoDb(p) {
+  return call("aggiungi_segnalino", { p: p }).catch(function (e) {
+    if (e && /già sulla mappa/i.test(e.message || "")) throw { message: "Per mettere più token dello stesso personaggio esegui prima aggiornamento_token_multipli.sql in Supabase." };
+    throw e;
+  });
+}
+
 // ---------------------------------------------------------------- token del personaggio
 // Un personaggio può avere più token sulla stessa mappa (Goblin, Goblin 2…): toccandone uno si apre sempre la stessa scheda.
 // Aggiungerli: il master per chiunque, un giocatore solo per il proprio PG (gli NPC solo il master). Nasconderli: solo il master.
@@ -111,7 +134,7 @@ function aggiungiToken(key) {
   var p = { campagna_id: bCamp(), mappa_id: m.id, x: 0.5, y: 0.5 }, gia = tokenDi(key, m);
   if (gia.length) { var u = gia[gia.length - 1]; p.x = Math.min(0.97, Number(u.x) + 0.04); p.y = Math.min(0.97, Number(u.y) + 0.04); }   // accanto all'ultimo token di quel personaggio
   if (key.charAt(0) === "g") p.giocatore_id = Number(key.slice(2)); else p.png_id = Number(key.slice(2));
-  run(function () { return call("aggiungi_segnalino", { p: p }); }, "Token aggiunto").then(function (r) { if (r) ricaricaBattle(); });
+  run(function () { return aggiungiSegnalinoDb(p); }, "Token aggiunto").then(function (r) { if (r) ricaricaBattle(); });
 }
 function nascondiToken(id) {
   var s = segnalinoPerId(id); if (!s || !bMaster()) return;

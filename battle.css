@@ -11,11 +11,11 @@
 .colsx { min-width: 0; order: 3; }
 @media (min-width: 1200px) {
   /* La pagina intera NON scorre: occupa l'altezza dello schermo. Ogni parte che non ci sta scorre da sola (le due schede, la barra sotto la mappa,
-     l'iniziativa, la cronologia), quindi niente resta nascosto. Colonne: 20% scheda NPC con l'iniziativa in basso · 60% mappa · 20% scheda giocatori con la cronologia in basso. */
+     l'iniziativa, la cronologia), quindi niente resta nascosto. Colonne: 22% scheda NPC con l'iniziativa in basso · 58% mappa · 20% scheda giocatori con la cronologia in basso. */
   html, body { height: 100%; overflow: hidden; }
   #app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
   #app > .top { flex: 0 0 auto; }
-  .battle3 { flex: 1 1 0; min-height: 0; width: 100%; grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; }   /* [MODIFICA QUI] 1 : 3 : 1 = 20% : 60% : 20% */
+  .battle3 { flex: 1 1 0; min-height: 0; width: 100%; grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.9fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; }   /* [MODIFICA QUI] 1,1 : 2,9 : 1 = 22% : 58% : 20% */
   .bcol, .coldx, .colsx { order: 0; min-height: 0; display: flex; flex-direction: column; gap: .6rem; }
   .colsx > .pannello, .coldx > .pannello { flex: 1 1 0; min-height: 0; overflow: auto; margin-bottom: 0; }
   .colsx > .iniz, .coldx > .cron { flex: 0 0 auto; max-height: 45%; overflow: auto; }   /* iniziativa e cronologia restano sempre in basso */
@@ -151,3 +151,8 @@ label.btn.file:hover { border-color: var(--accent); }
 .tokchip > .eye[aria-pressed="true"] { color: var(--brass); }
 .tokchip > .del { font-size: 1.1rem; padding: 0 .55rem; }
 .tokadd { min-height: 34px; padding: 0 .7rem; font-size: .85rem; }
+
+/* Elenco dell'iniziativa: intestazione con il pulsante che lo riduce o lo estende */
+.inizh { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-bottom: .3rem; }
+.inizh h2 { margin: 0; }
+.inizh button { min-height: 34px; white-space: nowrap; }

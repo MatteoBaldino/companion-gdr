@@ -113,5 +113,5 @@ function aggiungiDaMenu(v) {
   if (v === "gen") { nuovoGenerico(m); return; }
   var p = { campagna_id: bCamp(), mappa_id: m.id, x: 0.5, y: 0.5 };
   if (v.charAt(0) === "g") p.giocatore_id = Number(v.slice(2)); else p.png_id = Number(v.slice(2));
-  run(function () { return call("aggiungi_segnalino", { p: p }); }, "Segnalino aggiunto").then(function (r) { if (r) ricaricaBattle(); });
+  run(function () { return aggiungiSegnalinoDb(p); }, "Segnalino aggiunto").then(function (r) { if (r) ricaricaBattle(); });
 }

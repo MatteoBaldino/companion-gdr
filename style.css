@@ -430,3 +430,6 @@ h4.inc-liv small { color: var(--muted); font: 400 .85rem var(--sans); }
 .dlista .dest span { flex: 1; }
 .dlista .dest small { color: var(--muted); }
 .dlista .dest input { width: auto; min-height: 0; }
+
+/* Pulsanti dei dadi accanto alle azioni di un NPC semplificato (Battle map) */
+.azdadi { display: inline-flex; flex-wrap: wrap; gap: .3rem; margin-left: .3rem; vertical-align: middle; }

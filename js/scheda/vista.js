@@ -54,6 +54,8 @@ function htmlScheda(key, indietro) {
   h += '<div class="vitali">' + tileCA +
     tile("PF", s.pf_attuali + "/" + s.pf_max + (s.pf_temp ? ' <span class="tmp">+' + s.pf_temp + "</span>" : "")) +
     tile("Velocità", esc(fmtVel(s.velocita)));
+  var rolla = !semp || !!S.dadiSemplificata;       // la Battle map dà i dadi anche agli NPC semplificati: stessa logica dei PG
+  if (semp && rolla) h += tile("Iniziativa", sgn(mod(s.destrezza)), "", ' data-act="dado" data-k="ini" data-id="' + s.id + '" role="button" tabindex="0" title="Tira l’iniziativa"');
   if (!semp) {
     var pas = 10 + totaleAbilita(s, "percezione");
     h += tile("Iniziativa", sgn(mod(s.destrezza)), "", ' data-act="dado" data-k="ini" data-id="' + s.id + '" role="button" tabindex="0" title="Tira l’iniziativa"') + tile("Bonus competenza", sgn(bc)) + tile("Percezione passiva", pas);
@@ -68,12 +70,19 @@ function htmlScheda(key, indietro) {
     (!semp ? '<button data-act="ispirazione" data-id="' + s.id + '" aria-pressed="' + s.ispirazione + '">' + (s.ispirazione ? "Ispirazione: sì" : "Ispirazione: no") + "</button>" : "") + "</div>";
   if (!semp) h += htmlMorte(s);
   h += htmlTurno(s);
-  if (!semp) h += htmlTiro(s, key);
+  if (rolla) h += htmlTiro(s, key);
   var corpo = h; h = h0;
   var abil = '<div class="abils">' + ABIL.map(function (a) {
-    return '<div class="ab"' + (semp ? "" : ' data-act="dado" data-k="abil" data-v="' + a[0] + '" data-id="' + s.id + '" role="button" tabindex="0" title="Tira una prova di ' + a[1] + '"') + '><span class="lbl">' + a[2] + "</span><strong>" + sgn(mod(s[a[3]])) + "</strong><small>" + s[a[3]] + "</small></div>";
+    return '<div class="ab"' + (!rolla ? "" : ' data-act="dado" data-k="abil" data-v="' + a[0] + '" data-id="' + s.id + '" role="button" tabindex="0" title="Tira una prova di ' + a[1] + '"') + '><span class="lbl">' + a[2] + "</span><strong>" + sgn(mod(s[a[3]])) + "</strong><small>" + s[a[3]] + "</small></div>";
   }).join("") + "</div>";
   if (!semp) h += abil + corpo; else h += corpo + abil;
+  if (semp && rolla) {
+    var bc2 = bonusComp(s.livello);
+    h += '<h3>Tiri salvezza</h3><ul class="plain sk">' + ABIL.map(function (a) {
+      var p = (s.competenze_ts || []).indexOf(a[0]) >= 0;
+      return '<li data-act="dado" data-k="ts" data-v="' + a[0] + '" data-id="' + s.id + '" role="button" tabindex="0"><span class="dot" title="' + (p ? "competente" : "non competente") + '">' + (p ? "●" : "○") + '</span><span class="nm">' + a[1] + "</span><b>" + sgn(mod(s[a[3]]) + (p ? bc2 : 0)) + "</b></li>";
+    }).join("") + "</ul>";
+  }
   if (!semp) {
     var tsH = '<h3>Tiri salvezza</h3><ul class="plain sk">' + ABIL.map(function (a) {
       var p = (s.competenze_ts || []).indexOf(a[0]) >= 0;
@@ -95,8 +104,8 @@ function htmlScheda(key, indietro) {
   } else {
     if (s.tratti) h += "<h3>Tratti</h3><p class=\"pre\">" + esc(s.tratti) + "</p>";
     if ((s.azioni || []).length) {
-      h += "<h3>Azioni</h3><ul class=\"plain\">" + s.azioni.map(function (a) {
-        return '<li class="az"><strong>' + esc(a.nome) + ".</strong> " + esc(a.testo) + "</li>";
+      h += "<h3>Azioni</h3><ul class=\"plain\">" + s.azioni.map(function (a, i) {
+        return '<li class="az"><strong>' + esc(a.nome) + ".</strong> " + esc(a.testo) + (S.dadiSemplificata ? htmlAzioneDadi(s, a, i) : "") + "</li>";
       }).join("") + "</ul>";
     }
   }
