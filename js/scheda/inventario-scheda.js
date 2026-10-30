@@ -74,7 +74,7 @@ function htmlMonete(s) {
   var m = moneteDi(s), t = rameTotali(m);
   // Le caselle sono campi: scrivi il numero e premi Invio (o esci dal campo) per salvarlo.
   var casella = function (x) {
-    return '<label class="vit mon"><span class="lbl">' + x[1] + " (" + x[2] + ')</span><input type="number" min="0" step="1" id="mc_' + x[0] + '" value="' + m[x[0]] +
+    return '<label class="vit mon"><span class="lbl" title="' + x[1] + '">' + x[2] + '</span><input type="number" min="0" step="1" id="mc_' + x[0] + '" value="' + m[x[0]] +
       '" data-id="' + s.id + '" aria-label="' + x[1] + '"></label>';
   };
   return '<h3>Monete</h3><div class="monete">' + MON.map(casella).join("") + "</div>";

@@ -43,9 +43,9 @@ var ACT_INC = {
   "risorsa-piu": function (b) { var s = schedaPerId(b.dataset.id); if (!s) return; var r = copia(s.risorse), k = Number(b.dataset.k); r[k].usati = Math.max(0, r[k].usati - 1); gioco(s, { risorse: r }); },
   "riposo-breve": function (b) {
     var s = schedaPerId(b.dataset.id); if (!s) return;
-    var patch = { risorse: copia(s.risorse || []).map(function (r) { if (r.recupero === "breve") r.usati = 0; return r; }) };
+    var patch = { pf_temp: 0, risorse: copia(s.risorse || []).map(function (r) { if (r.recupero === "breve") r.usati = 0; return r; }) };
     if (s.slot_riposo === "breve") patch.slot_usati = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    gioco(s, patch, "Riposo breve: recuperato quello che si recupera con un riposo breve");
+    gioco(s, patch, "Riposo breve: recuperato quello che si recupera con un riposo breve; i PF temporanei sono tolti");
   },
   "riposo-lungo": function (b) {
     var s = schedaPerId(b.dataset.id); if (!s) return;
@@ -66,6 +66,11 @@ var ACT_INC = {
   "pf-cura": function (b) {
     var s = schedaPerId(b.dataset.id), v = Math.floor(Number($("#pfn").value) || 0); if (!s || v <= 0) return;
     gioco(s, { pf_attuali: Math.min(s.pf_max, s.pf_attuali + v) });
+  },
+  // PF temporanei: «Dai» li aggiunge. Il danno li consuma per primi e li tolgono il riposo breve e quello lungo.
+  "pf-temp-dai": function (b) {
+    var s = schedaPerId(b.dataset.id), v = Math.floor(Number($("#pft").value) || 0); if (!s || v <= 0) return;
+    gioco(s, { pf_temp: s.pf_temp + v });
   },
   "pf-temp": function (b) { var s = schedaPerId(b.dataset.id); if (s) gioco(s, { pf_temp: Math.max(0, Math.floor(Number($("#pft").value) || 0)) }); },
   lancia: function (b) {

@@ -59,10 +59,12 @@ function htmlScheda(key, indietro) {
     h += tile("Iniziativa", sgn(mod(s.destrezza)), "", ' data-act="dado" data-k="ini" data-id="' + s.id + '" role="button" tabindex="0" title="Tira l’iniziativa"') + tile("Bonus competenza", sgn(bc)) + tile("Percezione passiva", pas);
   }
   h += "</div>";
-  h += '<div class="pfctrl"><label class="f"><span>Punti ferita</span><input type="number" id="pfn" min="1" value="1"></label>' +
-    '<button data-act="pf-danno" data-id="' + s.id + '">Danno</button><button data-act="pf-cura" data-id="' + s.id + '">Cura</button>' +
-    '<label class="f"><span>PF temporanei</span><input type="number" id="pft" min="0" value="' + s.pf_temp + '"></label>' +
-    '<button data-act="pf-temp" data-id="' + s.id + '">Imposta</button>' +
+  // Una riga sola: Danno · Punti ferita · Cura · Dai · PF temporanei. Il danno consuma prima i PF temporanei; i riposi li tolgono.
+  h += '<div class="pfctrl"><div class="pfriga"><button data-act="pf-danno" data-id="' + s.id + '">Danno</button>' +
+    '<label class="f"><span>Punti ferita</span><input type="number" id="pfn" min="1" value="1"></label>' +
+    '<button data-act="pf-cura" data-id="' + s.id + '">Cura</button>' +
+    '<button data-act="pf-temp-dai" data-id="' + s.id + '">Dai</button>' +
+    '<label class="f"><span>PF temp.</span><input type="number" id="pft" min="1" value="1"></label></div>' +
     (!semp ? '<button data-act="ispirazione" data-id="' + s.id + '" aria-pressed="' + s.ispirazione + '">' + (s.ispirazione ? "Ispirazione: sì" : "Ispirazione: no") + "</button>" : "") + "</div>";
   if (!semp) h += htmlMorte(s);
   h += htmlTurno(s);

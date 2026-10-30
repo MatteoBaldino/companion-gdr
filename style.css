@@ -179,6 +179,13 @@ h3 { font-size: 1.15rem; margin: 1.1rem 0 .4rem; }
 .tmp { color: var(--brass); font-size: 1.1rem; }
 .pfctrl { display: flex; flex-wrap: wrap; gap: .5rem; align-items: end; margin-bottom: 1rem; }
 .pfctrl .f { margin: 0; width: 8.5rem; }
+.pfriga { display: flex; flex-wrap: nowrap; gap: .3rem; align-items: end; max-width: 100%; }
+.pfriga button { flex: 0 1 auto; min-width: 0; padding: .25rem .55rem; }
+.pfriga .f { flex: 0 1 4.2rem; width: 4.2rem; min-width: 0; }
+.pfriga .f span { font-size: .78rem; white-space: nowrap; }
+.pfriga input { height: 40px; min-height: 40px; padding: 0 .45rem; }
+.pfriga button, .pfctrl > button { height: 40px; min-height: 40px; }
+.pfriga button[data-act="pf-temp-dai"] { margin-left: .5rem; }
 .abils { display: grid; grid-template-columns: repeat(6, 1fr); gap: .5rem; margin-bottom: 1rem; }
 .ab { border: 1px solid var(--line); border-radius: 8px; padding: .45rem .3rem; text-align: center; background: var(--panel); display: flex; flex-direction: column; }
 .ab strong { font: 700 1.6rem/1.1 var(--serif); }
@@ -264,7 +271,11 @@ details.avvisi summary { cursor: pointer; }
 .top a.btn:hover { border-color: var(--accent); }
 
 /* ---- monete, inventario nella scheda e stato del peso */
-.monete { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin-bottom: .3rem; }
+.monete { display: grid; grid-template-columns: repeat(4, 1fr); gap: .3rem; margin-bottom: .2rem; }
+.mon input::-webkit-outer-spin-button, .mon input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.mon input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+.mon.vit { flex-direction: row; align-items: center; justify-content: center; gap: .4rem; padding: 0 .55rem; height: 40px; min-height: 40px; border-radius: 8px; }
+.mon .lbl { font-size: .85rem; font-weight: 600; flex: none; }
 .mon strong { font-size: 1.5rem; }
 .tendina { margin: .3rem 0 .6rem; }
 .tendina > summary { cursor: pointer; color: var(--accent); min-height: 34px; display: flex; align-items: center; list-style: none; }
@@ -285,7 +296,7 @@ details.avvisi summary { cursor: pointer; }
 .avviso { color: var(--danger); font-weight: 600; margin: .3rem 0; }
 .invs li { display: grid; grid-template-columns: 1fr auto auto; gap: .5rem; align-items: center; padding: .25rem 0; border-bottom: 1px solid var(--line); }
 .invs .w { color: var(--muted); font-size: .9rem; }
-@media (max-width: 520px) { .monete { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .monete { grid-template-columns: repeat(4, 1fr); } }
 
 /* ---- dadi: pannello del tiro, sagome, vantaggio e svantaggio */
 [data-act="dado"] { cursor: pointer; }
@@ -345,7 +356,7 @@ ul.sk li[data-act="dado"]:hover, ul.sk li[data-act="dado"]:focus-visible { outli
 .cella .mv { display: flex; gap: .25rem; margin-top: 0; }
 .cella .mv button.small { min-height: 24px; padding: 0 .5rem; font-size: .85rem; }
 .cella .mv input { width: 2.5rem; min-height: 24px; padding: 0 .2rem; font-size: .8rem; text-align: center; }
-.mon input { width: 100%; text-align: center; font: 700 1.3rem var(--sans); border: 0; background: transparent; color: var(--ink); padding: .1rem 0; }
+.mon input { width: 100%; min-width: 0; height: 38px; min-height: 38px; text-align: center; font: 700 1.1rem var(--sans); border: 0; background: transparent; color: var(--ink); padding: 0; }
 
 /* ---- note degli oggetti e degli attacchi: un tasto che si apre e si chiude */
 .notebtn summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: .3rem; min-height: 1.9rem; padding: 0 .65rem;
