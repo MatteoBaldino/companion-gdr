@@ -38,6 +38,7 @@ function disegna() {
   aggiornaBarra();
   aggiornaScena();
   aggiornaIniziativa();
+  if (typeof aggiornaToken === "function") aggiornaToken();     // le strisce dei token nelle schede
 }
 
 // Larghezza della mappa. Sugli schermi larghi (tre colonne, pagina che non scorre) la mappa occupa il massimo spazio che resta

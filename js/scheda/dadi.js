@@ -6,11 +6,11 @@
               vantaggio e svantaggio il d20 scartato resta barrato; sul 20
               di un attacco il danno successivo raddoppia i dadi.
               Il risultato compare in un riquadro dentro la scheda, sopra le
-              due colonne. Un attacco con un'arma segna l'azione del turno.
+              due colonne (nella Battle map non c'è: il tiro si vede sopra la mappa). Un attacco con un'arma segna l'azione del turno.
               Ogni tiro viene anche salvato nel database (tabella «tiri»):
               nella Battle map compare sopra la mappa e nella cronologia.
    Contiene:  dieSvg, leggiDanno, htmlVisTiro, htmlTiro, aggiornaVant, visTiro,
-              registraTiro, esitoColpo, htmlColpo, creaTiro, mostraTiro, testoMorte, applicaMorte,
+              registraTiro, creaTiro, mostraTiro, testoMorte, applicaMorte,
               ACT.dado, ACT.vant, ACT["vis-master"], ACT["vis-pg"]
    Chi vede un tiro: «tutti», «master» (il master e chi ha tirato) o «segreto»
    (solo il master). Un giocatore tira come ha deciso il master per lui; il
@@ -79,8 +79,10 @@ function htmlTiro(s, key) {
   return '<div class="tirosez"><div class="vantbar" role="group" aria-label="Tipo del prossimo tiro"><span class="hint">Prossimo tiro:</span>' +
     [["n", "Normale"], ["v", "Vantaggio"], ["s", "Svantaggio"]].map(function (x) {
       return '<button class="small' + (v === x[0] ? " on" : "") + '" data-act="vant" data-v="' + x[0] + '" aria-pressed="' + (v === x[0]) + '">' + x[1] + "</button>";
-    }).join("") + "</div>" + (s ? htmlVisTiro(s, key || "") : "") + '<div class="rbox" id="tiroBox" aria-live="polite">' +
-    (S.tiroHtml || '<span class="hint">Tocca una caratteristica, un’abilità, un tiro salvezza o un attacco: i dadi compaiono qui.</span>') + "</div></div>";
+    }).join("") + "</div>" + (s ? htmlVisTiro(s, key || "") : "") +
+    // Nella Battle map il risultato compare sopra la mappa e nella cronologia: qui il riquadro non c'è (S.senzaRiquadro).
+    (S.senzaRiquadro ? "" : '<div class="rbox" id="tiroBox" aria-live="polite">' +
+      (S.tiroHtml || '<span class="hint">Tocca una caratteristica, un’abilità, un tiro salvezza o un attacco: i dadi compaiono qui.</span>') + "</div>") + "</div>";
 }
 function aggiornaVant() {
   var v = S.vant || "n";
@@ -155,7 +157,11 @@ function salvaTiro() { var box = document.getElementById("tiroBox"); if (box) S.
 function mostraTiro(t) {
   clearInterval(TIRO_TIMER);
   var box = document.getElementById("tiroBox");
-  if (!box) return;
+  if (!box) {
+    // Senza riquadro (Battle map) gli effetti del tiro — critico, tiro contro morte — scattano quando i dadi si fermano sulla mappa.
+    setTimeout(function () { finisciTiro(t); }, t.dadi.length ? 550 + t.dadi.length * 200 + 250 : 0);
+    return;
+  }
   var h = '<div class="tiro-h"><div><strong>' + esc(t.nome) + '</strong> <span class="hint">· ' + esc(t.titolo) + testoVant(t.vant) + '</span></div></div><div class="tiro-dadi">';
   t.dadi.forEach(function (d, i) {
     h += '<div class="dwrap"><div class="dado spin" data-s="' + d.s + '" id="td' + i + '">' + dieSvg(d.s) + '<span class="num">' + tiraN(d.s) + '</span></div><div class="dado-cap">d' + d.s + "</div></div>";
@@ -181,8 +187,7 @@ function mostraTiro(t) {
       (t.esito === "crit" ? ' <span class="esito crit">Critico! Il prossimo danno raddoppia i dadi.</span>' : "") +
       (t.esito === "fail" ? ' <span class="esito fail">Fallimento critico</span>' : "") +
       (t.doppio ? ' <span class="esito crit">dadi raddoppiati</span>' : "") +
-      (t.tipo === "morte" ? ' <span class="esito ' + (t.d20 >= 10 ? "crit" : "fail") + '">' + testoMorte(t.d20) + "</span>" : "") +
-      htmlColpo(t);
+      (t.tipo === "morte" ? ' <span class="esito ' + (t.d20 >= 10 ? "crit" : "fail") + '">' + testoMorte(t.d20) + "</span>" : "");
   }
   if (!t.dadi.length) { fine(); salvaTiro(); return; }
   TIRO_TIMER = setInterval(function () {
@@ -229,35 +234,6 @@ function finisciTiro(t) {
   var era = !!S.crit[t.chiave], ora = t.esito === "crit";
   if (era !== ora) { S.crit[t.chiave] = ora; if (S.me) disegnaTab(); }
 }
-
-// ---------------------------------------------------------------- colpito o mancato
-// Sotto un attacco: la CA del bersaglio (facoltativa) e il pulsante del danno. Il 20 naturale colpisce sempre e l'1 manca sempre;
-// altrimenti conta il totale contro la CA scritta. Se non scrivi la CA il pulsante c'è comunque.
-function esitoColpo(d20, tot, ca) {
-  if (d20 === 20) return { miss: false, testo: "20 naturale: colpisce sempre" };
-  if (d20 === 1) return { miss: true, testo: "1 naturale: manca" };
-  if (ca === "" || isNaN(Number(ca))) return { miss: false, testo: "Scrivi la CA per vedere se colpisci" };
-  return Number(tot) >= Number(ca) ? { miss: false, testo: "Colpito" } : { miss: true, testo: "Mancato" };
-}
-function htmlColpo(t) {
-  if (t.tipo !== "att" || !t.dan) return "";
-  var e = esitoColpo(t.d20, t.tot, "");
-  return '<div class="colpo" data-d20="' + t.d20 + '" data-tot="' + t.tot + '"><label class="hint" for="tiroCa">CA del bersaglio (facoltativa)</label> ' +
-    '<input type="number" id="tiroCa" class="ca-in" min="0" max="40" inputmode="numeric"> <span class="esito" id="tiroColpo">' + esc(e.testo) + "</span> " +
-    '<button class="small primary" id="tiroDanno" data-act="dado" data-k="dan" data-id="' + t.dan.id + '" data-r="' + t.dan.r + '"' + (e.miss ? " hidden" : "") + ">Tira il danno</button></div>";
-}
-// Scrivendo la CA il risultato cambia subito. Si salva anche nell'HTML, così il riquadro ridisegnato ricorda cosa avevi scritto.
-document.addEventListener("input", function (ev) {
-  var i = ev.target;
-  if (!i || i.id !== "tiroCa") return;
-  var c = i.closest(".colpo"); if (!c) return;
-  var e = esitoColpo(Number(c.dataset.d20), Number(c.dataset.tot), i.value);
-  i.setAttribute("value", i.value);
-  var r = document.getElementById("tiroColpo"), b = document.getElementById("tiroDanno");
-  if (r) { r.textContent = e.testo; r.className = "esito" + (e.miss ? " fail" : (i.value !== "" || Number(c.dataset.d20) === 20 ? " crit" : "")); }
-  if (b) b.hidden = e.miss;
-  salvaTiro();
-});
 
 // ---------------------------------------------------------------- pulsanti
 ACT.vant = function (b) { S.vant = b.dataset.v; aggiornaVant(); };

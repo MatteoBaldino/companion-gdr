@@ -135,4 +135,19 @@ label.btn.file:hover { border-color: var(--accent); }
 .riga.nasc { opacity: .65; font-style: italic; }
 .riga .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .riga .pfm { color: var(--muted); font-size: .85rem; }
-.ini-in { width: 4.2rem; min-height: 34px; padding: .2rem .4rem; }
+.riga .ini-in { width: 4.2rem; flex: 0 0 4.2rem; min-height: 34px; padding: .2rem .4rem; }
+
+/* Token: il «+» accanto al nome e la striscia dei token di ogni personaggio */
+.ptab { display: inline-flex; }
+.ptab > button:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.ptab > .plus { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 0; min-width: 38px; padding: 0 .55rem; font-weight: 700; }
+.tokbox { margin: 0 0 .6rem; }
+.tokstrip { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .4rem; }
+.tokchip { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); overflow: hidden; }
+.tokchip.nasc { border-style: dashed; opacity: .85; }
+.tokchip.sel { border-color: var(--accent); }
+.tokchip > button { min-height: 34px; border: 0; border-radius: 0; background: transparent; padding: 0 .5rem; font-size: .85rem; }
+.tokchip > .eye { padding: 0 .4rem; display: inline-flex; align-items: center; }
+.tokchip > .eye[aria-pressed="true"] { color: var(--brass); }
+.tokchip > .del { font-size: 1.1rem; padding: 0 .55rem; }
+.tokadd { min-height: 34px; padding: 0 .7rem; font-size: .85rem; }
