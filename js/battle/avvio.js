@@ -48,6 +48,7 @@ function collega() {
     disegna();
   });
   window.addEventListener("resize", function () { var m = mappaVista(); if (m && !B.drag) disegnaSegnalini(m); });
+  osservaSpazio();
 }
 
 function entraInCampagna() {
