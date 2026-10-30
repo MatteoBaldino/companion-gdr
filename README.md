@@ -151,10 +151,14 @@ Da eseguire nello SQL Editor, ognuno una sola volta, in questo ordine:
 
 Si apre da **Battle map** nella testata del sito (pagina `battle.html`). Serve aver eseguito `supabase/aggiornamento_battle.sql` e, per i tiri e le schede, anche `supabase/aggiornamento_tiri.sql`.
 
-**La pagina a tre colonne**, larghe 22% · 58% · 20% (scheda NPC con l'iniziativa in basso · mappa · scheda giocatori con la cronologia in basso). Su schermi larghi la pagina non scorre: la mappa si adatta allo spazio che resta e le schede, la barra sotto la mappa, l'iniziativa e la cronologia scorrono da sole se non ci stanno. Sotto i 1200 px le colonne si mettono una sotto l'altra (prima la mappa) e la pagina scorre
+**La pagina a tre colonne**, larghe 22% · 54% · 24% (scheda NPC con l'iniziativa in basso · mappa · scheda giocatori con la cronologia in basso; le due schede non scendono sotto i 280 e i 320 px e non hanno barre orizzontali). Su schermi larghi la pagina non scorre: la mappa si adatta allo spazio che resta e le schede, la barra sotto la mappa, l'iniziativa e la cronologia scorrono da sole se non ci stanno. Sotto i 1200 px le colonne si mettono una sotto l'altra (prima la mappa) e la pagina scorre
 - **Al centro** la mappa, con sotto la barra degli strumenti (mappe, scena, segnalini, righello, **Dadi**).
 - **A destra** la scheda del giocatore e, sotto, la **Cronologia eventi** (si apre e si chiude). Il master sceglie quale PG vedere con le linguette, o tocca il suo segnalino; un giocatore ha sempre la propria.
 - **A sinistra** la scheda dell'NPC (solo master) e, in basso, l'iniziativa (linguette, o tocco sul segnalino). Anche gli NPC con scheda «semplificata» hanno i dadi, come i PG: prove di caratteristica, tiri salvezza, iniziativa e, dove il testo dell'azione contiene «+N al colpire» e un danno come «1d6 + 2», i pulsanti per colpire e per il danno. Nel sito principale restano senza dadi.
+
+**Selezionare più segnalini**
+- **Ctrl o Maiusc + tocco** aggiunge o toglie un segnalino dalla selezione; sul **touch** si accende il pulsante **Selezione multipla** nella barra e poi si toccano i segnalini. Si può anche **trascinare un rettangolo** su un punto vuoto della mappa: prende quelli che ci stanno dentro.
+- Trascinando uno dei selezionati si **spostano tutti insieme** (nessuno esce dalla mappa). In alto a sinistra sulla mappa compaiono i pulsanti del gruppo: il master li **nasconde**, li **mostra** o li **toglie**; un giocatore seleziona, sposta e toglie solo i propri. **Esc** o **Deseleziona** tolgono la selezione; un tocco sul vuoto fa lo stesso. Se tiri l'iniziativa dalla scheda con dei token selezionati di quel personaggio, vale per quelli.
 
 **I token** (più token dello stesso personaggio)
 - Accanto al nome di ogni PG e NPC, nelle linguette delle schede, c'è un **«+»** che mette un suo token sulla mappa che stai guardando (il secondo si chiama «Goblin 2», il terzo «Goblin 3»…). Toccando un token qualsiasi si apre la stessa scheda; l'iniziativa è di ogni token, i PF sono quelli della scheda (uguali per tutti i suoi token).

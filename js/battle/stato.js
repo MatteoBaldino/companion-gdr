@@ -18,6 +18,7 @@ var B = {
   url: {},                                   // indirizzi temporanei delle immagini { percorso: { url, scade } }
   sel: null,                                 // segnalino scelto
   righello: false, calibra: false, linea: null,
+  multi: {}, modoMulti: false, box: null,    // selezione di più segnalini: { id: true }, pulsante «Selezione multipla», rettangolo in corso
   inizChiusa: false,                         // l'elenco dell'iniziativa è ridotto?
   drag: null, rinvia: false, coda: null, canale: null, tRicarica: null
 };

@@ -86,7 +86,7 @@ function impostaIniziativaDaTiro(t) {
   if (!m || !t.ini) { toast("Iniziativa " + t.tot + ": per metterla nell’ordine serve una mappa in scena.", true); return; }
   var suoi = tokenDi(t.ini.key, m).filter(possoMuovere);
   if (!suoi.length) { toast("Iniziativa " + t.tot + ": " + nome + " non ha token sulla mappa, quindi non entra nell’ordine.", true); return; }
-  var sel = suoi.filter(function (x) { return x.id === B.sel; })[0], bers = sel ? [sel] : suoi;
+  var sel = suoi.filter(function (x) { return x.id === B.sel; })[0], gr = suoi.filter(function (x) { return inMulti(x.id); }), bers = gr.length ? gr : (sel ? [sel] : suoi);
   bers.reduce(function (prec, x) { return prec.then(function () { return call("imposta_iniziativa", { p_id: x.id, p_valore: t.tot }); }); }, Promise.resolve())
     .then(function () { toast("Iniziativa " + t.tot + " segnata per " + (bers.length === 1 ? bers[0].nome : nome)); return ricaricaBattle(); },
           function (e) { toast(errText(e), true); });

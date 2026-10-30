@@ -17,8 +17,9 @@ function aggiornaBarra() {
   var b = $("#barra"), m = mappaVista();
   var righello = '<button class="tg" data-b="righello" aria-pressed="' + B.righello + '">Righello</button>';
   var dadi = '<button class="tg" data-b="tenda" aria-pressed="' + TI.tenda + '" aria-controls="tenda">Dadi</button>';
+  var multi = '<button class="tg" data-b="multi" aria-pressed="' + !!B.modoMulti + '" title="Tocca più segnalini per sceglierli, oppure trascina un rettangolo sulla mappa (Ctrl o Maiusc + tocco fa lo stesso)">Selezione multipla</button>';
   if (!bMaster()) {
-    b.innerHTML = '<div class="bar">' + righello + dadi +
+    b.innerHTML = '<div class="bar">' + righello + multi + dadi +
       (m && m.larghezza_m ? '<span class="hint">La mappa è larga ' + dec(distShow(Number(m.larghezza_m))) + " " + distUnit() + ".</span>" : "") + "</div>";
     return;
   }
@@ -37,7 +38,7 @@ function aggiornaBarra() {
     (B.pg.length ? '<optgroup label="PG">' + B.pg.map(opt("g:")).join("") + "</optgroup>" : "") +
     (B.npc.length ? '<optgroup label="NPC">' + B.npc.map(opt("p:")).join("") + "</optgroup>" : "") +
     '<option value="gen">Segnalino generico…</option></select>' +
-    '<button data-b="tuttiPg">Aggiungi tutti i PG</button>' + righello +
+    '<button data-b="tuttiPg">Aggiungi tutti i PG</button>' + righello + multi +
     '<button class="tg" data-b="calibra" aria-pressed="' + B.calibra + '">Calibra scala</button>' +
     '<label class="sl">Dimensione <input type="range" id="scalaSeg" min="1" max="12" step="0.5" value="' + Math.round(Number(m.scala_segnalini) * 1000) / 10 + '" aria-label="Dimensione dei segnalini"></label>' +
     '<button data-b="mappa" data-id="' + m.id + '">Mappa…</button></div>';
@@ -48,7 +49,7 @@ function aggiornaBarra() {
 // Pulsanti della barra. Restituisce vero se il pulsante era uno dei suoi.
 function azioneBarra(a, b) {
   var m = mappaVista();
-  if (a === "vista") { B.vista = Number(b.dataset.id); B.sel = null; B.linea = null; disegna(); return true; }
+  if (a === "vista") { B.vista = Number(b.dataset.id); B.sel = null; B.linea = null; B.multi = {}; disegna(); return true; }
   if (a === "scena" && m) { impostaScena(m.id, true); return true; }
   if (a === "nascondi" && m) { impostaScena(m.id, false); return true; }
   if (a === "tuttiPg" && m) {

@@ -21,11 +21,12 @@ function collega() {
   sc.addEventListener("pointercancel", bSu);
   // Il dado sopra la mappa ha i suoi pulsanti: un tocco lì non deve far partire il righello o il trascinamento.
   $("#dadoMappa").addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+  $("#multibar").addEventListener("pointerdown", function (e) { e.stopPropagation(); });
   root.addEventListener("click", function (e) {
     var b = e.target.closest("[data-b]"); if (!b) return;
     var a = b.dataset.b;
     if (a === "unita") { U.sys = imp() ? "metric" : "imperial"; try { localStorage.setItem("gdr_unita", U.sys); } catch (x) {} b.textContent = labelUnita(); disegna(); return; }
-    if (!azioneBarra(a, b) && !azioneTiri(a, b) && !azioneSchede(a, b)) azioneIniziativa(a);
+    if (!azioneBarra(a, b) && !azioneTiri(a, b) && !azioneSchede(a, b) && !azioneMulti(a, b)) azioneIniziativa(a);
   });
   root.addEventListener("change", function (e) {
     var t = e.target;

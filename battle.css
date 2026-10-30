@@ -11,11 +11,11 @@
 .colsx { min-width: 0; order: 3; }
 @media (min-width: 1200px) {
   /* La pagina intera NON scorre: occupa l'altezza dello schermo. Ogni parte che non ci sta scorre da sola (le due schede, la barra sotto la mappa,
-     l'iniziativa, la cronologia), quindi niente resta nascosto. Colonne: 22% scheda NPC con l'iniziativa in basso · 58% mappa · 20% scheda giocatori con la cronologia in basso. */
+     l'iniziativa, la cronologia), quindi niente resta nascosto. Colonne: 22% scheda NPC con l'iniziativa in basso · 54% mappa · 24% scheda giocatori con la cronologia in basso. */
   html, body { height: 100%; overflow: hidden; }
   #app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
   #app > .top { flex: 0 0 auto; }
-  .battle3 { flex: 1 1 0; min-height: 0; width: 100%; grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.9fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; }   /* [MODIFICA QUI] 1,1 : 2,9 : 1 = 22% : 58% : 20% */
+  .battle3 { flex: 1 1 0; min-height: 0; width: 100%; grid-template-columns: minmax(280px, 1.1fr) minmax(0, 2.7fr) minmax(320px, 1.2fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; }   /* [MODIFICA QUI] 1,1 : 2,7 : 1,2 = 22% : 54% : 24% (con un minimo per le due schede) */
   .bcol, .coldx, .colsx { order: 0; min-height: 0; display: flex; flex-direction: column; gap: .6rem; }
   .colsx > .pannello, .coldx > .pannello { flex: 1 1 0; min-height: 0; overflow: auto; margin-bottom: 0; }
   .colsx > .iniz, .coldx > .cron { flex: 0 0 auto; max-height: 45%; overflow: auto; }   /* iniziativa e cronologia restano sempre in basso */
@@ -156,3 +156,26 @@ label.btn.file:hover { border-color: var(--accent); }
 .inizh { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-bottom: .3rem; }
 .inizh h2 { margin: 0; }
 .inizh button { min-height: 34px; white-space: nowrap; }
+
+/* Le schede stanno in colonne strette: niente barra orizzontale. La riga azione / azione bonus / reazione / movimento va su due righe
+   (nel sito principale ha quattro colonne perché lo schermo è largo, qui no) e la tabella degli attacchi si stringe. */
+.battle3 .pannello { overflow-x: hidden; }
+.pannello .turnocelle { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pannello .cella { min-width: 0; }
+.pannello .cella.cmov { grid-column: 1 / -1; }
+.pannello .scroll { overflow-x: visible; }
+.pannello table.att { font-size: .8rem; }
+.pannello table.att th { font-size: .72rem; }
+.pannello table.att th, .pannello table.att td { padding-right: .2rem; overflow-wrap: anywhere; }
+.pannello table.att .dadobtn { font-size: .78rem; padding: .15rem .3rem; }
+.pannello .morte-riga { gap: .3rem; }
+.pannello .morte-riga > button { padding: 0 .4rem; font-size: .75rem; white-space: normal; }
+
+/* Selezione di più segnalini */
+.tk.multi { outline: 3px dashed var(--accent); outline-offset: 3px; }
+.marq { position: absolute; z-index: 4; border: 2px dashed var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); pointer-events: none; }
+.marq[hidden] { display: none; }
+.multibar { position: absolute; left: .6rem; top: .6rem; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; max-width: calc(100% - 1.2rem); padding: .4rem .55rem; border: 1px solid var(--accent); border-radius: 8px; background: var(--panel); }
+.multibar[hidden] { display: none; }
+.multibar button { min-height: 34px; padding: 0 .6rem; font-size: .85rem; }
+.multibar strong { font-size: .85rem; }

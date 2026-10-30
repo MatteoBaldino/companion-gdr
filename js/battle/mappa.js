@@ -23,7 +23,7 @@ function montaPagina() {
     // Tre colonne (20% · 60% · 20%): scheda NPC con l'iniziativa in basso a sinistra, mappa con gli strumenti al centro, scheda del giocatore e cronologia a destra.
     '<main class="battle3"><aside class="colsx"><section id="pannelloNpc" class="pannello" aria-label="Scheda NPC e mostri"></section><div id="iniz" class="iniz" aria-label="Iniziativa"></div></aside>' +
     // La mappa sta in #mapwrap: su schermi larghi la pagina non scorre, la mappa si adatta allo spazio che resta e la barra sotto scorre da sola se serve.
-    '<section class="bcol"><div id="mapwrap" class="mapwrap"><div id="scena" class="scena"><img id="mappaImg" alt="Mappa" hidden><div id="strato"></div><div id="linea" class="linea"></div><div id="vuoto" class="vuoto" hidden></div>' +
+    '<section class="bcol"><div id="mapwrap" class="mapwrap"><div id="scena" class="scena"><img id="mappaImg" alt="Mappa" hidden><div id="strato"></div><div id="linea" class="linea"></div><div id="marq" class="marq" hidden></div><div id="multibar" class="multibar" hidden></div><div id="vuoto" class="vuoto" hidden></div>' +
     '<div id="dadoMappa" class="dadomappa" hidden aria-live="polite"></div></div></div>' +
     '<div class="bassobar"><div id="barra"></div><p id="info" class="hint"></p></div></section>' +
     '<aside class="coldx"><section id="pannelloPg" class="pannello" aria-label="Scheda giocatori"></section><section id="cron" class="cron" aria-label="Cronologia eventi"></section></aside></main>' +
@@ -83,11 +83,13 @@ function aggiornaScena() {
     }, function (e) { toast(errText(e), true); });
   }
   disegnaSegnalini(m);
+  aggiornaMultiBar();
   disegnaLinea();
   $("#info").textContent = testoInfo(m);
 }
 
 function testoInfo(m) {
+  if (B.modoMulti) return "Selezione multipla: tocca i segnalini per sceglierli, oppure trascina sulla mappa un rettangolo; poi trascina uno dei selezionati per spostarli tutti. Esc toglie la selezione.";
   if (B.calibra) return "Traccia sulla mappa una linea tra due punti di cui conosci la distanza.";
   if (B.righello && !m.larghezza_m) return bMaster() ? "Per misurare le distanze calibra prima la scala (pulsante «Calibra scala»)." : "Il master non ha ancora calibrato la scala di questa mappa.";
   if (B.righello) return "Trascina sulla mappa per misurare una distanza.";
@@ -112,9 +114,11 @@ function barraPf(p) {
 function diametro(m, s) { return Math.max(22, Math.round(($("#scena").clientWidth || 800) * Number(m.scala_segnalini) * Number(s.taglia))); }
 
 function disegnaSegnalini(m) {
+  var presenti = segnaliniDi(m);
+  Object.keys(B.multi || {}).forEach(function (id) { if (!presenti.some(function (x) { return String(x.id) === id; })) delete B.multi[id]; });   // chi non c'è più non resta selezionato
   $("#strato").innerHTML = segnaliniDi(m).map(function (s) {
     var d = diametro(m, s), p = B.pf[s.id], turno = B.stato && B.stato.turno_segnalino_id === s.id;
-    return '<div class="tk ' + (s.giocatore_id ? "pg" : "npc") + (s.nascosto ? " nasc" : "") + (B.sel === s.id ? " sel" : "") +
+    return '<div class="tk ' + (s.giocatore_id ? "pg" : "npc") + (s.nascosto ? " nasc" : "") + (B.sel === s.id ? " sel" : "") + (inMulti(s.id) ? " multi" : "") +
       (turno ? " turno" : "") + (possoMuovere(s) ? " mobile" : "") + '" data-id="' + s.id + '" style="left:' + Number(s.x) * 100 + "%;top:" + Number(s.y) * 100 +
       "%;width:" + d + "px;height:" + d + 'px"><span class="ini">' + esc(iniziali(s.nome)) + '</span><span class="nm">' + esc(s.nome) + "</span>" +
       (p && p.pf_max > 0 ? barraPf(p) : "") + "</div>";
