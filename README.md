@@ -149,10 +149,10 @@ Da eseguire nello SQL Editor, ognuno una sola volta, in questo ordine:
 
 Si apre da **Battle map** nella testata del sito (pagina `battle.html`). Serve aver eseguito `supabase/aggiornamento_battle.sql` e, per i tiri e le schede, anche `supabase/aggiornamento_tiri.sql`.
 
-**La pagina a tre colonne** (sotto i 1200 px le colonne si mettono una sotto l'altra: prima la mappa)
+**La pagina a tre colonne**, larghe 20% · 60% · 20% (sotto i 1200 px le colonne si mettono una sotto l'altra: prima la mappa)
 - **Al centro** la mappa, con sotto la barra degli strumenti (mappe, scena, segnalini, righello, **Dadi**).
 - **A destra** la scheda del giocatore e, sotto, la **Cronologia eventi** (si apre e si chiude). Il master sceglie quale PG vedere con le linguette, o tocca il suo segnalino; un giocatore ha sempre la propria.
-- **A sinistra** l'iniziativa e, solo per il master, la scheda dell'NPC (linguette, o tocco sul segnalino). Gli NPC con scheda «semplificata» non hanno i dadi, come nel sito principale.
+- **A sinistra** la scheda dell'NPC (solo master) e, in basso, l'iniziativa (linguette, o tocco sul segnalino). Gli NPC con scheda «semplificata» non hanno i dadi, come nel sito principale.
 
 **I dadi**
 - I tiri si fanno dalla scheda, come nel sito principale: attacco, danno (compare dopo l'attacco, con la CA del bersaglio), tiri salvezza, abilità, iniziativa, vantaggio e svantaggio.

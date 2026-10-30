@@ -5,14 +5,17 @@
    ===================================================================== */
 /* Tre colonne: a sinistra iniziativa e NPC, al centro mappa e strumenti, a destra scheda del giocatore e cronologia.
    Sotto i 1200 px le colonne si mettono una sotto l'altra: prima la mappa, poi la scheda, poi iniziativa e NPC. */
-.battle3 { max-width: 1760px; margin: 0 auto; padding: .75rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }
+.battle3 { max-width: none; margin: 0 auto; padding: .75rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }
 .bcol { min-width: 0; order: 1; }
 .coldx { min-width: 0; order: 2; }
 .colsx { min-width: 0; order: 3; }
 @media (min-width: 1200px) {
-  .battle3 { grid-template-columns: 300px minmax(0, 1fr) 460px; }   /* [MODIFICA QUI] larghezza delle colonne laterali */
+  /* 20% scheda NPC (con l'iniziativa in basso) · 60% mappa · 20% scheda giocatori (con la cronologia in basso) */
+  .battle3 { grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr); }   /* [MODIFICA QUI] 1 : 3 : 1 = 20% : 60% : 20% */
   .bcol, .coldx, .colsx { order: 0; }
-  .colsx, .coldx { position: sticky; top: .5rem; max-height: calc(100vh - 1rem); overflow: auto; }
+  .colsx, .coldx { position: sticky; top: .5rem; height: calc(100vh - 1rem); display: flex; flex-direction: column; gap: .6rem; }
+  .colsx > .pannello, .coldx > .pannello { flex: 1 1 auto; min-height: 0; overflow: auto; margin-bottom: 0; }
+  .colsx > .iniz, .coldx > .cron { flex: 0 0 auto; max-height: 45%; overflow: auto; }   /* iniziativa e cronologia restano sempre in basso */
 }
 
 /* Le schede dentro la Battle map */

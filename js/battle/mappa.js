@@ -20,8 +20,8 @@ function montaPagina() {
   root.innerHTML =
     '<header class="top"><div class="top-in"><div><h1>Battle map</h1><div class="who">' + esc(c.nome) + " · " + (bMaster() ? "Master" : esc(B.me.nome)) + "</div></div>" +
     '<div class="tools">' + scelta + '<button id="btnUnita" data-b="unita">' + labelUnita() + '</button><a class="btn" href="index.html">Torna al sito</a></div></div></header>' +
-    // Tre colonne: iniziativa e NPC a sinistra, mappa con gli strumenti al centro, scheda del giocatore e cronologia a destra.
-    '<main class="battle3"><aside class="colsx"><div id="iniz" class="iniz" aria-label="Iniziativa"></div><section id="pannelloNpc" class="pannello" aria-label="Scheda NPC e mostri"></section></aside>' +
+    // Tre colonne (20% · 60% · 20%): scheda NPC con l'iniziativa in basso a sinistra, mappa con gli strumenti al centro, scheda del giocatore e cronologia a destra.
+    '<main class="battle3"><aside class="colsx"><section id="pannelloNpc" class="pannello" aria-label="Scheda NPC e mostri"></section><div id="iniz" class="iniz" aria-label="Iniziativa"></div></aside>' +
     '<section class="bcol"><div id="scena" class="scena"><img id="mappaImg" alt="Mappa" hidden><div id="strato"></div><div id="linea" class="linea"></div><div id="vuoto" class="vuoto" hidden></div>' +
     '<div id="dadoMappa" class="dadomappa" hidden aria-live="polite"></div></div>' +
     '<div id="barra"></div><p id="info" class="hint"></p></section>' +
