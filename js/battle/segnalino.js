@@ -68,6 +68,8 @@ function nomeSuccessivo(nome, mappaId) {
   return base + " " + (max + 1);
 }
 function duplicaSegnalino(s) {
+  // Un NPC si duplica clonandolo: la copia ha la sua scheda e i suoi PF.
+  if (s.png_id != null) { clonaNpc(s.png_id, s.mappa_id, Math.min(1, Number(s.x) + 0.03), Math.min(1, Number(s.y) + 0.03)); return; }
   var p = B.pf[s.id];
   run(function () {
     var d = { campagna_id: bCamp(), mappa_id: s.mappa_id, nome: nomeSuccessivo(s.nome, s.mappa_id),
@@ -77,6 +79,17 @@ function duplicaSegnalino(s) {
   }, "Segnalino duplicato").then(function (r) { if (r) ricaricaBattle(); });
 }
 function eliminaSegnalinoDlg(s) {
+  // Una copia di un NPC sparisce con la sua scheda.
+  if (s.png_id != null && eCopia(s.png_id)) {
+    modal("Togliere “" + s.nome + "”?", "<p>È una copia: spariscono dalla mappa il suo segnalino e la sua scheda. L’originale non cambia.</p>", function () {
+      return run(function () { return call("elimina_clone", { p_png: s.png_id }); }, "Copia tolta").then(function (r) {
+        if (!r) return false;
+        B.sel = null; if (B.multi) delete B.multi[s.id];
+        return caricaDati().then(function () { disegnaPannelli(); return ricaricaBattle(); });
+      });
+    }, "Togli");
+    return;
+  }
   modal("Togliere “" + s.nome + "” dalla mappa?",
     "<p>Il segnalino sparisce dalla mappa" + (s.giocatore_id || s.png_id ? ". Il personaggio resta com’è: lo puoi rimettere in qualsiasi momento." : ".") + "</p>",
     function () {

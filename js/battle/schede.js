@@ -7,6 +7,7 @@
    Contiene:  chiaveSegnalino, selezionaScheda, iniziaSchede, disegnaTab,
               disegnaPannelli, aggiornaSchede, azioneSchede, htmlToken,
               aggiornaToken, aggiungiToken, nascondiToken, impostaIniziativaDaTiro,
+              clonaNpc, eCopia,
    Le schede del sito usano lo stato «S» e la funzione disegnaTab: qui S si
    riempie con i dati della campagna e disegnaTab ridisegna i due pannelli.
    L'ordine di caricamento è in battle.html: conta, non cambiarlo.
@@ -100,6 +101,24 @@ function aggiungiSegnalinoDb(p) {
   });
 }
 
+// Clonare un NPC: una COPIA INDIPENDENTE (nuovo NPC con la sua scheda, i suoi oggetti e i suoi incantesimi, PF al massimo) con il suo token.
+// Cambiare la copia non cambia l'originale. Si toglie con la × del suo token, oppure da «Nuovo scontro».
+function clonaNpc(pngId, mappaId, x, y) {
+  return run(function () {
+    return call("clona_png", { p_png: pngId, p_mappa: mappaId, p_x: x, p_y: y }).catch(function (e) {
+      if (e && /clona_png|schema cache|Could not find/i.test(e.message || "")) throw { message: "Per clonare un NPC esegui prima aggiornamento_clona_npc.sql in Supabase." };
+      throw e;
+    });
+  }, "Copia creata: ha la sua scheda e i suoi PF").then(function (r) {
+    if (!r) return null;
+    return caricaDati().then(function () { disegnaPannelli(); return ricaricaBattle(); });
+  });
+}
+function eCopia(pngId) {
+  var n = (S.png || []).filter(function (x) { return x.id === pngId; })[0];
+  return !!(n && n.clone_di);
+}
+
 // ---------------------------------------------------------------- token del personaggio
 // Un personaggio può avere più token sulla stessa mappa (Goblin, Goblin 2…): toccandone uno si apre sempre la stessa scheda.
 // Aggiungerli: il master per chiunque, un giocatore solo per il proprio PG (gli NPC solo il master). Nasconderli: solo il master.
@@ -133,6 +152,8 @@ function aggiungiToken(key) {
   if (!possoAggiungereToken(key)) { toast("Puoi aggiungere solo token del tuo personaggio.", true); return; }
   var p = { campagna_id: bCamp(), mappa_id: m.id, x: 0.5, y: 0.5 }, gia = tokenDi(key, m);
   if (gia.length) { var u = gia[gia.length - 1]; p.x = Math.min(0.97, Number(u.x) + 0.04); p.y = Math.min(0.97, Number(u.y) + 0.04); }   // accanto all'ultimo token di quel personaggio
+  // Un NPC che ha già un token su questa mappa non si «raddoppia»: si clona (copia indipendente, con la sua scheda).
+  if (key.charAt(0) === "p" && gia.length && bMaster()) { clonaNpc(Number(key.slice(2)), m.id, p.x, p.y); return; }
   if (key.charAt(0) === "g") p.giocatore_id = Number(key.slice(2)); else p.png_id = Number(key.slice(2));
   run(function () { return aggiungiSegnalinoDb(p); }, "Token aggiunto").then(function (r) { if (r) ricaricaBattle(); });
 }

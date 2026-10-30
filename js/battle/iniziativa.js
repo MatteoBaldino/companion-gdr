@@ -51,10 +51,15 @@ function azioneIniziativa(a) {
     return true;
   }
   if (a === "nuovo") {
-    modal("Nuovo scontro?", "<p>Si azzerano il round, il turno e tutto l’elenco dell’iniziativa: i segnalini restano sulla mappa.</p>", function () {
-      return run(function () { return call("nuovo_combattimento", { p_camp: bCamp() }); }, "Scontro azzerato").then(function (r) {
+    var haCopie = (S.png || []).some(function (x) { return x.clone_di; });
+    modal("Nuovo scontro?", "<p>Si azzerano il round, il turno e tutto l’elenco dell’iniziativa: i segnalini restano sulla mappa.</p>" +
+      (haCopie ? chk("copie", "Togli anche le copie dei mostri (con le loro schede e i loro segnalini)", true) : ""), function (fd) {
+      var copie = haCopie && fd.get("copie") === "on";
+      return run(function () {
+        return call("nuovo_combattimento", { p_camp: bCamp() }).then(function () { return copie ? call("elimina_cloni", { p_camp: bCamp() }) : null; });
+      }, copie ? "Scontro azzerato e copie tolte" : "Scontro azzerato").then(function (r) {
         if (!r) return false;
-        return ricaricaBattle();
+        return (copie ? caricaDati().then(disegnaPannelli) : Promise.resolve()).then(ricaricaBattle);
       });
     }, "Azzera");
     return true;

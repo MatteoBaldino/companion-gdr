@@ -114,5 +114,6 @@ function aggiungiDaMenu(v) {
   if (v === "gen") { nuovoGenerico(m); return; }
   var p = { campagna_id: bCamp(), mappa_id: m.id, x: 0.5, y: 0.5 };
   if (v.charAt(0) === "g") p.giocatore_id = Number(v.slice(2)); else p.png_id = Number(v.slice(2));
+  if (p.png_id && tokenDi("p:" + p.png_id, m).length) { clonaNpc(p.png_id, m.id, 0.5, 0.5); return; }     // già sulla mappa: si clona
   run(function () { return aggiungiSegnalinoDb(p); }, "Segnalino aggiunto").then(function (r) { if (r) ricaricaBattle(); });
 }

@@ -26,6 +26,7 @@ Un sito per te e i tuoi amici: il master crea armi, armature, cibo e oggetti (an
 | `supabase/aggiornamento_posti_equipaggiamento.sql` | le nove caselle dell’equipaggiamento (elmo, mantello, torace, guanti, pantaloni, scarpe, mano destra, mano sinistra, a due mani): da eseguire una volta, dopo `aggiornamento_listino_standard.sql`, prima di caricare i file del sito |
 | `supabase/aggiornamento_dai_scarta.sql` | «Scarta» (l’oggetto resta a terra) e «Dai» al master: da eseguire una volta, prima di caricare i file del sito |
 | `supabase/aggiornamento_tiri.sql` | tiri di dado condivisi (sopra la mappa e nella cronologia), con visibilità tutti / master / segreto: da eseguire una volta, dopo `aggiornamento_battle.sql` |
+| `supabase/aggiornamento_clona_npc.sql` | clonare un NPC per uno scontro: copia indipendente con la sua scheda (e «Nuovo scontro» può toglierle): da eseguire una volta, dopo `aggiornamento_token_multipli.sql` |
 | `supabase/aggiornamento_token_multipli.sql` | più token dello stesso personaggio sulla Battle map; i giocatori possono aggiungere e togliere i token del proprio PG: da eseguire una volta, dopo `aggiornamento_battle.sql` |
 | `supabase/prova_tre_account.sql` | facoltativo: prepara una campagna di prova con tre account (vedi sotto) |
 
@@ -100,6 +101,7 @@ Da eseguire nello SQL Editor, ognuno una sola volta, in questo ordine:
 9. `aggiornamento_listino_standard.sql`
 10. `aggiornamento_tiri.sql`
 11. `aggiornamento_token_multipli.sql`
+12. `aggiornamento_clona_npc.sql`
 
 `prova_tre_account.sql` è facoltativo e sta fuori da quest’ordine. Se uno script dà errore non cambia niente: è un unico blocco.
 
@@ -161,10 +163,15 @@ Si apre da **Battle map** nella testata del sito (pagina `battle.html`). Serve a
 - Trascinando uno dei selezionati si **spostano tutti insieme** (nessuno esce dalla mappa). In alto a sinistra sulla mappa compaiono i pulsanti del gruppo: il master li **nasconde**, li **mostra** o li **toglie**; un giocatore seleziona, sposta e toglie solo i propri. **Esc** o **Deseleziona** tolgono la selezione; un tocco sul vuoto fa lo stesso. Se tiri l'iniziativa dalla scheda con dei token selezionati di quel personaggio, vale per quelli.
 
 **I token** (più token dello stesso personaggio)
-- Accanto al nome di ogni PG e NPC, nelle linguette delle schede, c'è un **«+»** che mette un suo token sulla mappa che stai guardando (il secondo si chiama «Goblin 2», il terzo «Goblin 3»…). Toccando un token qualsiasi si apre la stessa scheda; l'iniziativa è di ogni token, i PF sono quelli della scheda (uguali per tutti i suoi token).
+- Accanto al nome di ogni PG e NPC, nelle linguette delle schede, c'è un **«+»** che mette un suo token sulla mappa che stai guardando. Per un **PG** il secondo token si chiama «Nox 2»: toccando un token qualsiasi si apre la stessa scheda, i PF sono quelli della scheda (uguali per tutti i suoi token) e l'iniziativa è di ogni token. Per un **NPC** che ha già un token il «+» **clona** (vedi sotto).
 - Sopra ogni scheda c'è la striscia **Token** con i token di quel personaggio sulla mappa: **occhio** per nasconderlo o mostrarlo ai giocatori (solo il master), **×** per toglierlo dalla mappa, nome per evidenziarlo sulla mappa.
 - **Master:** aggiunge e toglie token di chiunque e li nasconde. **Giocatore:** aggiunge e toglie solo i token del proprio PG (fino a 10 per mappa, solo se la mappa è in scena); non può aggiungere NPC né nascondere token. Le regole sono nel database (`aggiornamento_token_multipli.sql`).
-- «Duplica» (dalla finestra del segnalino) ora mantiene il collegamento con la stessa scheda. Rinominando un token cambia solo il suo nome; il token che porta il nome del personaggio rinomina anche il personaggio.
+- «Duplica» (dalla finestra del segnalino) di un PG mette un altro token della stessa scheda; di un NPC lo clona. Rinominando un token cambia solo il suo nome; il token che porta il nome del personaggio rinomina anche il personaggio.
+
+**Clonare un NPC** (copie indipendenti per uno scontro)
+- Il **«+»** accanto al nome di un NPC (o «Duplica» nella finestra del suo segnalino), quando l'NPC ha già un token sulla mappa, **clona**: nasce «Goblin 2» (poi «Goblin 3»…), un NPC nuovo con la **sua scheda** (PF al massimo, turno da capo), i suoi oggetti e i suoi incantesimi, e il suo token. **Cambiare una copia non cambia l'originale, e viceversa**: ognuna ha i suoi PF, la sua iniziativa e le sue azioni. Si clona sempre dall'originale, anche premendo «+» su una copia.
+- Le copie compaiono nelle linguette della scheda NPC e nell'elenco dei Personaggi del sito. Si tolgono con la **×** del loro token (spariscono anche la scheda e gli oggetti), togliendo l'NPC originale, oppure con **Nuovo scontro**: nella conferma c'è la casella «Togli anche le copie dei mostri», già spuntata.
+- I PG non si clonano: un PG con più token ha una scheda sola, condivisa da tutti i suoi token. Solo il master può clonare.
 
 **L'iniziativa**
 - Si tira dalla scheda (tessera **Iniziativa**): il risultato entra da solo nell'elenco, sui token di quel personaggio sulla mappa (se hai selezionato uno dei suoi token, solo su quello). Un giocatore imposta solo i propri.
