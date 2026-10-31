@@ -41,7 +41,7 @@ function disegnaMarquee() {
 function chiudiMarquee() {
   var b = B.box, m = mappaVista(); B.box = null; disegnaMarquee();
   if (!b || !m) return;
-  var r = $("#scena").getBoundingClientRect();
+  var r = $("#piano").getBoundingClientRect();
   if (Math.hypot((b.x1 - b.x0) * r.width, (b.y1 - b.y0) * r.height) < SOGLIA_PX) {
     if (!b.aggiungi && nMulti()) { svuotaMulti(); aggiornaSelezione(); }
     return;
@@ -62,7 +62,12 @@ function aggiornaMultiBar() {
   if (!el) return;
   if (!n) { el.hidden = true; el.innerHTML = ""; return; }
   el.hidden = false;
-  el.innerHTML = '<strong>' + n + (n === 1 ? " segnalino selezionato" : " segnalini selezionati") + "</strong>" +
+  var m = mappaVista(), due = segMulti(), dist = "";
+  if (due.length === 2 && m && m.larghezza_m) {        // con due segnalini scelti: quanto sono distanti
+    var d = distanzaMetri({ x1: Number(due[0].x), y1: Number(due[0].y), x2: Number(due[1].x), y2: Number(due[1].y), m: m });
+    dist = '<span class="dist">Distanza: ' + esc(etichettaDistanza(d)) + " · " + Math.round(d / CELLA_M) + (Math.round(d / CELLA_M) === 1 ? " quadretto" : " quadretti") + "</span>";
+  }
+  el.innerHTML = '<strong>' + n + (n === 1 ? " segnalino selezionato" : " segnalini selezionati") + "</strong>" + dist +
     (bMaster() ? '<button data-b="multiNasc">Nascondi</button><button data-b="multiMostra">Mostra</button>' : "") +
     '<button class="danger" data-b="multiTogli">Togli dalla mappa</button><button data-b="multiNo">Deseleziona</button>';
 }
@@ -97,5 +102,5 @@ function azioneMulti(a, b) {
 
 // Esc toglie la selezione.
 document.addEventListener("keydown", function (e) {
-  if (e.key === "Escape" && nMulti() && !document.querySelector("dialog[open]")) { svuotaMulti(); aggiornaSelezione(); }
+  if (e.key === "Escape" && nMulti() && !document.querySelector("dialog[open]")) { svuotaMulti(); aggiornaSelezione(); e.__gestito = true; }
 });

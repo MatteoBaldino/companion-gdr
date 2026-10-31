@@ -99,8 +99,9 @@ label.btn.file:hover { border-color: var(--accent); }
 
 /* La mappa e i segnalini */
 .scena { position: relative; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; touch-action: none; user-select: none; }
-.scena > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
-.scena > img[hidden], .vuoto[hidden] { display: none; }
+.piano { position: absolute; inset: 0; transform-origin: 0 0; }
+.scena > img, .piano > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.scena > img[hidden], .piano > img[hidden], .vuoto[hidden] { display: none; }
 #strato { position: absolute; inset: 0; }
 .vuoto { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 1rem; color: var(--muted); }
 .tk { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 3px solid; background: var(--panel); box-shadow: 0 1px 4px rgba(0, 0, 0, .55); cursor: pointer; user-select: none; }
@@ -179,3 +180,23 @@ label.btn.file:hover { border-color: var(--accent); }
 .multibar[hidden] { display: none; }
 .multibar button { min-height: 34px; padding: 0 .6rem; font-size: .85rem; }
 .multibar strong { font-size: .85rem; }
+
+/* Strumenti della mappa: zoom, griglia, aree, annulla */
+.scena.mano { cursor: grab; }
+.scena.mano.trascinando { cursor: grabbing; }
+.griglia { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(to right, rgba(255, 255, 255, .32) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, .32) 1px, transparent 1px); }
+.griglia[hidden] { display: none; }
+.aree { position: absolute; inset: 0; pointer-events: none; }
+.aree svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.area circle, .area rect, .area polygon { fill: rgba(255, 140, 40, .26); stroke: #ffb347; stroke-width: 3px; vector-effect: non-scaling-stroke; }
+.area text { fill: #fff; stroke: #000; stroke-width: 4px; paint-order: stroke; font-weight: 600; text-anchor: middle; dominant-baseline: middle; }
+.attrezzi { position: absolute; left: .6rem; bottom: .6rem; z-index: 5; max-width: calc(100% - 1.2rem); display: flex; flex-direction: column; gap: .3rem; padding: .35rem .45rem; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; opacity: .96; }
+.attrezzi .riduci { align-self: flex-start; min-height: 30px; font-size: .8rem; }
+.attrezzi .rigaA[hidden] { display: none; }
+.attrezzi .rigaA, .attrezzi .rigaB { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
+.attrezzi .rigaB[hidden] { display: none; }
+.attrezzi button { min-height: 34px; padding: 0 .55rem; font-size: .85rem; }
+.attrezzi button:disabled { opacity: .45; }
+.attrezzi .pct { min-width: 3rem; text-align: center; font-size: .85rem; }
+.attrezzi .sl input[type="number"] { width: 4.6rem; min-height: 34px; }
+.multibar .dist { font-size: .85rem; color: var(--muted); }

@@ -26,7 +26,7 @@ function collega() {
     var b = e.target.closest("[data-b]"); if (!b) return;
     var a = b.dataset.b;
     if (a === "unita") { U.sys = imp() ? "metric" : "imperial"; try { localStorage.setItem("gdr_unita", U.sys); } catch (x) {} b.textContent = labelUnita(); disegna(); return; }
-    if (!azioneBarra(a, b) && !azioneTiri(a, b) && !azioneSchede(a, b) && !azioneMulti(a, b)) azioneIniziativa(a);
+    if (!azioneBarra(a, b) && !azioneTiri(a, b) && !azioneSchede(a, b) && !azioneMulti(a, b) && !azioneStrumenti(a, b)) azioneIniziativa(a);
   });
   root.addEventListener("change", function (e) {
     var t = e.target;
@@ -50,6 +50,7 @@ function collega() {
   });
   window.addEventListener("resize", function () { var m = mappaVista(); if (m && !B.drag) disegnaSegnalini(m); });
   osservaSpazio();
+  iniziaStrumenti();
 }
 
 function entraInCampagna() {

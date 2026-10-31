@@ -60,8 +60,8 @@ function azioneBarra(a, b) {
     });
     return true;
   }
-  if (a === "righello") { B.righello = !B.righello; B.calibra = false; B.linea = null; disegna(); return true; }
-  if (a === "calibra") { B.calibra = !B.calibra; B.righello = false; B.linea = null; disegna(); return true; }
+  if (a === "righello") { B.righello = !B.righello; B.calibra = false; B.linea = null; if (B.righello) B.area.attiva = false; disegna(); return true; }
+  if (a === "calibra") { B.calibra = !B.calibra; B.righello = false; B.linea = null; if (B.calibra) B.area.attiva = false; disegna(); return true; }
   if (a === "mappa" && m) { apriMappa(m); return true; }
   return false;
 }

@@ -79,7 +79,7 @@ function htmlTiro(s, key) {
   return '<div class="tirosez"><div class="vantbar" role="group" aria-label="Tipo del prossimo tiro"><span class="hint">Prossimo tiro:</span>' +
     [["n", "Normale"], ["v", "Vantaggio"], ["s", "Svantaggio"]].map(function (x) {
       return '<button class="small' + (v === x[0] ? " on" : "") + '" data-act="vant" data-v="' + x[0] + '" aria-pressed="' + (v === x[0]) + '">' + x[1] + "</button>";
-    }).join("") + "</div>" + (s ? htmlVisTiro(s, key || "") : "") + (s ? htmlBarraExtra(s) : "") +
+    }).join("") + "</div>" + (s ? htmlVisTiro(s, key || "") : "") +
     // Nella Battle map il risultato compare sopra la mappa e nella cronologia: qui il riquadro non c'è (S.senzaRiquadro).
     (S.senzaRiquadro ? "" : '<div class="rbox" id="tiroBox" aria-live="polite">' +
       (S.tiroHtml || '<span class="hint">Tocca una caratteristica, un’abilità, un tiro salvezza o un attacco: i dadi compaiono qui.</span>') + "</div>") + "</div>";
@@ -286,8 +286,7 @@ ACT.dado = function (b) {
       o.titolo = "Attacco: " + r.n; o.tipo = "att"; o.mod = r.b; o.chiave = ck;
       o.dan = r.dd ? { id: s.id, r: Number(b.dataset.r) } : null;   // dopo il tiro per colpire, il pulsante per tirare il danno
       // In combattimento, un attacco con un'arma usa l'azione del turno; per gli incantesimi l'azione l'ha già usata "Lancia". Fuori dal combattimento non si consuma nulla.
-      if (!r.inc && S.attaccoReaz && S.attaccoReaz[s.id]) { S.attaccoReaz[s.id] = false; }   // attacco di opportunità: è fatto con la reazione, non con l'azione
-      else if (!r.inc && inCombattimento(s)) {
+      if (!r.inc && inCombattimento(s)) {
         var tu = s.turno || {};
         if (tu.azione) {
           toast("Non puoi: attacco con " + r.n + ". L’azione è già usata in questo turno" + (typeof tu.azione === "string" ? " (" + tu.azione + ")" : "") + ". Se il master lo permette, tocca la cella Azione per liberarla.", true);
@@ -300,16 +299,6 @@ ACT.dado = function (b) {
     else {
       if (!r.dd) return;
       o.titolo = (r.cura ? "Cura: " : "Danno: ") + r.n; o.tipo = "dan"; o.gruppi = r.dd.gruppi; o.fisso = r.dd.piatto;
-      // Danni extra accesi nella barra «Prossimo danno» (attacco furtivo, privilegi con un dado): si aggiungono ai dadi dell'arma e poi si spengono.
-      var ex = r.cura ? { ok: [], no: [], avviso: false } : extraAttivi(s, r);
-      if (ex.no.length) toast(ex.no.map(function (x) { return x.e.n + ": " + x.m; }).join(". ") + ".", true);
-      else if (ex.avviso && ex.ok.some(function (e) { return e.furt; })) toast("Attacco furtivo: ricorda che serve vantaggio oppure un alleato vicino al bersaglio.");
-      if (ex.ok.length) {
-        ex.ok.forEach(function (e) { var dx = leggiDanno(e.d); o.gruppi = o.gruppi.concat(dx.gruppi); o.fisso += dx.piatto; o.titolo += " + " + e.n; });
-        extraAzzera(s);
-        // L'attacco furtivo è «una volta per turno»: in combattimento si segna come usato fino a «Nuovo turno».
-        if (inCombattimento(s) && ex.ok.some(function (e) { return e.furt; })) { var nt2 = copia(s.turno || {}); nt2.furtivo = true; gioco(s, { turno: nt2 }); }
-      } else if (ex.no.length) extraAzzera(s);
       if (S.crit[ck]) { o.doppio = true; o.titolo += " (critico)"; S.crit[ck] = false; setTimeout(function () { if (S.me) disegnaTab(); }, 0); }
     }
   }
@@ -340,8 +329,6 @@ ACT.dado = function (b) {
   var usaD20 = o.gruppi.some(function (g) { return g.s === 20; });
   if (!usaD20) o.vant = "n";
   var t = creaTiro(o);
-  // Ricordo com'era l'ultimo attacco con ogni arma (normale, vantaggio, svantaggio): serve a controllare l'attacco furtivo.
-  if (o.tipo === "att" && o.chiave) { S.ultimoAtt = S.ultimoAtt || {}; S.ultimoAtt[o.chiave] = { v: o.vant }; }
   if (usaD20 && o.tipo !== "morte" && S.vant && S.vant !== "n") { S.vant = "n"; aggiornaVant(); }
   var vis = visTiro(s, key);
   registraTiro(t, vis, o.nome);

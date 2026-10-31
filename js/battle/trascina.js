@@ -14,16 +14,19 @@ var SOGLIA_PX = 5;           // [MODIFICA QUI] di quanto bisogna muoversi perch�
 var fra01 = function (v) { return Math.min(1, Math.max(0, v)); };
 
 function bPosizione(e) {
-  var r = $("#scena").getBoundingClientRect();
+  var r = $("#piano").getBoundingClientRect();           // il livello della mappa (con lo zoom)
   return { x: (e.clientX - r.left) / (r.width || 1), y: (e.clientY - r.top) / (r.height || 1), r: r };
 }
 function bCattura(e) { var sc = $("#scena"); if (sc.setPointerCapture && e.pointerId != null) { try { sc.setPointerCapture(e.pointerId); } catch (x) {} } }
 
 function bGiu(e) {
   var m = mappaVista(); if (!m) return;
+  if (inizioPan(e)) return;                       // Mano, barra spaziatrice o tasto centrale: si sposta la mappa
   var tk = e.target.closest(".tk"), p = bPosizione(e), tasto = e.ctrlKey || e.shiftKey || e.metaKey;
   if (tk) {
     var s = segnalinoPerId(tk.dataset.id); if (!s) return;
+    // Con lo strumento «Aree» acceso, toccare un segnalino fa partire l'area dal suo centro (una palla di fuoco su un goblin, un cono dal mago).
+    if (B.area && B.area.attiva && !tasto && !B.modoMulti) { avviaArea(e, { x: Number(s.x), y: Number(s.y) }, m); return; }
     // Selezione multipla: Ctrl o Maiusc + tocco, oppure il pulsante «Selezione multipla» acceso. Ogni tocco aggiunge o toglie il segnalino.
     if (tasto || B.modoMulti) {
       if (!possoMuovere(s)) { toast("Puoi selezionare solo il tuo segnalino.", true); return; }
@@ -40,7 +43,8 @@ function bGiu(e) {
       svuotaMulti(); aggiornaSelezione();
       tk = document.querySelector('.tk[data-id="' + s.id + '"]') || tk;      // la selezione ha ridisegnato i segnalini
     }
-    B.drag = { id: s.id, el: tk, x0: p.x, y0: p.y, mosso: false, ultimo: 0, gruppo: gruppo };
+    B.drag = { id: s.id, el: tk, x0: p.x, y0: p.y, mosso: false, ultimo: 0, gruppo: gruppo,
+      prima: (gruppo || [{ id: s.id, x0: Number(s.x), y0: Number(s.y) }]).map(function (t) { return { id: t.id, x: t.x0, y: t.y0 }; }) };   // dove stavano, per «Annulla»
     bCattura(e);
     return;
   }
@@ -49,6 +53,7 @@ function bGiu(e) {
     bCattura(e); disegnaLinea();
     return;
   }
+  if (B.area && B.area.attiva) { avviaArea(e, p, m); return; }          // strumento «Aree»: si disegna un'area
   // Trascinando su un punto vuoto si disegna un rettangolo: i segnalini dentro vengono selezionati.
   B.box = { x0: p.x, y0: p.y, x1: p.x, y1: p.y, attiva: true, aggiungi: tasto };
   bCattura(e);
@@ -68,7 +73,9 @@ function spostaGruppo(p) {
 }
 
 function bMuovi(e) {
+  if (B.pan) { muoviPan(e); return; }
   var p = bPosizione(e);
+  if (B.areaDraw) { muoviArea(p, mappaVista()); return; }
   if (B.drag) {
     var s = segnalinoPerId(B.drag.id); if (!s) return;
     if (!B.drag.mosso && Math.hypot((p.x - B.drag.x0) * p.r.width, (p.y - B.drag.y0) * p.r.height) < SOGLIA_PX) return;
@@ -86,11 +93,14 @@ function bMuovi(e) {
 }
 
 function bSu() {
+  if (B.pan) { finePan(); return; }
+  if (B.areaDraw) { finisciArea(); return; }
   if (B.drag) {
-    var d = B.drag, s = segnalinoPerId(d.id);
+    var d = B.drag, s = segnalinoPerId(d.id), mv = mappaVista();
     B.drag = null;
-    if (d.gruppo && d.mosso) d.gruppo.forEach(function (t) { var x = segnalinoPerId(t.id); if (x) bInvia(x); });
-    else if (s && d.mosso) bInvia(s);
+    if (d.gruppo && d.mosso) d.gruppo.forEach(function (t) { var x = segnalinoPerId(t.id); if (x) { agganciaSeg(x, mv); bInvia(x); } });
+    else if (s && d.mosso) { agganciaSeg(s, mv); bInvia(s); }
+    if (d.mosso) registraAnnulla(d.prima);
     else if (s) { if (d.gruppo) { svuotaMulti(); aggiornaSelezione(); } apriSegnalino(s); }
     if (B.rinvia) disegna();
   } else if (B.linea && B.linea.attiva) {

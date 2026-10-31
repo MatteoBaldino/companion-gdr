@@ -431,37 +431,5 @@ h4.inc-liv small { color: var(--muted); font: 400 .85rem var(--sans); }
 .dlista .dest small { color: var(--muted); }
 .dlista .dest input { width: auto; min-height: 0; }
 
-/* ---- testi liberi della scheda (Personalità, Privilegi e tratti, Altre competenze e linguaggi) */
-.dettagli { display: grid; gap: .5rem; margin: 1rem 0; }
-.dettagli details { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
-.dettagli summary { display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 44px; padding: 0 .8rem; cursor: pointer; list-style: none; }
-.dettagli summary::-webkit-details-marker { display: none; }
-.dettagli summary .l { font-weight: 700; }
-.dettagli summary .r { color: var(--muted); font-size: .85rem; }
-.dettagli summary .r::after { content: "\25BE"; margin-left: .5rem; font-size: .75rem; }
-.dettagli details[open] summary .r::after { content: "\25B4"; }
-.dettagli .body { display: grid; gap: .6rem; padding: 0 .8rem .8rem; }
-.dettagli textarea { width: 100%; min-height: 84px; }
-.dettagli textarea[readonly] { background: transparent; border-style: dashed; }
-
-/* ---- barra «Prossimo danno» (danni extra) e voci della scheda */
-.extrabar { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin: .2rem 0 .6rem; }
-.extrachip { border-style: dashed; border-radius: 99px; }
-.extrachip[aria-pressed="true"] { background: var(--accent); border-style: solid; border-color: var(--accent); color: var(--accent-ink); }
-.extrachip.usato { opacity: .6; text-decoration: line-through; }
-.dettagli .voce { display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem; padding: .45rem 0; border-bottom: 1px solid var(--line); }
-.dettagli .voce small { display: block; color: var(--muted); margin-top: .1rem; }
-.dettagli .privadd { display: grid; gap: .4rem; }
-.dettagli h4.sotto { margin: .6rem 0 .3rem; font-size: .95rem; }
-.dettagli .etichette { display: flex; flex-wrap: wrap; gap: .35rem; }
-.dettagli .chipt { display: inline-flex; align-items: center; gap: .1rem; border: 1px solid var(--line); border-radius: 99px; padding: .1rem .2rem .1rem .7rem; background: var(--panel); }
-.dettagli .chipt.auto { border-style: dashed; padding-right: .7rem; }
-.dettagli .chipt button { border: 0; background: none; min-height: 28px; min-width: 28px; padding: 0; font-size: 1.1rem; color: var(--muted); }
-.dettagli .tagadd { display: flex; gap: .4rem; margin-top: .4rem; }
-.dettagli .tagadd input { flex: 1 1 auto; min-width: 0; }
-.dettagli .voce-az { display: flex; flex-direction: column; gap: .3rem; align-items: stretch; }
-.dettagli .usa { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.dettagli .tag { margin-left: .2rem; }
-
 /* Pulsanti dei dadi accanto alle azioni di un NPC semplificato (Battle map) */
 .azdadi { display: inline-flex; flex-wrap: wrap; gap: .3rem; margin-left: .3rem; vertical-align: middle; }

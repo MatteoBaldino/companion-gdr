@@ -23,7 +23,20 @@ function montaPagina() {
     // Tre colonne (20% · 60% · 20%): scheda NPC con l'iniziativa in basso a sinistra, mappa con gli strumenti al centro, scheda del giocatore e cronologia a destra.
     '<main class="battle3"><aside class="colsx"><section id="pannelloNpc" class="pannello" aria-label="Scheda NPC e mostri"></section><div id="iniz" class="iniz" aria-label="Iniziativa"></div></aside>' +
     // La mappa sta in #mapwrap: su schermi larghi la pagina non scorre, la mappa si adatta allo spazio che resta e la barra sotto scorre da sola se serve.
-    '<section class="bcol"><div id="mapwrap" class="mapwrap"><div id="scena" class="scena"><img id="mappaImg" alt="Mappa" hidden><div id="strato"></div><div id="linea" class="linea"></div><div id="marq" class="marq" hidden></div><div id="multibar" class="multibar" hidden></div><div id="vuoto" class="vuoto" hidden></div>' +
+    '<section class="bcol"><div id="mapwrap" class="mapwrap"><div id="scena" class="scena"><div id="piano" class="piano"><img id="mappaImg" alt="Mappa" hidden><div id="griglia" class="griglia" hidden></div><div id="aree" class="aree"></div><div id="strato"></div><div id="linea" class="linea"></div><div id="marq" class="marq" hidden></div></div><div id="multibar" class="multibar" hidden></div><div id="vuoto" class="vuoto" hidden></div>' +
+    '<div id="attrezzi" class="attrezzi" role="toolbar" aria-label="Strumenti della mappa"><button class="riduci" data-b="attrezziRiduci" aria-expanded="true" title="Riduci o estendi gli strumenti della mappa">Strumenti ▾</button><div class="rigaA">' +
+      '<button data-b="zoomMeno" aria-label="Rimpicciolisci" title="Rimpicciolisci (o la rotella del mouse)">−</button><span id="zoomPct" class="pct">100%</span><button data-b="zoomPiu" aria-label="Ingrandisci" title="Ingrandisci (o la rotella del mouse)">+</button>' +
+      '<button data-b="zoomAdatta" title="Mostra tutta la mappa">Adatta</button>' +
+      '<button class="tg" data-b="mano" aria-pressed="false" title="Trascina per spostare la mappa ingrandita (anche con la barra spaziatrice o con due dita)">Mano</button>' +
+      '<button data-b="centra" title="Ingrandisce sul segnalino scelto, o su quello di turno, o sul tuo">Centra</button>' +
+      '<button class="tg" data-b="griglia" aria-pressed="false" title="Quadretti da 1,5 m (serve la scala)">Griglia</button>' +
+      '<button class="tg" data-b="aggancia" aria-pressed="false" title="I segnalini si fermano al centro di un quadretto (serve la scala)">Aggancia</button>' +
+      '<button class="tg" data-b="aree" aria-pressed="false" title="Disegna un cerchio, un cono, un quadrato o una linea (lo vedi solo tu)">Aree</button>' +
+      '<button data-b="annulla" disabled title="Annulla l’ultimo spostamento (Ctrl+Z)">Annulla</button></div>' +
+    '<div class="rigaB" hidden><button class="tg" data-b="areaForma" data-f="cerchio" aria-pressed="true">Cerchio</button><button class="tg" data-b="areaForma" data-f="cono" aria-pressed="false">Cono</button>' +
+      '<button class="tg" data-b="areaForma" data-f="quadrato" aria-pressed="false">Quadrato</button><button class="tg" data-b="areaForma" data-f="linea" aria-pressed="false">Linea</button>' +
+      '<label class="sl">Grandezza <input type="number" id="areaLen" min="0.5" step="0.5" value="6" aria-label="Grandezza dell’area"> <span id="unitaArea">m</span></label>' +
+      '<button data-b="areaPulisci">Pulisci</button></div></div>' +
     '<div id="dadoMappa" class="dadomappa" hidden aria-live="polite"></div></div></div>' +
     '<div class="bassobar"><div id="barra"></div><p id="info" class="hint"></p></div></section>' +
     '<aside class="coldx"><section id="pannelloPg" class="pannello" aria-label="Scheda giocatori"></section><section id="cron" class="cron" aria-label="Cronologia eventi"></section></aside></main>' +
@@ -67,7 +80,7 @@ function osservaSpazio() {
 function aggiornaScena() {
   var m = mappaVista(), sc = $("#scena"), img = $("#mappaImg"), v = $("#vuoto");
   if (!m) {
-    img.hidden = true; img.removeAttribute("data-percorso"); $("#strato").innerHTML = ""; $("#linea").innerHTML = "";
+    img.hidden = true; img.removeAttribute("data-percorso"); $("#strato").innerHTML = ""; $("#linea").innerHTML = ""; $("#aree").innerHTML = ""; $("#griglia").hidden = true;
     v.hidden = false; adattaScena(16 / 9, "16 / 9");
     v.textContent = bMaster() ? "Non c’è ancora nessuna mappa. Usa «Nuova mappa» per caricarne una." : "Il master non ha ancora mostrato una mappa.";
     $("#info").textContent = "";
@@ -85,6 +98,7 @@ function aggiornaScena() {
   disegnaSegnalini(m);
   aggiornaMultiBar();
   disegnaLinea();
+  aggiornaStrumenti(m);
   $("#info").textContent = testoInfo(m);
 }
 
