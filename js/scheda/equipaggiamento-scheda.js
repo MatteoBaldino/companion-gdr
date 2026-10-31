@@ -55,10 +55,20 @@ function slotDi(i) {
   return eqNome(i, /mantell|cappa/) ? "mantello" : "altro";
 }
 
-// Quante mani occupa: 2 per le armi «A due mani», altrimenti 1.
+// Quante mani occupa. Nell'ordine: la proprietà «A due mani» → 2; la proprietà «A una mano» → 1; «a due mani» nel nome → 2;
+// archi e balestre (da nome o munizioni) → 2, a meno che il nome dica «a mano», «a una mano», «da mano» (o sia una cerbottana)
+// o l'arma sia leggera (balestra a mano) → 1; tutto il resto → 1.
 function maniDi(i) {
   var a = i.oggetti.categoria === "arma" ? one(i.oggetti.armi) : null;
-  return a && (a.proprieta || []).some(function (p) { return String(p).toLowerCase() === "a due mani"; }) ? 2 : 1;
+  if (!a) return 1;
+  var prop = (a.proprieta || []).map(function (p) { return String(p).toLowerCase(); });
+  if (prop.indexOf("a due mani") >= 0) return 2;
+  if (prop.some(function (p) { return /una mano/.test(p); })) return 1;
+  var nome = String(i.oggetti.nome || "").toLowerCase(), mun = String(a.munizioni_tipo || "").toLowerCase();
+  if (/\bdue mani\b/.test(nome)) return 2;
+  var adistanza = /\barc[oh]i?\b|balestr/.test(nome) || /frecc|quadrell/.test(mun);
+  if (adistanza && !/\bmano\b|cerbottan/.test(nome) && prop.indexOf("leggera") < 0) return 2;
+  return 1;
 }
 
 // Cosa sta in ogni casella: { elmo: oggetto, ..., due_mani: oggetto }.
