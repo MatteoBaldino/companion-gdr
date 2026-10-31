@@ -45,7 +45,7 @@ function attacchi(s, key) {
       if (o.bonus) note.push(o.bonus);
       if (o.effetto_condizionale) note.push(o.effetto_condizionale);
       if (!comp) note.push("senza competenza");
-      righe.push({ n: o.nome, b: colpo, dd: ddArma(a, dm), tiro: sgn(colpo), danno: d, gitt: a.gittata_normale ? fmtDist(a.gittata_normale) + (a.gittata_massima ? "/" + dec(distShow(a.gittata_massima)) : "") : fmtDist(1.5), note: note.join("; ") });
+      righe.push({ n: o.nome, furt: fin || a.modalita === "distanza", b: colpo, dd: ddArma(a, dm), tiro: sgn(colpo), danno: d, gitt: a.gittata_normale ? fmtDist(a.gittata_normale) + (a.gittata_massima ? "/" + dec(distShow(a.gittata_massima)) : "") : fmtDist(1.5), note: note.join("; ") });
     });
     righe.push({ n: "Colpo senza armi", b: fo + bc, dd: { gruppi: [], piatto: Math.max(0, 1 + fo) }, tiro: sgn(fo + bc), danno: Math.max(0, 1 + fo) + " contundenti", gitt: fmtDist(1.5), note: "" });
   }

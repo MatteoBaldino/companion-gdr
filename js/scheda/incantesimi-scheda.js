@@ -15,10 +15,12 @@ function htmlIncantesimi(s, solo) {
   var st = statInc(s), lista = incDiScheda(s.id), righe = attacchi(s, keyDiScheda(s)), perInc = {};
   righe.forEach(function (x, n) { if (x.incId) perInc[x.incId] = { x: x, n: n }; });
   var soloTr = solo === "trucchetti";
-  var h = soloTr ? "<h3>Trucchetti</h3>" :
+  var attesi = trucchettiAttesi(s), conosciuti = lista.filter(function (x) { return x.i.livello === 0; }).length;
+  var contaTr = attesi ? '<p class="hint">Trucchetti conosciuti: <strong>' + conosciuti + "</strong> di " + attesi + (conosciuti > attesi ? " (ne hai più del previsto)" : "") + ".</p>" : "";
+  var h = soloTr ? "<h3>Trucchetti</h3>" + contaTr :
     '<h3>Incantesimi</h3><p class="hint">' + (st.car ? "Caratteristica: " + ABK[st.car][1] + ". " : "") + (st.cd != null ? "CD " + st.cd + ". " : "") + (st.att != null ? "Attacco " + sgn(st.att) + "." : "") +
     (!st.car && s.tipo === "completa" ? "Per calcolare attacco e CD scegli la caratteristica da incantatore in «Modifica scheda»." : "") +
-    "</p>" + htmlClassiMulti(s) + "<p><button class=\"small primary\" data-act=\"inc-aggiungi\" data-id=\"" + s.id + "\">Aggiungi incantesimo</button></p>";
+    "</p>" + contaTr + htmlClassiMulti(s) + "<p><button class=\"small primary\" data-act=\"inc-aggiungi\" data-id=\"" + s.id + "\">Aggiungi incantesimo</button></p>";
   if (!lista.length || (soloTr && !lista.some(function (x) { return x.i.livello === 0; }))) return h + '<p class="hint">Nessun ' + (soloTr ? "trucchetto" : "incantesimo") + " sulla scheda.</p>";
   for (var lv = 0; lv <= (soloTr ? 0 : 9); lv++) {
     var l = lista.filter(function (x) { return x.i.livello === lv; }).sort(function (a, b) { return a.i.nome.localeCompare(b.i.nome, "it"); });
